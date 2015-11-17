@@ -21,7 +21,7 @@ const (
 )
 
 // popFromStock returns error if there's no cards in the stock.
-func (state GameState) popFromStock() (deck.Card, error) {
+func (state *GameState) popFromStock() (deck.Card, error) {
 	if len(state.stock.Cards) <= 0 {
 		return deck.Card{}, errors.New("Empty stock")
 	}
@@ -43,11 +43,11 @@ func NewGame() (state GameState) {
 
 	// Populate our tableaus with cards off the stock
 	state.tableaus = make([]deck.Deck, 10)
-	for _, tableau := range state.tableaus {
-		for i := 0; i < numStartingCardsPerTableau; i++ {
+	for i, _ := range state.tableaus {
+		for j := 0; j < numStartingCardsPerTableau; j++ {
 			card, err := state.popFromStock()
 			baseutil.Check(err)
-			tableau.Cards = append(tableau.Cards, card)
+			state.tableaus[i].Cards = append(state.tableaus[i].Cards, card)
 		}
 	}
 	return
