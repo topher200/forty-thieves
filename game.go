@@ -2,13 +2,12 @@ package main
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/topher200/baseutil"
 	"github.com/topher200/deck"
 )
 
-type gameState struct {
+type GameState struct {
 	stock       deck.Deck
 	foundations []deck.Deck
 	tableaus    []deck.Deck
@@ -21,7 +20,7 @@ const (
 )
 
 // popFromStock returns error if there's no cards in the stock.
-func (state gameState) popFromStock() (deck.Card, error) {
+func (state GameState) popFromStock() (deck.Card, error) {
 	if len(state.stock.Cards) <= 0 {
 		return deck.Card{}, errors.New("Empty stock")
 	}
@@ -30,14 +29,18 @@ func (state gameState) popFromStock() (deck.Card, error) {
 	return card, nil
 }
 
-func NewGame() (state gameState) {
+func NewGame() (state GameState) {
+	// Combine two decks to make our game deck
 	newDeck := deck.NewDeck(false)
 	newDeck2 := deck.NewDeck(false)
 	newDeck.Cards = append(newDeck.Cards, newDeck2.Cards...)
-	fmt.Println(newDeck)
+	newDeck.Shuffle()
+
+	// All cards start in the stock, and our foundations start empty
 	state.stock.Cards = newDeck.Cards
 	state.foundations = make([]deck.Deck, 8)
 
+	// Populate our tableaus with cards off the stock
 	state.tableaus = make([]deck.Deck, 10)
 	for _, tableau := range state.tableaus {
 		for i := 0; i < numStartingCardsPerTableau; i++ {
