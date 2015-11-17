@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/topher200/baseutil"
 	"github.com/topher200/deck"
@@ -50,4 +51,17 @@ func NewGame() (state GameState) {
 		}
 	}
 	return
+}
+
+func (state GameState) String() string {
+	str := fmt.Sprintf("stock: %v\n", state.stock)
+	str += "Foundations\n"
+	for _, foundation := range state.foundations {
+		str += fmt.Sprintf(" :%v\n", foundation)
+	}
+	str += "Tableaus\n"
+	for _, tableau := range state.tableaus {
+		str += fmt.Sprintf(" :%v\n", tableau)
+	}
+	return str
 }
