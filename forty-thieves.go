@@ -16,6 +16,7 @@ func showHttp(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	NewGame()
 	http.HandleFunc("/res/", handleResources)
 	http.HandleFunc("/", showHttp)
 	http.ListenAndServe(":8080", nil)
