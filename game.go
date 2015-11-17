@@ -8,14 +8,10 @@ import (
 	"github.com/topher200/deck"
 )
 
-type pile struct {
-	cards []deck.Card
-}
-
 type gameState struct {
-	stock       pile
-	foundations []pile
-	tableaus    []pile
+	stock       deck.Deck
+	foundations []deck.Deck
+	tableaus    []deck.Deck
 }
 
 const (
@@ -26,11 +22,11 @@ const (
 
 // popFromStock returns error if there's no cards in the stock.
 func (state gameState) popFromStock() (deck.Card, error) {
-	if len(state.stock.cards) <= 0 {
+	if len(state.stock.Cards) <= 0 {
 		return deck.Card{}, errors.New("Empty stock")
 	}
-	card := state.stock.cards[0]
-	state.stock.cards = state.stock.cards[1:]
+	card := state.stock.Cards[0]
+	state.stock.Cards = state.stock.Cards[1:]
 	return card, nil
 }
 
@@ -39,15 +35,15 @@ func NewGame() (state gameState) {
 	newDeck2 := deck.NewDeck(false)
 	newDeck.Cards = append(newDeck.Cards, newDeck2.Cards...)
 	fmt.Println(newDeck)
-	state.stock.cards = newDeck.Cards
-	state.foundations = make([]pile, 8)
+	state.stock.Cards = newDeck.Cards
+	state.foundations = make([]deck.Deck, 8)
 
-	state.tableaus = make([]pile, 10)
+	state.tableaus = make([]deck.Deck, 10)
 	for _, tableau := range state.tableaus {
 		for i := 0; i < numStartingCardsPerTableau; i++ {
 			card, err := state.popFromStock()
 			baseutil.Check(err)
-			tableau.cards = append(tableau.cards, card)
+			tableau.Cards = append(tableau.Cards, card)
 		}
 	}
 	return
