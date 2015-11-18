@@ -45,3 +45,12 @@ function CardGameViewModel(data)  {
 		    app.shuffle(self.cards());
 	  };
 }
+
+var gameData = {
+    cards: app.shuffle(app.makeDeck()),
+    player1Cards: [],
+    player2Cards: []
+};
+
+var model = new CardGameViewModel(gameData);
+ko.applyBindings(model);
