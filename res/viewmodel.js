@@ -5,14 +5,9 @@ function CardGameViewModel(data)  {
     self.player1Cards = ko.observableArray(data.player1Cards);
     self.player2Cards = ko.observableArray(data.player2Cards);
     self.stock = ko.observableArray();
-    // self.stock([
-    //     {"Face":11,"Suit":0},{"Face":7,"Suit":3},{"Face":7,"Suit":1},{"Face":2,"Suit":3},{"Face":10,"Suit":0},{"Face":6,"Suit":1},{"Face":8,"Suit":2},{"Face":8,"Suit":0},{"Face":7,"Suit":0},{"Face":2,"Suit":0},{"Face":5,"Suit":0},{"Face":3,"Suit":3},{"Face":5,"Suit":2},{"Face":4,"Suit":1},{"Face":7,"Suit":2},{"Face":2,"Suit":0},{"Face":4,"Suit":0},{"Face":4,"Suit":1},{"Face":5,"Suit":3},{"Face":8,"Suit":0},{"Face":11,"Suit":2},{"Face":0,"Suit":1},{"Face":0,"Suit":2},{"Face":12,"Suit":3},{"Face":5,"Suit":1},{"Face":12,"Suit":0},{"Face":1,"Suit":1},{"Face":4,"Suit":3},{"Face":3,"Suit":0},{"Face":9,"Suit":2},{"Face":12,"Suit":0},{"Face":6,"Suit":0},{"Face":9,"Suit":0},{"Face":10,"Suit":2},{"Face":4,"Suit":2},{"Face":3,"Suit":2},{"Face":1,"Suit":2},{"Face":10,"Suit":2},{"Face":6,"Suit":3},{"Face":8,"Suit":1},{"Face":12,"Suit":2},{"Face":8,"Suit":3},{"Face":12,"Suit":1},{"Face":12,"Suit":2},{"Face":6,"Suit":0},{"Face":8,"Suit":1},{"Face":3,"Suit":0},{"Face":6,"Suit":2},{"Face":5,"Suit":2},{"Face":5,"Suit":1},{"Face":9,"Suit":1},{"Face":2,"Suit":1},{"Face":1,"Suit":0},{"Face":5,"Suit":0},{"Face":4,"Suit":0},{"Face":7,"Suit":3},{"Face":10,"Suit":3},{"Face":0,"Suit":3},{"Face":1,"Suit":2},{"Face":0,"Suit":3},{"Face":2,"Suit":2},{"Face":11,"Suit":3},{"Face":9,"Suit":0},{"Face":6,"Suit":2}
-    // ]);
 
     $.getJSON("/state", function(state) {
-        self.stock([
-            {"Face":11,"Suit":0},{"Face":7,"Suit":3},{"Face":7,"Suit":1},{"Face":2,"Suit":3},{"Face":10,"Suit":0},{"Face":6,"Suit":1},{"Face":8,"Suit":2},{"Face":8,"Suit":0},{"Face":7,"Suit":0},{"Face":2,"Suit":0},{"Face":5,"Suit":0},{"Face":3,"Suit":3},{"Face":5,"Suit":2},{"Face":4,"Suit":1},{"Face":7,"Suit":2},{"Face":2,"Suit":0},{"Face":4,"Suit":0},{"Face":4,"Suit":1},{"Face":5,"Suit":3},{"Face":8,"Suit":0},{"Face":11,"Suit":2},{"Face":0,"Suit":1},{"Face":0,"Suit":2},{"Face":12,"Suit":3},{"Face":5,"Suit":1},{"Face":12,"Suit":0},{"Face":1,"Suit":1},{"Face":4,"Suit":3},{"Face":3,"Suit":0},{"Face":9,"Suit":2},{"Face":12,"Suit":0},{"Face":6,"Suit":0},{"Face":9,"Suit":0},{"Face":10,"Suit":2},{"Face":4,"Suit":2},{"Face":3,"Suit":2},{"Face":1,"Suit":2},{"Face":10,"Suit":2},{"Face":6,"Suit":3},{"Face":8,"Suit":1},{"Face":12,"Suit":2},{"Face":8,"Suit":3},{"Face":12,"Suit":1},{"Face":12,"Suit":2},{"Face":6,"Suit":0},{"Face":8,"Suit":1},{"Face":3,"Suit":0},{"Face":6,"Suit":2},{"Face":5,"Suit":2},{"Face":5,"Suit":1},{"Face":9,"Suit":1},{"Face":2,"Suit":1},{"Face":1,"Suit":0},{"Face":5,"Suit":0},{"Face":4,"Suit":0},{"Face":7,"Suit":3},{"Face":10,"Suit":3},{"Face":0,"Suit":3},{"Face":1,"Suit":2},{"Face":0,"Suit":3},{"Face":2,"Suit":2},{"Face":11,"Suit":3},{"Face":9,"Suit":0},{"Face":6,"Suit":2}
-        ]);
+        self.stock(state.Stock.Cards);
     });
 
     self.player1Points = ko.computed(function() {
