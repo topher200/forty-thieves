@@ -28,8 +28,16 @@
 				<span data-bind="text: suit"></span>
 			</div>
 		</div>
-	</body>
+
+    <div data-bind="foreach: stock">
+      <span data-bind="text: Face"></span> of 
+      <span data-bind="text: Suit"></span>
+    </div>
+
+  </body>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.min.js"></script>
 	<script type="text/javascript" src="res/cards.js"></script>
 	<script type="text/javascript" src="res/viewmodel.js"></script>
 </html>
