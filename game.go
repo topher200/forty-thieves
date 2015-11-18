@@ -9,9 +9,9 @@ import (
 )
 
 type GameState struct {
-	stock       deck.Deck
-	foundations []deck.Deck
-	tableaus    []deck.Deck
+	Stock       deck.Deck   `json:"stock"`
+	Foundations []deck.Deck `json:"foundations"`
+	Tableaus    []deck.Deck `json:"tableaus"`
 }
 
 const (
@@ -22,11 +22,11 @@ const (
 
 // popFromStock returns error if there's no cards in the stock.
 func (state *GameState) popFromStock() (deck.Card, error) {
-	if len(state.stock.Cards) <= 0 {
+	if len(state.Stock.Cards) <= 0 {
 		return deck.Card{}, errors.New("Empty stock")
 	}
-	card := state.stock.Cards[0]
-	state.stock.Cards = state.stock.Cards[1:]
+	card := state.Stock.Cards[0]
+	state.Stock.Cards = state.Stock.Cards[1:]
 	return card, nil
 }
 
@@ -38,29 +38,29 @@ func NewGame() (state GameState) {
 	newDeck.Shuffle()
 
 	// All cards start in the stock, and our foundations start empty
-	state.stock.Cards = newDeck.Cards
-	state.foundations = make([]deck.Deck, 8)
+	state.Stock.Cards = newDeck.Cards
+	state.Foundations = make([]deck.Deck, 8)
 
 	// Populate our tableaus with cards off the stock
-	state.tableaus = make([]deck.Deck, 10)
-	for i, _ := range state.tableaus {
+	state.Tableaus = make([]deck.Deck, 10)
+	for i, _ := range state.Tableaus {
 		for j := 0; j < numStartingCardsPerTableau; j++ {
 			card, err := state.popFromStock()
 			baseutil.Check(err)
-			state.tableaus[i].Cards = append(state.tableaus[i].Cards, card)
+			state.Tableaus[i].Cards = append(state.Tableaus[i].Cards, card)
 		}
 	}
 	return
 }
 
 func (state GameState) String() string {
-	str := fmt.Sprintf("stock: %v\n", state.stock)
+	str := fmt.Sprintf("stock: %v\n", state.Stock)
 	str += "Foundations\n"
-	for _, foundation := range state.foundations {
+	for _, foundation := range state.Foundations {
 		str += fmt.Sprintf(" :%v\n", foundation)
 	}
 	str += "Tableaus\n"
-	for _, tableau := range state.tableaus {
+	for _, tableau := range state.Tableaus {
 		str += fmt.Sprintf(" :%v\n", tableau)
 	}
 	return str
