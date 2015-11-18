@@ -9,9 +9,9 @@ import (
 )
 
 type GameState struct {
-	Stock       deck.Deck   `json:"stock"`
-	Foundations []deck.Deck `json:"foundations"`
-	Tableaus    []deck.Deck `json:"tableaus"`
+	Stock       deck.Deck
+	Foundations []deck.Deck
+	Tableaus    []deck.Deck
 }
 
 const (
