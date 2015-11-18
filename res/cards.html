@@ -10,6 +10,7 @@
 		<button data-bind="click: deal.bind($data, player2Cards, 1)">Deal Player 2</button>
 		<h4>Cards left <span data-bind="text: remainingInDeck"></span></h3>
 
+		<h3>Player 1 Cards</h3>
 		<h4>Points: <span data-bind="text: player1Points"></span></h4>
 		<div data-bind="foreach: player1Cards">
 			<div class="card" data-bind="css: $data.suit.toLowerCase()">
