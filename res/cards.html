@@ -29,12 +29,14 @@
 			</div>
 		</div>
 
-    <div data-bind="foreach: foundations">
-      <div data-bind="foreach: Cards">
-        <div class="card" data-bind="css: Suit.toLowerCase()">
-          <span data-bind="text: Face"></span> of 
-          <span data-bind="text: Suit"></span>
-        </div>
+    <div class="foundations-wrapper">
+      <div data-bind="foreach: foundations">
+        <!-- Blank card spot -->
+        <img class="card-spot foundation" src="res/cards-png/b1fv.png"/>
+        <!-- Each card in the foundation -->
+        <span data-bind="foreach: Cards">
+          <img class="card-spot card" src="res/cards-png/s1.png"/>
+        </span>
       </div>
     </div>
   </body>
