@@ -50,6 +50,15 @@ func NewGame() (state GameState) {
 			state.Tableaus[i].Cards = append(state.Tableaus[i].Cards, card)
 		}
 	}
+
+	// TEMP
+	card, err := state.popFromStock()
+	baseutil.Check(err)
+	state.Foundations[0].Cards = append(state.Foundations[0].Cards, card)
+	card2, err := state.popFromStock()
+	baseutil.Check(err)
+	state.Foundations[0].Cards = append(state.Foundations[0].Cards, card2)
+
 	return
 }
 
