@@ -10,31 +10,38 @@
 }
 
 .card-spot {
+    /* display: table-cell; */
     margin: 10px;
     padding: 10px;
+    width: 100px;
+    height: 150px;
 }
 
 .pile {
-    display: table-cell;
+    /* display: table; */
     position: relative;
-    margin: 10px;
-    padding: 10px;
     float: left;
     counter-reset: card-number;
+    width: 100px;
+    height: 150px;
 }
 
-.card{
+.blank-card {
+    z-index: 9;
+}
+
+.card {
     z-index: 10;
+}
+
+.tableau {
     position: absolute;
-}
-
-.tableau:before {
+    /* top: 50px * 1000; */
     counter-increment: card-number;
-    top: 50px * counter(card-number);
+    /* top: 50px; */
 }
 
-.table-wrapper {
-    display: table;
+.wrapper {
     padding: 10px;
     position: relative;
 }

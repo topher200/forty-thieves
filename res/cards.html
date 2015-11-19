@@ -29,29 +29,32 @@
 			</div>
 		</div>
 
-    <div class="table-wrapper">
-      <div data-bind="foreach: foundations">
-        <!-- Blank card spot -->
-        <img class="card-spot foundation" src="res/cards-png/b1fv.png"/>
-        <!-- Each card in the foundation -->
-        <span data-bind="foreach: Cards">
-          <img class="card-spot card" data-bind="attr:{ src: 'res/cards-png/' + Suit + '-' + Face + '.png' }"/>
-        </span>
-      </div>
-    </div>
+    <!-- <div class="wrapper"> -->
+    <!--   <div data-bind="foreach: foundations"> -->
+    <!--     <\!-- Blank card spot -\-> -->
+    <!--     <img class="card-spot pile" src="res/cards-png/b1fv.png"/> -->
+    <!--     <\!-- Each card in the foundation -\-> -->
+    <!--     <span data-bind="foreach: Cards"> -->
+    <!--       <img class="card-spot card" data-bind="attr:{ src: 'res/cards-png/' + Suit + '-' + Face + '.png' }"/> -->
+    <!--     </span> -->
+    <!--   </div> -->
+    <!-- </div> -->
 
-    <div></div>
+    <p>Tables</p>
 
-    <div class="table-wrapper">
+    <div class="wrapper">
       <div data-bind="foreach: tableaus">
-        <!-- Blank card spot -->
-        <img class="card-spot pile" src="res/cards-png/b1fv.png"/>
-        <!-- Each card in the tableau -->
-        <span data-bind="foreach: Cards">
-          <img class="card-spot card tableau" data-bind="attr:{ src: 'res/cards-png/' + Suit + '-' + Face + '.png' }"/>
-        </span>
+        <div class="pile">
+          <!-- Blank card spot -->
+          <img class="card-spot blank-card" src="res/cards-png/b1fv.png"/>
+          <!-- Each card in the tableau -->
+          <span data-bind="foreach: Cards">
+            <img class="card-spot card tableau" data-bind="attr:{ src: 'res/cards-png/' + Suit + '-' + Face + '.png', style: 'top: 50px' }"/>
+          </span>
+        </div>
       </div>
     </div>
+
   </body>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
