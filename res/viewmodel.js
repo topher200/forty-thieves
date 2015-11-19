@@ -61,6 +61,19 @@ function CardGameViewModel(data)  {
 		    }
 		    app.shuffle(self.cards());
 	  };
+
+    $.post("/move",
+           '{ "FromLocation": "tableau", "FromIndex": 0, "ToLocation": "tableau", "ToIndex": 1 }',
+           function(data) {
+               console.log(data);
+           }, "json");
+
+    $.getJSON("/state", function(state) {
+        self.stock(state.Stock.Cards);
+        self.foundations(state.Foundations);
+        self.tableaus(state.Tableaus);
+    });
+
 }
 
 var gameData = {
