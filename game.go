@@ -31,7 +31,8 @@ func (state *GameState) popFromStock() (deck.Card, error) {
 }
 
 func (state *GameState) MoveCard(from, to *deck.Deck) {
-	to.Cards = append(to.Cards, from.Cards[0])
+	to.Cards = append(to.Cards, from.Cards[len(from.Cards)-1])
+	from.Cards = from.Cards[:len(from.Cards)-1]
 }
 
 func NewGame() (state GameState) {
