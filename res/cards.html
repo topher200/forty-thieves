@@ -29,11 +29,14 @@
 			</div>
 		</div>
 
-    <div data-bind="foreach: stock">
-      <span data-bind="text: Face"></span> of 
-      <span data-bind="text: Suit"></span>
+    <div data-bind="foreach: foundations">
+      <div data-bind="foreach: Cards">
+        <div class="card" data-bind="css: Suit.toLowerCase()">
+          <span data-bind="text: Face"></span> of 
+          <span data-bind="text: Suit"></span>
+        </div>
+      </div>
     </div>
-
   </body>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
