@@ -30,6 +30,10 @@ func (state *GameState) popFromStock() (deck.Card, error) {
 	return card, nil
 }
 
+func (state *GameState) MoveCard(from, to *deck.Deck) {
+	to.Cards = append(to.Cards, from.Cards[0])
+}
+
 func NewGame() (state GameState) {
 	// Combine two decks to make our game deck
 	newDeck := deck.NewDeck(false)
