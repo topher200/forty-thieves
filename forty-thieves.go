@@ -14,7 +14,7 @@ import (
 var gameState GameState
 
 func handleResources(w http.ResponseWriter, r *http.Request) {
-	log.Println("Providing", r.URL.Path[1:])
+	log.Println("Providing", r.URL.Path)
 	http.ServeFile(w, r, r.URL.Path[1:])
 }
 
@@ -27,8 +27,6 @@ func handleStateRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleMoveRequest(w http.ResponseWriter, r *http.Request) {
-	log.Println("Handling move request", r)
-
 	// Parse the request from json
 	type Message struct {
 		FromLocation string
@@ -40,10 +38,10 @@ func handleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	var request Message
 	err := decoder.Decode(&request)
 	if err != nil {
-		log.Println("failed to decode move request:", r.Body)
+		log.Println("Failed to decode move request:", r.Body)
 		return
 	}
-	log.Printf("Moving from %s-%d to %s-%d\n",
+	log.Printf("Handling move request from %s-%d to %s-%d\n",
 		request.FromLocation, request.FromIndex, request.ToLocation, request.ToIndex)
 
 	// Translate from string pile description to actual Decks
@@ -67,7 +65,7 @@ func handleMoveRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func showHttp(w http.ResponseWriter, r *http.Request) {
-	log.Println("Root handling request:", r.URL.Path[1:])
+	log.Println("Root handling request:", r.URL)
 	http.ServeFile(w, r, "res/cards.html")
 }
 
