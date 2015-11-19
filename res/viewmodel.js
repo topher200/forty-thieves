@@ -5,9 +5,13 @@ function CardGameViewModel(data)  {
     self.player1Cards = ko.observableArray(data.player1Cards);
     self.player2Cards = ko.observableArray(data.player2Cards);
     self.stock = ko.observableArray();
+    self.foundations = ko.observableArray();
+    self.tableaus = ko.observableArray();
 
     $.getJSON("/state", function(state) {
         self.stock(state.Stock.Cards);
+        self.foundations(state.Foundations);
+        self.tableaus(state.Tableaus);
     });
 
     self.player1Points = ko.computed(function() {
