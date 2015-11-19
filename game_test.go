@@ -10,12 +10,11 @@ import (
 func TestNewGame(t *testing.T) {
 	state := NewGame()
 	assert.NotEmpty(t, state.Stock.Cards)
-	for _, tableau := range state.Tableaus {
-		assert.Len(t, tableau.Cards, 4)
-	}
-	t.Skip("Skipping foundation check because of debugging code")
 	for _, foundation := range state.Foundations {
 		assert.Empty(t, foundation.Cards)
+	}
+	for _, tableau := range state.Tableaus {
+		assert.Len(t, tableau.Cards, 4)
 	}
 }
 
