@@ -34,6 +34,14 @@ function CardGameViewModel(data)  {
         return self.cards().length;
     });
 
+    self.imageFilename = function (card) {
+        return 'res/cards-png/' + card.Suit + '-' + card.Face + '.png';
+    };
+
+    self.tableauPosition = function(index) {
+        return "top: " + index * 50 + 'px';
+    };
+
     self.deal = function(hand, num) {
         if(num > self.cards().length) {
             num = self.cards().length;

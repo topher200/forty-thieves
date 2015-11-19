@@ -49,7 +49,9 @@
           <img class="card-spot blank-card" src="res/cards-png/b1fv.png"/>
           <!-- Each card in the tableau -->
           <span data-bind="foreach: Cards">
-            <img class="card-spot card tableau" data-bind="attr:{ src: 'res/cards-png/' + Suit + '-' + Face + '.png', style: 'top: 50px' }"/>
+            <img class="card-spot card tableau"
+                 data-bind="attr:{ src: $root.imageFilename($data), style: $root.tableauPosition($index()) }"
+                 />
           </span>
         </div>
       </div>
