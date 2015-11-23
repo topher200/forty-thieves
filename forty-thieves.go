@@ -20,6 +20,7 @@ func handleResources(w http.ResponseWriter, r *http.Request) {
 
 // handleStateRequest returns a json string of the current game state.
 func handleStateRequest(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/json")
 	data, err := json.Marshal(&gameState)
 	baseutil.Check(err)
 	log.Println("providing json gamestate:", string(data))
@@ -66,6 +67,7 @@ func handleMoveRequest(w http.ResponseWriter, r *http.Request) {
 
 func showHttp(w http.ResponseWriter, r *http.Request) {
 	log.Println("Root handling request:", r.URL)
+	w.Header().Set("Content-Type", "text/html")
 	http.ServeFile(w, r, "res/cards.html")
 }
 
