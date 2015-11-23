@@ -9,6 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestHandleStateRequest(t *testing.T) {
+	gameState = NewGame()
+	req, err := http.NewRequest("GET", "/state", nil)
+	assert.Nil(t, err)
+	w := httptest.NewRecorder()
+	handleStateRequest(w, req)
+	assert.Equal(t, 200, w.Code)
+	assert.NotEqual(t, "", w.Body.String())
+}
+
 func TestHandleMoveRequest(t *testing.T) {
 	gameState = NewGame()
 	jsonStr := []byte(
