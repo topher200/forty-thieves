@@ -6,4 +6,4 @@ set -e
 # Test, install, then run
 go test
 go install
-forty-thieves
+forty-thieves --deterministic

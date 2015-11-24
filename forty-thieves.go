@@ -4,7 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"time"
+
+	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/topher200/baseutil"
 	"github.com/topher200/deck"
@@ -82,7 +86,23 @@ func showHttp(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "res/game.html")
 }
 
+func parseCommandLine() {
+	deterministicPointer := kingpin.Flag("deterministic",
+		"makes our output deterministic by allowing the default rand.Seed").
+		Short('d').Bool()
+	kingpin.Parse()
+
+	if !*deterministicPointer {
+		log.Println("Seeded randomly")
+		rand.Seed(time.Now().UTC().UnixNano())
+	} else {
+		log.Println("Seeded deterministically")
+	}
+}
+
 func main() {
+	parseCommandLine()
+
 	gameState = NewGame()
 
 	http.HandleFunc("/res/", handleResources)
