@@ -17,7 +17,8 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "~2.1.4",
-    "fallback": "~1.1.7"
+      "bootstrap": "~3.3.5",
+      "fallback": "~1.1.7",
+      "jquery": "~2.1.4"
   }
 }
