@@ -75,12 +75,3 @@ function CardGameViewModel(data)  {
     });
 
 }
-
-var gameData = {
-    cards: app.shuffle(app.makeDeck()),
-    player1Cards: [],
-    player2Cards: []
-};
-
-var model = new CardGameViewModel(gameData);
-ko.applyBindings(model);
