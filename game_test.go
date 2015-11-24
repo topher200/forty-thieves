@@ -37,8 +37,9 @@ func TestMoveCard(t *testing.T) {
 	deckTo := state.Tableaus[1]
 	deckToLen := len(deckTo.Cards)
 
-	state.MoveCard(&deckFrom, &deckTo)
+	err := state.MoveCard(&deckFrom, &deckTo)
 
+	assert.Nil(t, err)
 	assert.Len(t, deckFrom.Cards, deckFromLen-1)
 	assert.Len(t, deckTo.Cards, deckToLen+1)
 	cardInNewSpot := deckTo.Cards[len(deckTo.Cards)-1]

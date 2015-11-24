@@ -68,7 +68,12 @@ func handleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	to := parse(request.ToLocation, request.ToIndex)
 
 	// Move the card
-	gameState.MoveCard(from, to)
+	err = gameState.MoveCard(from, to)
+	if err == nil {
+		http.Redirect(w, r, "/", 200)
+	} else {
+		http.Error(w, err.Error(), 400)
+	}
 }
 
 func showHttp(w http.ResponseWriter, r *http.Request) {
