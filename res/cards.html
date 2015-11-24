@@ -65,7 +65,10 @@
   <script type="text/javascript" src="bower_components/fallback/fallback.min.js"></script>
   <script>
     fallback.load({
-      bootstrap_css: "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css",
+      bootstrap_css: [
+        "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css",
+        "bower_components/bootstrap/dist/css/bootstrap.min.css"
+      ],
 
       jQuery: [
         "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js",
@@ -73,20 +76,25 @@
       ],
 
       ko: [
-        "https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"
+        "https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js",
+        "bower_components/knockout/dist/knockout.js"
       ],
 
       'ko.mapping': [
-        "https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.min.js"
+        "https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.min.js",
+        "bower_components/knockout.mapping/knockout.mapping.js"
       ],
 
+      <!-- install bootstrap javascript -->
       'fn.modal': [
         "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js",
         "bower_components/bootstrap/dist/js/bootstrap.min.js"
       ]
     }, {
       shim: {
-        'ko.mapping': ['ko']
+        'ko.mapping': ['ko'],
+        <!-- Bootstrap's js requires jQuery -->
+        'fn.modal': ['jQuery']
       }
     });
 
