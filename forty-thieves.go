@@ -14,7 +14,13 @@ import (
 var gameState GameState
 
 func handleResources(w http.ResponseWriter, r *http.Request) {
-	log.Println("Providing", r.URL.Path)
+	log.Println("Providing res", r.URL.Path)
+	http.ServeFile(w, r, r.URL.Path[1:])
+}
+
+func handleJavascript(w http.ResponseWriter, r *http.Request) {
+	log.Println("Providing javascript", r.URL.Path)
+	w.Header().Set("Content-Type", "application/javascript")
 	http.ServeFile(w, r, r.URL.Path[1:])
 }
 
@@ -75,7 +81,7 @@ func main() {
 	gameState = NewGame()
 
 	http.HandleFunc("/res/", handleResources)
-	http.HandleFunc("/bower_components/", handleResources)
+	http.HandleFunc("/bower_components/", handleJavascript)
 	http.HandleFunc("/state", handleStateRequest)
 	http.HandleFunc("/move", handleMoveRequest)
 	http.HandleFunc("/", showHttp)

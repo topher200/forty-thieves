@@ -9,6 +9,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestHandleResources(t *testing.T) {
+	req, err := http.NewRequest("GET", "/res/cards-png/spades-A.png", nil)
+	assert.Nil(t, err)
+	w := httptest.NewRecorder()
+	handleResources(w, req)
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, w.Header().Get("Content-Type"), "image/png")
+}
+
+func TestHandleJavascript(t *testing.T) {
+	req, err := http.NewRequest("GET", "/bower_components/fallback/fallback.js", nil)
+	assert.Nil(t, err)
+	w := httptest.NewRecorder()
+	handleJavascript(w, req)
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, w.Header().Get("Content-Type"), "application/javascript")
+}
+
 func TestHandleStateRequest(t *testing.T) {
 	gameState = NewGame()
 	req, err := http.NewRequest("GET", "/state", nil)
