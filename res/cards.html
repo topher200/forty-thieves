@@ -59,8 +59,8 @@
         "bower_components/knockout.mapping/knockout.mapping.js"
       ],
 
-      <!-- install bootstrap javascript -->
-      'fn.modal': [
+      <!-- Grab bootstrap's js -->
+      '$.fn.modal': [
         "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js",
         "bower_components/bootstrap/dist/js/bootstrap.min.js"
       ]
@@ -68,7 +68,7 @@
       shim: {
         'ko.mapping': ['ko'],
         <!-- Bootstrap's js requires jQuery -->
-        'fn.modal': ['jQuery']
+        '$.fn.modal': ['jQuery']
       }
     });
 
