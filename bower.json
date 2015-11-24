@@ -1,0 +1,22 @@
+{
+  "name": "forty-thieves",
+  "homepage": "https://github.com/topher200/forty-thieves",
+  "description": "Go-based backend to play the solitaire game Forty Thieves, with an HTML client",
+  "main": "forty-thieves.go",
+  "moduleType": [],
+  "authors": [
+    "topher200@gmail.com"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4"
+  }
+}
