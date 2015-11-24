@@ -30,9 +30,13 @@ func (state *GameState) popFromStock() (deck.Card, error) {
 	return card, nil
 }
 
-func (state *GameState) MoveCard(from, to *deck.Deck) {
+func (state *GameState) MoveCard(from, to *deck.Deck) error {
+	if len(from.Cards) <= 0 {
+		return errors.New("Can't complete move")
+	}
 	to.Cards = append(to.Cards, from.Cards[len(from.Cards)-1])
 	from.Cards = from.Cards[:len(from.Cards)-1]
+	return nil
 }
 
 func NewGame() (state GameState) {
