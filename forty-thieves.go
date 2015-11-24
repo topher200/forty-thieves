@@ -75,6 +75,7 @@ func main() {
 	gameState = NewGame()
 
 	http.HandleFunc("/res/", handleResources)
+	http.HandleFunc("/bower_components/", handleResources)
 	http.HandleFunc("/state", handleStateRequest)
 	http.HandleFunc("/move", handleMoveRequest)
 	http.HandleFunc("/", showHttp)
