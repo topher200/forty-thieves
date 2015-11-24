@@ -74,7 +74,7 @@ func handleMoveRequest(w http.ResponseWriter, r *http.Request) {
 func showHttp(w http.ResponseWriter, r *http.Request) {
 	log.Println("Root handling request:", r.URL)
 	w.Header().Set("Content-Type", "text/html")
-	http.ServeFile(w, r, "res/cards.html")
+	http.ServeFile(w, r, "res/game.html")
 }
 
 func main() {
