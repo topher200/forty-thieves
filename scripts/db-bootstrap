@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+echo "Creating database web-bootstrap..."
+pgmgr db create
+
+echo "Running migrations..."
+pgmgr db migrate
+
+echo "Creating database web-bootstrap-test"
+pgmgr -c ".pgmgr.test.json" db create
+
+echo "Running migration on postgres://topher@localhost:5432/web-bootstrap-test?sslmode=disable..."
+pgmgr -c ".pgmgr.test.json" db migrate
