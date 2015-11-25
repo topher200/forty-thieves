@@ -31,7 +31,8 @@ func NewApplication() (*Application, error) {
 		return nil, err
 	}
 
-	dsn := libenv.EnvWithDefault("DSN", fmt.Sprintf("postgres://%v@localhost:5432/web-bootstrap?sslmode=disable", u))
+	dsn := libenv.EnvWithDefault(
+		"DSN", fmt.Sprintf("postgres://%v@localhost:5432/web-bootstrap?sslmode=disable", u))
 
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
@@ -78,7 +79,9 @@ func (app *Application) mux() *gorilla_mux.Router {
 	router.HandleFunc("/login", handlers.PostLogin).Methods("POST")
 	router.HandleFunc("/logout", handlers.GetLogout).Methods("GET")
 
-	router.Handle("/users/{id:[0-9]+}", MustLogin(http.HandlerFunc(handlers.PostPutDeleteUsersID))).Methods("POST", "PUT", "DELETE")
+	router.Handle(
+		"/users/{id:[0-9]+}",
+		MustLogin(http.HandlerFunc(handlers.PostPutDeleteUsersID))).Methods("POST", "PUT", "DELETE")
 
 	// Path of static files must be last!
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))
