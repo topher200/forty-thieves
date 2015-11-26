@@ -8,6 +8,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/carbocation/interpose"
+	"github.com/carbocation/interpose/middleware"
 	gorilla_mux "github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
@@ -60,6 +61,7 @@ func (app *Application) middlewareStruct() (*interpose.Middleware, error) {
 	middle := interpose.New()
 	middle.Use(middlewares.SetDB(app.db))
 	middle.Use(middlewares.SetCookieStore(app.cookieStore))
+	middle.Use(middleware.GorillaLog())
 
 	middle.UseHandler(app.mux())
 
