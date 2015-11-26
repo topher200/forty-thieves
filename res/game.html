@@ -18,20 +18,6 @@
 
     <p>Tables</p>
 
-    <div class="wrapper">
-      <div data-bind="foreach: tableaus">
-        <div class="pile">
-          <!-- Blank card spot -->
-          <img class="card-spot blank-card" src="res/cards-png/b1fv.png"/>
-          <!-- Each card in the tableau -->
-          <span data-bind="foreach: Cards">
-            <img class="card-spot card tableau"
-                 data-bind="attr:{ src: $root.imageFilename($data), style: $root.tableauPosition($index()) }"
-                 />
-          </span>
-        </div>
-      </div>
-    </div>
 
   </body>
 
