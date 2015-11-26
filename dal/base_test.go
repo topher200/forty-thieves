@@ -3,8 +3,8 @@ package dal
 import (
 	"fmt"
 	"os"
-	"github.com/topher200/web-bootstrap/libstring"
-	"github.com/topher200/web-bootstrap/libunix"
+	"github.com/topher200/forty-thieves/libstring"
+	"github.com/topher200/forty-thieves/libunix"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"testing"
@@ -36,7 +36,7 @@ func newDbForTest(t *testing.T) *sqlx.DB {
 		pgsslmode = "disable"
 	}
 
-	db, err := sqlx.Connect("postgres", fmt.Sprintf("postgres://%v@%v:%v/web-bootstrap-test?sslmode=%v", pguser, pghost, pgport, pgsslmode))
+	db, err := sqlx.Connect("postgres", fmt.Sprintf("postgres://%v@%v:%v/forty-thieves-test?sslmode=%v", pguser, pghost, pgport, pgsslmode))
 	if err != nil {
 		t.Fatalf("Connecting to local postgres should never fail. Error: %v", err)
 	}

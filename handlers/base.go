@@ -3,7 +3,7 @@ package handlers
 
 import (
 	"errors"
-	"github.com/topher200/web-bootstrap/dal"
+	"github.com/topher200/forty-thieves/dal"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -13,7 +13,7 @@ import (
 
 func getCurrentUser(w http.ResponseWriter, r *http.Request) *dal.UserRow {
 	cookieStore := context.Get(r, "cookieStore").(*sessions.CookieStore)
-	session, _ := cookieStore.Get(r, "web-bootstrap-session")
+	session, _ := cookieStore.Get(r, "forty-thieves-session")
 	return session.Values["user"].(*dal.UserRow)
 }
 

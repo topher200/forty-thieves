@@ -33,7 +33,7 @@ func NewApplication() (*Application, error) {
 	}
 
 	dsn := libenv.EnvWithDefault(
-		"DSN", fmt.Sprintf("postgres://%v@localhost:5432/web-bootstrap?sslmode=disable", u))
+		"DSN", fmt.Sprintf("postgres://%v@localhost:5432/forty-thieves?sslmode=disable", u))
 
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {

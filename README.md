@@ -6,7 +6,7 @@
 
 3. Create PostgreSQL database.
     ```
-    cd $GOPATH/src/github.com/topher200/web-bootstrap
+    cd $GOPATH/src/github.com/topher200/forty-thieves
     go get github.com/rnubel/pgmgr
     pgmgr db create
     ```
@@ -18,7 +18,7 @@
 
 5. Run the server
     ```
-    cd $GOPATH/src/github.com/topher200/web-bootstrap
+    cd $GOPATH/src/github.com/topher200/forty-thieves
     go run main.go
     ```
 
@@ -33,7 +33,7 @@
 
 * **HTTP_DRAIN_INTERVAL:** How long application will wait to drain old requests before restarting. Default: `"1s"`
 
-* **DSN:** RDBMS database path. Default: `postgres://$(whoami)@localhost:5432/web-bootstrap?sslmode=disable`
+* **DSN:** RDBMS database path. Default: `postgres://$(whoami)@localhost:5432/forty-thieves?sslmode=disable`
 
 * **COOKIE_SECRET:** Cookie secret for session. Default: Auto generated.
 

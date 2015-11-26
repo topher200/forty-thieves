@@ -17,5 +17,5 @@ fi
 
 GOPATH=/go go get github.com/tools/godep
 
-cd /go/src/github.com/topher200/web-bootstrap
+cd /go/src/github.com/topher200/forty-thieves
 GOPATH=/go go get ./...

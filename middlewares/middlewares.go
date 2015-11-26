@@ -33,7 +33,7 @@ func SetCookieStore(cookieStore *sessions.CookieStore) func(http.Handler) http.H
 func MustLogin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		cookieStore := context.Get(req, "cookieStore").(*sessions.CookieStore)
-		session, _ := cookieStore.Get(req, "web-bootstrap-session")
+		session, _ := cookieStore.Get(req, "forty-thieves-session")
 		userRowInterface := session.Values["user"]
 
 		if userRowInterface == nil {
