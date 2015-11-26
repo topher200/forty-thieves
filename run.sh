@@ -5,5 +5,5 @@ set -e
 
 # Test, install, then run
 go test
-go install
-forty-thieves --deterministic
+go build
+./forty-thieves --deterministic
