@@ -12,11 +12,11 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/topher200/web-bootstrap/dal"
-	"github.com/topher200/web-bootstrap/handlers"
-	"github.com/topher200/web-bootstrap/libenv"
-	"github.com/topher200/web-bootstrap/libunix"
-	"github.com/topher200/web-bootstrap/middlewares"
+	"github.com/topher200/forty-thieves/dal"
+	"github.com/topher200/forty-thieves/handlers"
+	"github.com/topher200/forty-thieves/libenv"
+	"github.com/topher200/forty-thieves/libunix"
+	"github.com/topher200/forty-thieves/middlewares"
 	"github.com/tylerb/graceful"
 )
 
