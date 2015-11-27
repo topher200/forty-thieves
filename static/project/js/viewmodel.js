@@ -11,7 +11,7 @@ function CardGameViewModel()  {
     });
 
     self.imageFilename = function (card) {
-        return 'static/project/cards-png/' + card.Suit + '-' + card.Face + '.png';
+        return 'project/cards-png/' + card.Suit + '-' + card.Face + '.png';
     };
 
     self.tableauPosition = function(index) {
