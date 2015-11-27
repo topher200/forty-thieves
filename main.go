@@ -8,7 +8,6 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/carbocation/interpose"
-	"github.com/carbocation/interpose/middleware"
 	gorilla_mux "github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
@@ -61,7 +60,7 @@ func (app *Application) middlewareStruct() (*interpose.Middleware, error) {
 	middle := interpose.New()
 	middle.Use(middlewares.SetDB(app.db))
 	middle.Use(middlewares.SetCookieStore(app.cookieStore))
-	middle.Use(middleware.GorillaLog())
+	middle.Use(middlewares.Log)
 
 	middle.UseHandler(app.mux())
 
@@ -72,21 +71,24 @@ func (app *Application) mux() *gorilla_mux.Router {
 	MustLogin := middlewares.MustLogin
 
 	router := gorilla_mux.NewRouter()
+	router.KeepContext = true
 
-	router.Handle("/", MustLogin(http.HandlerFunc(handlers.GetHome))).Methods("GET")
+	router.Handle("/", MustLogin(http.HandlerFunc(handlers.GetHome))).Methods("GET").Name("/")
 
-	router.HandleFunc("/signup", handlers.GetSignup).Methods("GET")
-	router.HandleFunc("/signup", handlers.PostSignup).Methods("POST")
-	router.HandleFunc("/login", handlers.GetLogin).Methods("GET")
-	router.HandleFunc("/login", handlers.PostLogin).Methods("POST")
-	router.HandleFunc("/logout", handlers.GetLogout).Methods("GET")
+	router.HandleFunc("/signup", handlers.GetSignup).Methods("GET").Name("/signup.Get")
+	router.HandleFunc("/signup", handlers.PostSignup).Methods("POST").Name("/signup.Post")
+	router.HandleFunc("/login", handlers.GetLogin).Methods("GET").Name("/login.Get")
+	router.HandleFunc("/login", handlers.PostLogin).Methods("POST").Name("/login.Post")
+	router.HandleFunc("/logout", handlers.GetLogout).Methods("GET").Name("logout.Get")
 
 	router.Handle(
 		"/users/{id:[0-9]+}",
-		MustLogin(http.HandlerFunc(handlers.PostPutDeleteUsersID))).Methods("POST", "PUT", "DELETE")
+		MustLogin(http.HandlerFunc(handlers.PostPutDeleteUsersID))).Methods("POST", "PUT", "DELETE").
+		Name("/users/{id}")
 
-	// Path of static files must be last!
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))
+	router.HandleFunc("/bower_components", handlers.ServeFiles).Name("/bower_components")
+	// router.PathPrefix("/").Handler(http.FileServer(http.Dir("bower_components")))
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("static"))).Name("/static")
 
 	return router
 }
