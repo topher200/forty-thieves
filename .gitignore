@@ -1,6 +1,7 @@
 # Project specific
-roster-generator
+forty-thieves
 *.debug
+*.bak
 
 .DS_Store
 
