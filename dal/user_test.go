@@ -1,31 +1,32 @@
 package dal
 
 import (
-	_ "github.com/lib/pq"
 	"testing"
+
+	_ "github.com/lib/pq"
+	"github.com/stretchr/testify/assert"
 )
 
 func newUserForTest(t *testing.T) *User {
 	return NewUser(newDbForTest(t))
 }
 
+func (u *User) signupNewUserRowForTest(t *testing.T) *UserRow {
+	userRow, err := u.Signup(nil, newEmailForTest(), "abc123", "abc123")
+	assert.NotNil(t, userRow)
+	assert.Nil(t, err)
+	assert.True(t, userRow.ID > 0, "user should be given a real ID")
+	return userRow
+}
+
 func TestUserCRUD(t *testing.T) {
 	u := newUserForTest(t)
 
 	// Signup
-	userRow, err := u.Signup(nil, newEmailForTest(), "abc123", "abc123")
-	if err != nil {
-		t.Errorf("Signing up user should work. Error: %v", err)
-	}
-	if userRow == nil {
-		t.Fatal("Signing up user should work.")
-	}
-	if userRow.ID <= 0 {
-		t.Fatal("Signing up user should work.")
-	}
+	userRow := u.signupNewUserRowForTest(t)
 
 	// DELETE FROM users WHERE id=...
-	_, err = u.DeleteById(nil, userRow.ID)
+	_, err := u.DeleteById(nil, userRow.ID)
 	if err != nil {
 		t.Fatalf("Deleting user by id should not fail. Error: %v", err)
 	}
