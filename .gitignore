@@ -1,6 +1,7 @@
 # Project specific
 forty-thieves
 *.debug
+*.bak
 
 .DS_Store
 
