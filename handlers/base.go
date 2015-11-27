@@ -3,12 +3,13 @@ package handlers
 
 import (
 	"errors"
-	"github.com/topher200/forty-thieves/dal"
+	"net/http"
+	"strconv"
+
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"net/http"
-	"strconv"
+	"github.com/topher200/forty-thieves/dal"
 )
 
 func getCurrentUser(w http.ResponseWriter, r *http.Request) *dal.UserRow {
