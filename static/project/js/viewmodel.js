@@ -18,16 +18,15 @@ function CardGameViewModel()  {
         return "top: " + index * 50 + 'px';
     };
 
-    $.post("/move",
-           '{ "FromLocation": "tableau", "FromIndex": 0, "ToLocation": "tableau", "ToIndex": 1 }',
-           function(data) {
-               console.log(data);
-           }, "json");
+    // $.post("/move",
+    //        '{ "FromLocation": "tableau", "FromIndex": 0, "ToLocation": "tableau", "ToIndex": 1 }',
+    //        function(data) {
+    //            console.log(data);
+    //        }, "json");
 
-    $.getJSON("/state", function(state) {
-        self.stock(state.Stock.Cards);
-        self.foundations(state.Foundations);
-        self.tableaus(state.Tableaus);
-    });
-
+    // $.getJSON("/state", function(state) {
+    //     self.stock(state.Stock.Cards);
+    //     self.foundations(state.Foundations);
+    //     self.tableaus(state.Tableaus);
+    // });
 }
