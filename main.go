@@ -83,11 +83,13 @@ func (app *Application) mux() *gorilla_mux.Router {
 
 	router.Handle(
 		"/users/{id:[0-9]+}",
-		MustLogin(http.HandlerFunc(handlers.PostPutDeleteUsersID))).Methods("POST", "PUT", "DELETE").
+		MustLogin(http.HandlerFunc(handlers.PostPutDeleteUsersID))).
+		Methods("POST", "PUT", "DELETE").
 		Name("/users/{id}")
 
-	router.HandleFunc("/bower_components", handlers.ServeFiles).Name("/bower_components")
-	// router.PathPrefix("/").Handler(http.FileServer(http.Dir("bower_components")))
+	router.PathPrefix("/bower_components").
+		Handler(http.FileServer(http.Dir("static"))).
+		Name("/bower_components")
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("static"))).Name("/static")
 
 	return router
