@@ -4,6 +4,6 @@
 set -e
 
 # Test, install, then run
-go test
+go test ./...
 go build
 ./forty-thieves --deterministic
