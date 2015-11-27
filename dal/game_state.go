@@ -1,6 +1,9 @@
 package dal
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
 	"github.com/topher200/forty-thieves/libgame"
@@ -36,12 +39,16 @@ func (db *GameStateDB) SaveGameState(
 	// TODO(topher)
 	data["serialized_state"] = "asdf"
 
-	_, err := db.InsertIntoTable(tx, data)
-	if err == nil {
+	insertResult, err := db.InsertIntoTable(tx, data)
+	if err != nil {
 		logrus.Warning("error saving game state:", err)
 		return err
-	} else {
-		logrus.Info("Success saving game state!")
-		return nil
 	}
+	rowsAffected, err := insertResult.RowsAffected()
+	if err != nil || rowsAffected != 1 {
+		return errors.New(
+			fmt.Sprintf("expected to change 1 row, changed %d", insertResult.RowsAffected))
+	}
+	logrus.Info("Success saving game state!")
+	return nil
 }
