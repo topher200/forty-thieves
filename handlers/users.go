@@ -2,14 +2,15 @@ package handlers
 
 import (
 	"errors"
-	"github.com/topher200/forty-thieves/dal"
-	"github.com/topher200/forty-thieves/libhttp"
-	"github.com/gorilla/context"
-	"github.com/gorilla/sessions"
-	"github.com/jmoiron/sqlx"
 	"html/template"
 	"net/http"
 	"strings"
+
+	"github.com/gorilla/context"
+	"github.com/gorilla/sessions"
+	"github.com/jmoiron/sqlx"
+	"github.com/topher200/forty-thieves/dal"
+	"github.com/topher200/forty-thieves/libhttp"
 )
 
 func GetSignup(w http.ResponseWriter, r *http.Request) {
@@ -59,12 +60,8 @@ func GetLoginWithoutSession(w http.ResponseWriter, r *http.Request) {
 func GetLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
-	cookieStore := context.Get(r, "cookieStore").(*sessions.CookieStore)
-
-	session, _ := cookieStore.Get(r, "forty-thieves-session")
-
-	currentUserInterface := session.Values["user"]
-	if currentUserInterface != nil {
+	_, exists := getCurrentUser(w, r)
+	if exists {
 		http.Redirect(w, r, "/", 302)
 		return
 	}

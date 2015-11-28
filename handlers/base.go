@@ -12,10 +12,11 @@ import (
 	"github.com/topher200/forty-thieves/dal"
 )
 
-func getCurrentUser(w http.ResponseWriter, r *http.Request) *dal.UserRow {
+func getCurrentUser(w http.ResponseWriter, r *http.Request) (*dal.UserRow, bool) {
 	cookieStore := context.Get(r, "cookieStore").(*sessions.CookieStore)
 	session, _ := cookieStore.Get(r, "forty-thieves-session")
-	return session.Values["user"].(*dal.UserRow)
+	currentUser, exists := session.Values["user"].(*dal.UserRow)
+	return currentUser, exists
 }
 
 func getIdFromPath(w http.ResponseWriter, r *http.Request) (int64, error) {
