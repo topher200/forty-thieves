@@ -49,6 +49,5 @@ func (db *GameStateDB) SaveGameState(
 		return errors.New(
 			fmt.Sprintf("expected to change 1 row, changed %d", insertResult.RowsAffected))
 	}
-	logrus.Info("Success saving game state!")
 	return nil
 }
