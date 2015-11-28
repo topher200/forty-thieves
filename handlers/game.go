@@ -3,23 +3,37 @@ package handlers
 // handleStateRequest returns a json string of the current game state.
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/Sirupsen/logrus"
+	"github.com/gorilla/context"
+	"github.com/jmoiron/sqlx"
 	"github.com/topher200/baseutil"
 	"github.com/topher200/deck"
+	"github.com/topher200/forty-thieves/dal"
 	"github.com/topher200/forty-thieves/libgame"
+	"github.com/topher200/forty-thieves/libhttp"
 )
 
 func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
-	// temp
-	gameState := libgame.NewGame()
+	db := context.Get(r, "db").(*sqlx.DB)
+	gameStateDB := dal.NewGameStateDB(db)
+	currentUser, exists := getCurrentUser(w, r)
+	if !exists {
+		libhttp.HandleErrorJson(w, errors.New("User not found"))
+		return
+	}
+	gameState, err := gameStateDB.GetGameState(*currentUser)
+	if err != nil {
+		logrus.Info("No game state found")
+	}
 
 	w.Header().Set("Content-Type", "text/json")
 	data, err := json.Marshal(&gameState)
 	baseutil.Check(err)
-	log.Println("providing json gamestate:", string(data))
 	fmt.Fprint(w, string(data))
 }
 
