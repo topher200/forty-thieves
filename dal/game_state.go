@@ -16,6 +16,7 @@ type GameStateDB struct {
 }
 
 type GameStateRow struct {
+	ID             int64  `db:"id"`
 	UserID         int64  `db:"user_id"`
 	BinarizedState []byte `db:"binarized_state"`
 }
@@ -29,9 +30,20 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 	return gs
 }
 
-func GetGameState(userRow UserRow) *libgame.GameState {
-	// TODO(topher)
-	return nil
+func (db *GameStateDB) GetGameState(userRow UserRow) (*libgame.GameState, error) {
+	var gameStateRow GameStateRow
+	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id=$1 LIMIT 1", db.table)
+	err := db.db.Get(&gameStateRow, query, userRow.ID)
+	if err != nil {
+		return nil, fmt.Errorf("Error on query: %v", err)
+	}
+	var gameState libgame.GameState
+	decoder := gob.NewDecoder(bytes.NewBuffer(gameStateRow.BinarizedState))
+	err = decoder.Decode(&gameState)
+	if err != nil {
+		return nil, fmt.Errorf("Error decoding: %v", err)
+	}
+	return &gameState, nil
 }
 
 func (db *GameStateDB) SaveGameState(
@@ -39,7 +51,9 @@ func (db *GameStateDB) SaveGameState(
 	var binarizedState bytes.Buffer
 	encoder := gob.NewEncoder(&binarizedState)
 	encoder.Encode(gameState)
-	dataStruct := GameStateRow{userRow.ID, binarizedState.Bytes()}
+	dataStruct := GameStateRow{}
+	dataStruct.UserID = userRow.ID
+	dataStruct.BinarizedState = binarizedState.Bytes()
 
 	dataMap := make(map[string]interface{})
 	dataMap["user_id"] = dataStruct.UserID

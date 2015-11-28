@@ -11,20 +11,28 @@ func newGameStateDBForTest(t *testing.T) *GameStateDB {
 	return NewGameStateDB(newDbForTest(t))
 }
 
-func TestGetGameState(t *testing.T) {
-	u := newUserForTest(t)
-	userRow := u.signupNewUserRowForTest(t)
-
-	gameState := GetGameState(*userRow)
-	assert.NotNil(t, gameState)
-}
-
-func TestSaveGameState(t *testing.T) {
+func TestGetEmptyGameState(t *testing.T) {
 	u := newUserForTest(t)
 	userRow := u.signupNewUserRowForTest(t)
 	gameStateDB := newGameStateDBForTest(t)
 
-	gameState := libgame.NewGame()
-	err := gameStateDB.SaveGameState(nil, *userRow, gameState)
+	// We should err, since we haven't set a game yet
+	_, err := gameStateDB.GetGameState(*userRow)
+	assert.NotNil(t, err)
+}
+
+func TestSaveAndGetGameState(t *testing.T) {
+	u := newUserForTest(t)
+	userRow := u.signupNewUserRowForTest(t)
+	gameStateDB := newGameStateDBForTest(t)
+
+	// Save game state
+	originalGameState := libgame.NewGame()
+	err := gameStateDB.SaveGameState(nil, *userRow, originalGameState)
 	assert.Nil(t, err)
+
+	// Retrieved saved game state
+	retrievedGameState, err := gameStateDB.GetGameState(*userRow)
+	assert.Nil(t, err)
+	assert.Equal(t, originalGameState, *retrievedGameState)
 }
