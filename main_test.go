@@ -10,8 +10,7 @@ import (
 )
 
 func newApplicationForTesting(t *testing.T) *Application {
-	// TODO(topher): use testing db
-	app, err := NewApplication()
+	app, err := NewApplication(true)
 	assert.Nil(t, err)
 	return app
 }
