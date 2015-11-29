@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/carbocation/interpose"
@@ -22,12 +24,30 @@ func newMiddlewareForTesting(t *testing.T) *interpose.Middleware {
 	return middle
 }
 
-func TestGetLogin(t *testing.T) {
+func runRequest(t *testing.T, r *http.Request) *httptest.ResponseRecorder {
 	middle := newMiddlewareForTesting(t)
-	r, err := http.NewRequest("GET", "/login", nil)
-	assert.Nil(t, err)
 	w := httptest.NewRecorder()
 	middle.ServeHTTP(w, r)
+	return w
+}
+
+func TestGetLogin(t *testing.T) {
+	r, err := http.NewRequest("GET", "/login", nil)
+	assert.Nil(t, err)
+	w := runRequest(t, r)
 	assert.Equal(t, 200, w.Code)
 	assert.NotEqual(t, "", w.Body.String())
+}
+
+func TestPostSignup(t *testing.T) {
+	form := url.Values{
+		"Email":         {"fake@asdf.com"},
+		"Password":      {"password"},
+		"PasswordAgain": {"password"},
+	}
+	r, err := http.NewRequest("POST", "/signup", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	assert.Nil(t, err)
+	w := runRequest(t, r)
+	assert.Equal(t, 302, w.Code)
 }
