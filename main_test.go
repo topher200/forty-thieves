@@ -31,7 +31,7 @@ func runRequest(t *testing.T, r *http.Request) *httptest.ResponseRecorder {
 	return w
 }
 
-func TestGetLogin(t *testing.T) {
+func TestLoginGet(t *testing.T) {
 	r, err := http.NewRequest("GET", "/login", nil)
 	assert.Nil(t, err)
 	w := runRequest(t, r)
@@ -39,7 +39,7 @@ func TestGetLogin(t *testing.T) {
 	assert.NotEqual(t, "", w.Body.String())
 }
 
-func TestPostSignup(t *testing.T) {
+func TestSignupPost(t *testing.T) {
 	form := url.Values{
 		"Email":         {"fake@asdf.com"},
 		"Password":      {"password"},
