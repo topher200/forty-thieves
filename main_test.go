@@ -11,6 +11,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	testUserEmail    = "fake@asdf.com"
+	testUserPassword = "Password1"
+)
+
 func newApplicationForTesting(t *testing.T) *Application {
 	app, err := NewApplication(true)
 	assert.Nil(t, err)
@@ -41,9 +46,9 @@ func TestLoginGet(t *testing.T) {
 
 func TestSignupPost(t *testing.T) {
 	form := url.Values{
-		"Email":         {"fake@asdf.com"},
-		"Password":      {"password"},
-		"PasswordAgain": {"password"},
+		"Email":         {testUserEmail},
+		"Password":      {testUserPassword},
+		"PasswordAgain": {testUserPassword},
 	}
 	r, err := http.NewRequest("POST", "/signup", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
