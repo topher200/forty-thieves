@@ -9,6 +9,7 @@ import (
 
 	"github.com/carbocation/interpose"
 	"github.com/stretchr/testify/assert"
+	"github.com/topher200/forty-thieves/dal"
 )
 
 const (
@@ -44,7 +45,18 @@ func TestLoginGet(t *testing.T) {
 	assert.NotEqual(t, "", w.Body.String())
 }
 
+func deleteTestUser(t *testing.T) {
+	userDB := dal.NewUserForTest(t)
+	userRow, err := userDB.GetByEmail(nil, testUserEmail)
+	assert.Nil(t, err)
+	_, err = userDB.DeleteById(nil, userRow.ID)
+	assert.Nil(t, err)
+}
+
 func TestSignupPost(t *testing.T) {
+	// Delete the user if they already exist
+	deleteTestUser(t)
+
 	form := url.Values{
 		"Email":         {testUserEmail},
 		"Password":      {testUserPassword},
