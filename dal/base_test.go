@@ -2,52 +2,14 @@ package dal
 
 import (
 	"fmt"
-	"os"
-	"github.com/topher200/forty-thieves/libstring"
-	"github.com/topher200/forty-thieves/libunix"
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 	"testing"
+
+	_ "github.com/lib/pq"
+	"github.com/topher200/forty-thieves/libstring"
 )
 
 func newEmailForTest() string {
 	return fmt.Sprintf("user-%v@example.com", libstring.RandString(32))
-}
-
-func newDbForTest(t *testing.T) *sqlx.DB {
-	var err error
-	pguser, _, pghost, pgport, pgsslmode := os.Getenv("PGUSER"), os.Getenv("PGPASSWORD"), os.Getenv("PGHOST"), os.Getenv("PGPORT"), os.Getenv("PGSSLMODE")
-	if pguser == ""{
-		pguser, err = libunix.CurrentUser()
-		if err != nil {
-			t.Fatalf("Getting current user should never fail. Error: %v", err)
-		}
-	}
-
-	if pghost == "" {
-		pghost = "localhost"
-	}
-
-	if pgport == "" {
-		pgport = "5432"
-	}
-
-	if pgsslmode == "" {
-		pgsslmode = "disable"
-	}
-
-	db, err := sqlx.Connect("postgres", fmt.Sprintf("postgres://%v@%v:%v/forty-thieves-test?sslmode=%v", pguser, pghost, pgport, pgsslmode))
-	if err != nil {
-		t.Fatalf("Connecting to local postgres should never fail. Error: %v", err)
-	}
-	return db
-}
-
-func newBaseForTest(t *testing.T) *Base {
-	base := &Base{}
-	base.db = newDbForTest(t)
-
-	return base
 }
 
 func TestNewTransactionIfNeeded(t *testing.T) {
