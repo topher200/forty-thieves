@@ -68,3 +68,22 @@ func TestSignupPost(t *testing.T) {
 	w := runRequest(t, r)
 	assert.Equal(t, 302, w.Code)
 }
+
+func TestLogoutGet(t *testing.T) {
+	r, err := http.NewRequest("GET", "/logout", nil)
+	assert.Nil(t, err)
+	w := runRequest(t, r)
+	assert.Equal(t, 302, w.Code)
+}
+
+func TestLoginPost(t *testing.T) {
+	form := url.Values{
+		"Email":    {testUserEmail},
+		"Password": {testUserPassword},
+	}
+	r, err := http.NewRequest("POST", "/login", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	assert.Nil(t, err)
+	w := runRequest(t, r)
+	assert.Equal(t, 302, w.Code)
+}
