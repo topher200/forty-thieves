@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
 	"strings"
@@ -39,8 +41,7 @@ func runRequest(t *testing.T, r *http.Request) *httptest.ResponseRecorder {
 }
 
 func (testSuite *MainTestSuite) TestLoginGet() {
-	client := http.Client{}
-	resp, err := client.Get(testSuite.server.URL + "/login")
+	resp, err := testSuite.client.Get(testSuite.server.URL + "/login")
 	defer resp.Body.Close()
 	assert.Nil(testSuite.T(), err)
 	assert.Equal(testSuite.T(), 200, resp.StatusCode)
@@ -76,16 +77,36 @@ func TestLoginPost(t *testing.T) {
 	assert.Nil(t, err)
 	w := runRequest(t, r)
 	assert.Equal(t, 302, w.Code)
+
+	r, err = http.NewRequest("GET", "/state", nil)
+	assert.Nil(t, err)
+	for _, cookie := range w.HeaderMap["Set-Cookie"] {
+		fmt.Println("fdsa: ", cookie)
+		// r.AddCookie(cookie)
+	}
+	w = runRequest(t, r)
+	assert.Equal(t, 200, w.Code)
+}
+
+func (testSuite *MainTestSuite) TestStateGet() {
+	resp, err := testSuite.client.Get(testSuite.server.URL + "/state")
+	defer resp.Body.Close()
+	assert.Nil(testSuite.T(), err)
+	fmt.Println(resp)
 }
 
 type MainTestSuite struct {
 	suite.Suite
 	server *httptest.Server
+	client *http.Client
 }
 
 func (testSuite *MainTestSuite) SetupSuite() {
 	middle := newMiddlewareForTesting(testSuite.T())
 	testSuite.server = httptest.NewServer(middle)
+	jar, err := cookiejar.New(nil)
+	assert.Nil(testSuite.T(), err)
+	testSuite.client = &http.Client{Jar: jar}
 }
 
 func deleteTestUser(t *testing.T) {
