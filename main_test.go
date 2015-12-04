@@ -24,6 +24,25 @@ type MainTestSuite struct {
 	client *http.Client
 }
 
+// TestUserStory simulates a user performing the following actions:
+//  - gets the root page before logging in
+//  - gets the signup page
+//  - posts to the signup page
+//  - gets the logout page
+//  - gets the login page
+//  - posts to the login page
+//  - gets a json /state message
+func (testSuite *MainTestSuite) TestUserStory() {
+	testSuite.makeGetRequest("/")
+	testSuite.makeGetRequest("/signup")
+	testSuite.signupPost()
+	testSuite.makeGetRequest("/")
+	testSuite.makeGetRequest("/logout")
+	testSuite.makeGetRequest("/login")
+	testSuite.loginPost()
+	testSuite.stateGet()
+}
+
 // checkResponse asserts that we didn't err and that our response looks good
 func checkResponse(t *testing.T, resp *http.Response, err error) {
 	assert.Nil(t, err)
@@ -37,15 +56,8 @@ func (testSuite *MainTestSuite) makeGetRequest(route string) {
 	checkResponse(testSuite.T(), resp, err)
 }
 
-func (testSuite *MainTestSuite) TestRootGetBeforeLogin() {
-	testSuite.makeGetRequest("/")
-}
-
-func (testSuite *MainTestSuite) TestSignupGet() {
-	testSuite.makeGetRequest("/signup")
-}
-
-func (testSuite *MainTestSuite) TestSignupPost() {
+// signupPost assumes you're signed out and that the user doesn't exist
+func (testSuite *MainTestSuite) signupPost() {
 	form := url.Values{
 		"Email":         {testUserEmail},
 		"Password":      {testUserPassword},
@@ -55,19 +67,8 @@ func (testSuite *MainTestSuite) TestSignupPost() {
 	checkResponse(testSuite.T(), resp, err)
 }
 
-func (testSuite *MainTestSuite) TestRootGetAfterLogin() {
-	testSuite.makeGetRequest("/")
-}
-
-func (testSuite *MainTestSuite) TestLogoutGet() {
-	testSuite.makeGetRequest("/logout")
-}
-
-func (testSuite *MainTestSuite) TestLoginGet() {
-	testSuite.makeGetRequest("/login")
-}
-
-func (testSuite *MainTestSuite) TestLoginPost() {
+// loginPost assumes you're currently signed out and the user exists
+func (testSuite *MainTestSuite) loginPost() {
 	form := url.Values{
 		"Email":    {testUserEmail},
 		"Password": {testUserPassword},
@@ -76,10 +77,10 @@ func (testSuite *MainTestSuite) TestLoginPost() {
 	checkResponse(testSuite.T(), resp, err)
 }
 
-func (testSuite *MainTestSuite) TestStateGet() {
-	resp, err := testSuite.client.Get(testSuite.server.URL + "/state")
-	defer resp.Body.Close()
-	assert.Nil(testSuite.T(), err)
+// stateGet assumes you're already signed in
+func (testSuite *MainTestSuite) stateGet() {
+	testSuite.makeGetRequest("/state")
+	// TODO: check that our json looks good
 }
 
 func newApplicationForTesting(t *testing.T) *Application {
