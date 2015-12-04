@@ -9,6 +9,7 @@ import (
 
 	"github.com/carbocation/interpose"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"github.com/topher200/forty-thieves/dal"
 )
 
@@ -37,28 +38,15 @@ func runRequest(t *testing.T, r *http.Request) *httptest.ResponseRecorder {
 	return w
 }
 
-func TestLoginGet(t *testing.T) {
-	middle := newMiddlewareForTesting(t)
-	server := httptest.NewServer(middle)
-	defer server.Close()
+func (testSuite *MainTestSuite) TestLoginGet() {
 	client := http.Client{}
-	resp, err := client.Get(server.URL + "/login")
-	assert.Nil(t, err)
+	resp, err := client.Get(testSuite.server.URL + "/login")
 	defer resp.Body.Close()
-}
-
-func deleteTestUser(t *testing.T) {
-	userDB := dal.NewUserForTest(t)
-	userRow, err := userDB.GetByEmail(nil, testUserEmail)
-	assert.Nil(t, err)
-	_, err = userDB.DeleteById(nil, userRow.ID)
-	assert.Nil(t, err)
+	assert.Nil(testSuite.T(), err)
+	assert.Equal(testSuite.T(), 200, resp.StatusCode)
 }
 
 func TestSignupPost(t *testing.T) {
-	// Delete the user if they already exist
-	deleteTestUser(t)
-
 	form := url.Values{
 		"Email":         {testUserEmail},
 		"Password":      {testUserPassword},
@@ -88,4 +76,31 @@ func TestLoginPost(t *testing.T) {
 	assert.Nil(t, err)
 	w := runRequest(t, r)
 	assert.Equal(t, 302, w.Code)
+}
+
+type MainTestSuite struct {
+	suite.Suite
+	server *httptest.Server
+}
+
+func (testSuite *MainTestSuite) SetupSuite() {
+	middle := newMiddlewareForTesting(testSuite.T())
+	testSuite.server = httptest.NewServer(middle)
+}
+
+func deleteTestUser(t *testing.T) {
+	userDB := dal.NewUserForTest(t)
+	userRow, err := userDB.GetByEmail(nil, testUserEmail)
+	assert.Nil(t, err)
+	_, err = userDB.DeleteById(nil, userRow.ID)
+	assert.Nil(t, err)
+}
+
+func (testSuite *MainTestSuite) TearDownSuite() {
+	testSuite.server.Close()
+	deleteTestUser(testSuite.T())
+}
+
+func TestMainSuite(t *testing.T) {
+	suite.Run(t, new(MainTestSuite))
 }
