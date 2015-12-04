@@ -5,7 +5,6 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/carbocation/interpose"
@@ -25,18 +24,21 @@ type MainTestSuite struct {
 	client *http.Client
 }
 
-func runRequest(t *testing.T, r *http.Request) *httptest.ResponseRecorder {
-	middle := newMiddlewareForTesting(t)
-	w := httptest.NewRecorder()
-	middle.ServeHTTP(w, r)
-	return w
+// checkResponse asserts that we didn't err and that our response looks good
+func checkResponse(t *testing.T, resp *http.Response, err error) {
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
+// makeGetRequest makes the request and error-checks the response
+func (testSuite *MainTestSuite) makeGetRequest(route string) {
+	resp, err := testSuite.client.Get(testSuite.server.URL + route)
+	defer resp.Body.Close()
+	checkResponse(testSuite.T(), resp, err)
 }
 
 func (testSuite *MainTestSuite) TestLoginGet() {
-	resp, err := testSuite.client.Get(testSuite.server.URL + "/login")
-	defer resp.Body.Close()
-	assert.Nil(testSuite.T(), err)
-	assert.Equal(testSuite.T(), 200, resp.StatusCode)
+	testSuite.makeGetRequest("/login")
 }
 
 func TestSignupPost(t *testing.T) {
