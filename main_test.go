@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
@@ -20,17 +19,10 @@ const (
 	testUserPassword = "Password1"
 )
 
-func newApplicationForTesting(t *testing.T) *Application {
-	app, err := NewApplication(true)
-	assert.Nil(t, err)
-	return app
-}
-
-func newMiddlewareForTesting(t *testing.T) *interpose.Middleware {
-	app := newApplicationForTesting(t)
-	middle, err := app.middlewareStruct()
-	assert.Nil(t, err)
-	return middle
+type MainTestSuite struct {
+	suite.Suite
+	server *httptest.Server
+	client *http.Client
 }
 
 func runRequest(t *testing.T, r *http.Request) *httptest.ResponseRecorder {
@@ -67,38 +59,33 @@ func TestLogoutGet(t *testing.T) {
 	assert.Equal(t, 302, w.Code)
 }
 
-func TestLoginPost(t *testing.T) {
+func (testSuite *MainTestSuite) TestLoginPost() {
 	form := url.Values{
 		"Email":    {testUserEmail},
 		"Password": {testUserPassword},
 	}
-	r, err := http.NewRequest("POST", "/login", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	assert.Nil(t, err)
-	w := runRequest(t, r)
-	assert.Equal(t, 302, w.Code)
-
-	r, err = http.NewRequest("GET", "/state", nil)
-	assert.Nil(t, err)
-	for _, cookie := range w.HeaderMap["Set-Cookie"] {
-		fmt.Println("fdsa: ", cookie)
-		// r.AddCookie(cookie)
-	}
-	w = runRequest(t, r)
-	assert.Equal(t, 200, w.Code)
+	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/login", form)
+	assert.Nil(testSuite.T(), err)
+	assert.Equal(testSuite.T(), 200, resp.StatusCode)
 }
 
 func (testSuite *MainTestSuite) TestStateGet() {
 	resp, err := testSuite.client.Get(testSuite.server.URL + "/state")
 	defer resp.Body.Close()
 	assert.Nil(testSuite.T(), err)
-	fmt.Println(resp)
 }
 
-type MainTestSuite struct {
-	suite.Suite
-	server *httptest.Server
-	client *http.Client
+func newApplicationForTesting(t *testing.T) *Application {
+	app, err := NewApplication(true)
+	assert.Nil(t, err)
+	return app
+}
+
+func newMiddlewareForTesting(t *testing.T) *interpose.Middleware {
+	app := newApplicationForTesting(t)
+	middle, err := app.middlewareStruct()
+	assert.Nil(t, err)
+	return middle
 }
 
 func (testSuite *MainTestSuite) SetupSuite() {
