@@ -37,28 +37,34 @@ func (testSuite *MainTestSuite) makeGetRequest(route string) {
 	checkResponse(testSuite.T(), resp, err)
 }
 
-func (testSuite *MainTestSuite) TestLoginGet() {
-	testSuite.makeGetRequest("/login")
+func (testSuite *MainTestSuite) TestRootGetBeforeLogin() {
+	testSuite.makeGetRequest("/")
 }
 
-func TestSignupPost(t *testing.T) {
+func (testSuite *MainTestSuite) TestSignupGet() {
+	testSuite.makeGetRequest("/signup")
+}
+
+func (testSuite *MainTestSuite) TestSignupPost() {
 	form := url.Values{
 		"Email":         {testUserEmail},
 		"Password":      {testUserPassword},
 		"PasswordAgain": {testUserPassword},
 	}
-	r, err := http.NewRequest("POST", "/signup", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	assert.Nil(t, err)
-	w := runRequest(t, r)
-	assert.Equal(t, 302, w.Code)
+	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/signup", form)
+	checkResponse(testSuite.T(), resp, err)
 }
 
-func TestLogoutGet(t *testing.T) {
-	r, err := http.NewRequest("GET", "/logout", nil)
-	assert.Nil(t, err)
-	w := runRequest(t, r)
-	assert.Equal(t, 302, w.Code)
+func (testSuite *MainTestSuite) TestRootGetAfterLogin() {
+	testSuite.makeGetRequest("/")
+}
+
+func (testSuite *MainTestSuite) TestLogoutGet() {
+	testSuite.makeGetRequest("/logout")
+}
+
+func (testSuite *MainTestSuite) TestLoginGet() {
+	testSuite.makeGetRequest("/login")
 }
 
 func (testSuite *MainTestSuite) TestLoginPost() {
@@ -67,8 +73,7 @@ func (testSuite *MainTestSuite) TestLoginPost() {
 		"Password": {testUserPassword},
 	}
 	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/login", form)
-	assert.Nil(testSuite.T(), err)
-	assert.Equal(testSuite.T(), 200, resp.StatusCode)
+	checkResponse(testSuite.T(), resp, err)
 }
 
 func (testSuite *MainTestSuite) TestStateGet() {
