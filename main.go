@@ -51,7 +51,6 @@ func NewApplication(testing bool) (*Application, error) {
 	app.dsn = dsn
 	app.db = db
 	app.cookieStore = sessions.NewCookieStore([]byte(cookieStoreSecret))
-	app.serverPort = libenv.EnvWithDefault("HTTP_ADDR", ":8888")
 
 	return app, err
 }
@@ -61,7 +60,6 @@ type Application struct {
 	dsn         string
 	db          *sqlx.DB
 	cookieStore *sessions.CookieStore
-	serverPort  string // in the form "8080"
 }
 
 func (app *Application) middlewareStruct() (*interpose.Middleware, error) {
@@ -116,6 +114,7 @@ func main() {
 		logrus.Fatal(err.Error())
 	}
 
+	serverAddress := libenv.EnvWithDefault("HTTP_ADDR", ":8888")
 	certFile := libenv.EnvWithDefault("HTTP_CERT_FILE", "")
 	keyFile := libenv.EnvWithDefault("HTTP_KEY_FILE", "")
 	drainIntervalString := libenv.EnvWithDefault("HTTP_DRAIN_INTERVAL", "1s")
@@ -127,10 +126,10 @@ func main() {
 
 	srv := &graceful.Server{
 		Timeout: drainInterval,
-		Server:  &http.Server{Addr: fmt.Sprintf(":%s", app.serverPort), Handler: middle},
+		Server:  &http.Server{Addr: serverAddress, Handler: middle},
 	}
 
-	logrus.Infoln("Running HTTP server on port " + app.serverPort)
+	logrus.Infoln("Running HTTP server on " + serverAddress)
 	if certFile != "" && keyFile != "" {
 		err = srv.ListenAndServeTLS(certFile, keyFile)
 	} else {
