@@ -38,11 +38,13 @@ func runRequest(t *testing.T, r *http.Request) *httptest.ResponseRecorder {
 }
 
 func TestLoginGet(t *testing.T) {
-	r, err := http.NewRequest("GET", "/login", nil)
+	middle := newMiddlewareForTesting(t)
+	server := httptest.NewServer(middle)
+	defer server.Close()
+	client := http.Client{}
+	resp, err := client.Get(server.URL + "/login")
 	assert.Nil(t, err)
-	w := runRequest(t, r)
-	assert.Equal(t, 200, w.Code)
-	assert.NotEqual(t, "", w.Body.String())
+	defer resp.Body.Close()
 }
 
 func deleteTestUser(t *testing.T) {
