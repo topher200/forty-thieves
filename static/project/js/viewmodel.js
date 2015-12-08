@@ -4,6 +4,12 @@ function CardGameViewModel()  {
     self.foundations = ko.observableArray();
     self.tableaus = ko.observableArray();
 
+    $.post("/newgame",
+           '{ }',
+           function(data) {
+               console.log(data);
+           }, "json");
+
     $.getJSON("/state", function(state) {
         self.stock(state.Stock.Cards);
         self.foundations(state.Foundations);
