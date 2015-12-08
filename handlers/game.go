@@ -8,32 +8,41 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/gorilla/context"
 	"github.com/jmoiron/sqlx"
-	"github.com/topher200/baseutil"
 	"github.com/topher200/deck"
 	"github.com/topher200/forty-thieves/dal"
 	"github.com/topher200/forty-thieves/libgame"
 	"github.com/topher200/forty-thieves/libhttp"
 )
 
-func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
+func getGameState(w http.ResponseWriter, r *http.Request) (*libgame.GameState, error) {
 	db := context.Get(r, "db").(*sqlx.DB)
 	gameStateDB := dal.NewGameStateDB(db)
 	currentUser, exists := getCurrentUser(w, r)
 	if !exists {
-		libhttp.HandleErrorJson(w, errors.New("User not found"))
-		return
+		return nil, errors.New("User not found")
 	}
+	fmt.Println(currentUser)
 	gameState, err := gameStateDB.GetGameState(*currentUser)
 	if err != nil {
-		logrus.Info("No game state found")
+		return nil, fmt.Errorf("No game state found. %v.", err)
 	}
+	return gameState, nil
+}
 
+func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/json")
+	gameState, err := getGameState(w, r)
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
+		return
+	}
 	data, err := json.Marshal(&gameState)
-	baseutil.Check(err)
+	if err != nil {
+		libhttp.HandleErrorJson(w, err)
+		return
+	}
 	fmt.Fprint(w, string(data))
 }
 
