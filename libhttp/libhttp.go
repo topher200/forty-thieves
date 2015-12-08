@@ -53,5 +53,6 @@ func HandleErrorJson(w http.ResponseWriter, err error) {
 	}
 
 	errJson, _ := json.Marshal(errMap)
+	fmt.Printf("Sending error reply: %v\n", string(errJson))
 	http.Error(w, string(errJson), http.StatusInternalServerError)
 }
