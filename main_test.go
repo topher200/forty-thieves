@@ -32,6 +32,10 @@ type MainTestSuite struct {
 //  - gets the login page
 //  - posts to the login page
 //  - gets a json /state message
+//
+// We do this in one function (as opposed to separate Test* functions) since
+// each of the tests requires a certain state of the user cookie (user
+// exists/doesn't exist, user logged in/out).
 func (testSuite *MainTestSuite) TestUserStory() {
 	testSuite.makeGetRequest("/")
 	testSuite.makeGetRequest("/signup")
