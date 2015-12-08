@@ -4,9 +4,15 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"testing"
+
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func NewUserForTest(t *testing.T) *User {
+	return NewUser(newDbForTest(t))
+}
 
 func NewUser(db *sqlx.DB) *User {
 	user := &User{}

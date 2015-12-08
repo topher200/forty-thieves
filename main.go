@@ -25,14 +25,20 @@ func init() {
 }
 
 // NewApplication is the constructor for Application struct.
-func NewApplication() (*Application, error) {
+//
+// If testing is true, connects to the "test" database.
+func NewApplication(testing bool) (*Application, error) {
 	u, err := libunix.CurrentUser()
 	if err != nil {
 		return nil, err
 	}
 
+	dbname := "forty-thieves"
+	if testing {
+		dbname += "-test"
+	}
 	dsn := libenv.EnvWithDefault(
-		"DSN", fmt.Sprintf("postgres://%v@localhost:5432/forty-thieves?sslmode=disable", u))
+		"DSN", fmt.Sprintf("postgres://%v@localhost:5432/%s?sslmode=disable", u, dbname))
 
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
@@ -98,7 +104,7 @@ func (app *Application) mux() *gorilla_mux.Router {
 }
 
 func main() {
-	app, err := NewApplication()
+	app, err := NewApplication(false)
 	if err != nil {
 		logrus.Fatal(err.Error())
 	}

@@ -7,10 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func newUserForTest(t *testing.T) *User {
-	return NewUser(newDbForTest(t))
-}
-
 func (u *User) signupNewUserRowForTest(t *testing.T) *UserRow {
 	userRow, err := u.Signup(nil, newEmailForTest(), "abc123", "abc123")
 	assert.NotNil(t, userRow)
@@ -20,7 +16,7 @@ func (u *User) signupNewUserRowForTest(t *testing.T) *UserRow {
 }
 
 func TestUserCRUD(t *testing.T) {
-	u := newUserForTest(t)
+	u := NewUserForTest(t)
 
 	// Signup
 	userRow := u.signupNewUserRowForTest(t)

@@ -4,9 +4,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
+	"testing"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/topher200/forty-thieves/libunix"
 )
 
 type InsertResult struct {
@@ -20,6 +23,42 @@ func (ir *InsertResult) LastInsertId() (int64, error) {
 
 func (ir *InsertResult) RowsAffected() (int64, error) {
 	return ir.rowsAffected, nil
+}
+
+func newDbForTest(t *testing.T) *sqlx.DB {
+	var err error
+	pguser, _, pghost, pgport, pgsslmode := os.Getenv("PGUSER"), os.Getenv("PGPASSWORD"), os.Getenv("PGHOST"), os.Getenv("PGPORT"), os.Getenv("PGSSLMODE")
+	if pguser == "" {
+		pguser, err = libunix.CurrentUser()
+		if err != nil {
+			t.Fatalf("Getting current user should never fail. Error: %v", err)
+		}
+	}
+
+	if pghost == "" {
+		pghost = "localhost"
+	}
+
+	if pgport == "" {
+		pgport = "5432"
+	}
+
+	if pgsslmode == "" {
+		pgsslmode = "disable"
+	}
+
+	db, err := sqlx.Connect("postgres", fmt.Sprintf("postgres://%v@%v:%v/forty-thieves-test?sslmode=%v", pguser, pghost, pgport, pgsslmode))
+	if err != nil {
+		t.Fatalf("Connecting to local postgres should never fail. Error: %v", err)
+	}
+	return db
+}
+
+func newBaseForTest(t *testing.T) *Base {
+	base := &Base{}
+	base.db = newDbForTest(t)
+
+	return base
 }
 
 type Base struct {
