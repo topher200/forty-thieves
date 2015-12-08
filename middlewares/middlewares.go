@@ -2,11 +2,11 @@
 package middlewares
 
 import (
+	"io"
 	"net/http"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/gorilla/context"
-	"github.com/gorilla/mux"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 )
@@ -47,14 +47,8 @@ func MustLogin(next http.Handler) http.Handler {
 	})
 }
 
-func Log(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		next.ServeHTTP(res, req)
-		routeUsed := mux.CurrentRoute(req)
-		var routeName string
-		if routeUsed != nil {
-			routeName = routeUsed.GetName()
-		}
-		logrus.Infof("req: %v\n  handled by: %v\n  resp: %v", req, routeName, res)
-	})
+func SetupLogger(logWriter io.Writer) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return handlers.LoggingHandler(logWriter, next)
+	}
 }

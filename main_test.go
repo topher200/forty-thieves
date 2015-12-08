@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/carbocation/interpose"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -105,7 +106,9 @@ func newApplicationForTesting(t *testing.T) *Application {
 
 func newMiddlewareForTesting(t *testing.T) *interpose.Middleware {
 	app := newApplicationForTesting(t)
-	middle, err := app.middlewareStruct()
+	logWriter := logrus.New().Writer()
+	defer logWriter.Close()
+	middle, err := app.middlewareStruct(logWriter)
 	assert.Nil(t, err)
 	return middle
 }

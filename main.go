@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -62,11 +63,11 @@ type Application struct {
 	cookieStore *sessions.CookieStore
 }
 
-func (app *Application) middlewareStruct() (*interpose.Middleware, error) {
+func (app *Application) middlewareStruct(logWriter io.Writer) (*interpose.Middleware, error) {
 	middle := interpose.New()
 	middle.Use(middlewares.SetDB(app.db))
 	middle.Use(middlewares.SetCookieStore(app.cookieStore))
-	middle.Use(middlewares.Log)
+	middle.Use(middlewares.SetupLogger(logWriter))
 
 	middle.UseHandler(app.mux())
 
@@ -110,7 +111,9 @@ func main() {
 		logrus.Fatal(err.Error())
 	}
 
-	middle, err := app.middlewareStruct()
+	logWriter := logrus.New().Writer()
+	defer logWriter.Close()
+	middle, err := app.middlewareStruct(logWriter)
 	if err != nil {
 		logrus.Fatal(err.Error())
 	}
