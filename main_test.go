@@ -68,6 +68,7 @@ func (testSuite *MainTestSuite) signupPost() {
 		"PasswordAgain": {testUserPassword},
 	}
 	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/signup", form)
+	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 }
 
@@ -78,6 +79,7 @@ func (testSuite *MainTestSuite) loginPost() {
 		"Password": {testUserPassword},
 	}
 	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/login", form)
+	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 }
 
