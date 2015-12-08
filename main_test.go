@@ -44,6 +44,7 @@ func (testSuite *MainTestSuite) TestUserStory() {
 	testSuite.makeGetRequest("/logout")
 	testSuite.makeGetRequest("/login")
 	testSuite.loginPost()
+	testSuite.newgamePost()
 	testSuite.stateGet()
 }
 
@@ -79,6 +80,13 @@ func (testSuite *MainTestSuite) loginPost() {
 		"Password": {testUserPassword},
 	}
 	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/login", form)
+	defer resp.Body.Close()
+	checkResponse(testSuite.T(), resp, err)
+}
+
+// newgamePost assumes that you're signed in
+func (testSuite *MainTestSuite) newgamePost() {
+	resp, err := testSuite.client.Post(testSuite.server.URL+"/newgame", "text/json", nil)
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 }

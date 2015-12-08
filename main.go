@@ -94,6 +94,7 @@ func (app *Application) mux() *gorilla_mux.Router {
 		Name("/users/{id}")
 
 	router.HandleFunc("/state", handlers.HandleStateRequest)
+	router.HandleFunc("/newgame", handlers.HandleNewGameRequest)
 
 	router.PathPrefix("/bower_components").
 		Handler(http.StripPrefix("/bower_components/", http.FileServer(http.Dir("bower_components")))).

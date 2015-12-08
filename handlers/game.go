@@ -16,14 +16,23 @@ import (
 	"github.com/topher200/forty-thieves/libhttp"
 )
 
-func getGameState(w http.ResponseWriter, r *http.Request) (*libgame.GameState, error) {
+// Returns the DB paramaters required to be able to get/save GameStates for this user.
+func databaseParams(
+	w http.ResponseWriter, r *http.Request) (*dal.GameStateDB, *dal.UserRow, error) {
 	db := context.Get(r, "db").(*sqlx.DB)
 	gameStateDB := dal.NewGameStateDB(db)
 	currentUser, exists := getCurrentUser(w, r)
 	if !exists {
-		return nil, errors.New("User not found")
+		return nil, nil, errors.New("User not found")
 	}
-	fmt.Println(currentUser)
+	return gameStateDB, currentUser, nil
+}
+
+func getGameState(w http.ResponseWriter, r *http.Request) (*libgame.GameState, error) {
+	gameStateDB, currentUser, err := databaseParams(w, r)
+	if err != nil {
+		return nil, err
+	}
 	gameState, err := gameStateDB.GetGameState(*currentUser)
 	if err != nil {
 		return nil, fmt.Errorf("No game state found. %v.", err)
@@ -44,6 +53,18 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprint(w, string(data))
+}
+
+// HandleNewGameRequest saves a new GameState to the DB, then responds with a /state request.
+func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
+	gameState := libgame.NewGame()
+	gameStateDB, currentUser, err := databaseParams(w, r)
+	if err != nil {
+		libhttp.HandleErrorJson(w, err)
+		return
+	}
+	gameStateDB.SaveGameState(nil, *currentUser, gameState)
+	HandleStateRequest(w, r)
 }
 
 func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
