@@ -16,7 +16,7 @@ function CardGameViewModel()  {
         self.tableaus(state.Tableaus);
     });
 
-    self.imageFilename = function (card) {
+    self.imageFilename = function(card) {
         return 'project/cards-png/' + card.Suit + '-' + card.Face + '.png';
     };
 
