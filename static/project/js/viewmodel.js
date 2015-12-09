@@ -4,18 +4,6 @@ function CardGameViewModel()  {
     self.foundations = ko.observableArray();
     self.tableaus = ko.observableArray();
 
-    $.post("/newgame",
-           '{ }',
-           function(data) {
-               console.log(data);
-           }, "json");
-
-    $.getJSON("/state", function(state) {
-        self.stock(state.Stock.Cards);
-        self.foundations(state.Foundations);
-        self.tableaus(state.Tableaus);
-    });
-
     self.imageFilename = function(card) {
         return 'project/cards-png/' + card.Suit + '-' + card.Face + '.png';
     };
@@ -24,15 +12,17 @@ function CardGameViewModel()  {
         return "top: " + index * 50 + 'px';
     };
 
-    // $.post("/move",
-    //        '{ "FromLocation": "tableau", "FromIndex": 0, "ToLocation": "tableau", "ToIndex": 1 }',
-    //        function(data) {
-    //            console.log(data);
-    //        }, "json");
+    // Send a newgame post on button click. Update cards with updateGamestate.
+    self.newgamePost = function() {
+        $.post("/newgame", '{ }', self.updateGamestate, "json");
+    };
 
-    // $.getJSON("/state", function(state) {
-    //     self.stock(state.Stock.Cards);
-    //     self.foundations(state.Foundations);
-    //     self.tableaus(state.Tableaus);
-    // });
+    self.updateGamestate = function(gamestate) {
+        self.stock(gamestate.Stock.Cards);
+        self.foundations(gamestate.Foundations);
+        self.tableaus(gamestate.Tableaus);
+    };
+
+    // Update gamestate on load
+    $.getJSON("/state", self.updateGamestate);
 }
