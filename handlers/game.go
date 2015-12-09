@@ -63,7 +63,11 @@ func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 		libhttp.HandleErrorJson(w, err)
 		return
 	}
-	gameStateDB.SaveGameState(nil, *currentUser, gameState)
+	err = gameStateDB.SaveGameState(nil, *currentUser, gameState)
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("error saving gamestate: %v", err))
+		return
+	}
 	HandleStateRequest(w, r)
 }
 
