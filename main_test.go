@@ -1,10 +1,12 @@
 package main
 
 import (
+	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/Sirupsen/logrus"
@@ -56,10 +58,13 @@ func checkResponse(t *testing.T, resp *http.Response, err error) {
 }
 
 // makeGetRequest makes the request and error-checks the response
-func (testSuite *MainTestSuite) makeGetRequest(route string) {
+func (testSuite *MainTestSuite) makeGetRequest(route string) []byte {
 	resp, err := testSuite.client.Get(testSuite.server.URL + route)
+	body, err := ioutil.ReadAll(resp.Body)
+	assert.Nil(testSuite.T(), err)
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
+	return body
 }
 
 // signupPost assumes you're signed out and that the user doesn't exist
@@ -94,8 +99,9 @@ func (testSuite *MainTestSuite) newgamePost() {
 
 // stateGet assumes you're already signed in
 func (testSuite *MainTestSuite) stateGet() {
-	testSuite.makeGetRequest("/state")
-	// TODO: check that our json looks good
+	bodyText := string(testSuite.makeGetRequest("/state"))
+	// Check that our response contains one of the card pile names we expect
+	assert.True(testSuite.T(), strings.Contains(bodyText, "Stock"))
 }
 
 func newApplicationForTesting(t *testing.T) *Application {
