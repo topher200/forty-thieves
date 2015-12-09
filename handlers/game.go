@@ -71,19 +71,20 @@ func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 	HandleStateRequest(w, r)
 }
 
+type MoveCommand struct {
+	FromLocation string
+	FromIndex    int
+	ToLocation   string
+	ToIndex      int
+}
+
 func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	// temp
 	gameState := libgame.NewGame()
 
 	// Parse the request from json
-	type Message struct {
-		FromLocation string
-		FromIndex    int
-		ToLocation   string
-		ToIndex      int
-	}
 	decoder := json.NewDecoder(r.Body)
-	var request Message
+	var request MoveCommand
 	err := decoder.Decode(&request)
 	if err != nil {
 		log.Println("Failed to decode move request:", r.Body)
