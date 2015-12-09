@@ -30,9 +30,10 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 	return gs
 }
 
+// GetGameState returns the latest gamestate for a user
 func (db *GameStateDB) GetGameState(userRow UserRow) (*libgame.GameState, error) {
 	var gameStateRow GameStateRow
-	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id=$1 LIMIT 1", db.table)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id=$1 ORDER BY id DESC LIMIT 1", db.table)
 	err := db.db.Get(&gameStateRow, query, userRow.ID)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
@@ -46,6 +47,7 @@ func (db *GameStateDB) GetGameState(userRow UserRow) (*libgame.GameState, error)
 	return &gameState, nil
 }
 
+// SaveGameState saves the current gamestate for a user. Does not delete old gamestates.
 func (db *GameStateDB) SaveGameState(
 	tx *sqlx.Tx, userRow UserRow, gameState libgame.GameState) error {
 	var binarizedState bytes.Buffer
@@ -68,5 +70,6 @@ func (db *GameStateDB) SaveGameState(
 		return errors.New(
 			fmt.Sprintf("expected to change 1 row, changed %d", insertResult.RowsAffected))
 	}
+	logrus.Info("Saved new gamestate to db")
 	return nil
 }
