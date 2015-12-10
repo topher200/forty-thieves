@@ -55,11 +55,11 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(data))
 }
 
-// HandleNewGameRequest saves a new GameState to the DB
+// saveGameStateAndRespond saves GameState to the DB, replies with the new state.
 //
-// We respond just like a /state request
-func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
-	gameState := libgame.NewGame()
+// Sends a json response with the new state using the /state route.
+func saveGameStateAndRespond(
+	w http.ResponseWriter, r *http.Request, gameState libgame.GameState) {
 	gameStateDB, currentUser, err := databaseParams(w, r)
 	if err != nil {
 		libhttp.HandleErrorJson(w, err)
@@ -71,6 +71,14 @@ func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	HandleStateRequest(w, r)
+}
+
+// HandleNewGameRequest saves a new GameState to the DB
+//
+// We respond just like a /state request
+func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
+	gameState := libgame.NewGame()
+	saveGameStateAndRespond(w, r, gameState)
 }
 
 type MoveCommand struct {
@@ -124,4 +132,6 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Error(w, err.Error(), 400)
 	}
+
+	saveGameStateAndRespond(w, r, *gameState)
 }
