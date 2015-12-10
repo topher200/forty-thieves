@@ -103,7 +103,7 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	var request MoveCommand
 	err = decoder.Decode(&request)
 	if err != nil {
-		log.Println("Failed to decode move request:", r.Body)
+		libhttp.HandleErrorJson(w, fmt.Errorf("failure to decode move request: %v", err))
 		return
 	}
 	log.Printf("Handling move request from %s-%d to %s-%d\n",
@@ -118,7 +118,7 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 		case "foundation":
 			d = &gameState.Foundations[index]
 		default:
-			panic("Unable to find deck")
+			libhttp.HandleErrorJson(w, fmt.Errorf("unable to find deck: %v", err))
 		}
 		return d
 	}
@@ -127,10 +127,9 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 
 	// Move the card
 	err = gameState.MoveCard(from, to)
-	if err == nil {
-		http.Redirect(w, r, "/", 200)
-	} else {
-		http.Error(w, err.Error(), 400)
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("invalid move: %v", err))
+		return
 	}
 
 	saveGameStateAndRespond(w, r, *gameState)
