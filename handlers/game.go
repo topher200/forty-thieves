@@ -41,7 +41,6 @@ func getGameState(w http.ResponseWriter, r *http.Request) (*libgame.GameState, e
 }
 
 func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/json")
 	gameState, err := getGameState(w, r)
 	if err != nil {
 		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
@@ -52,6 +51,7 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		libhttp.HandleErrorJson(w, err)
 		return
 	}
+	w.Header().Set("Content-Type", "text/json")
 	fmt.Fprint(w, string(data))
 }
 
