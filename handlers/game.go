@@ -80,14 +80,20 @@ type MoveCommand struct {
 	ToIndex      int
 }
 
+// HandleMoveRequest makes the move and saves the new state to the db.
+//
+// We respond just like a /state request
 func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
-	// temp
-	gameState := libgame.NewGame()
+	gameState, err := getGameState(w, r)
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
+		return
+	}
 
 	// Parse the request from json
 	decoder := json.NewDecoder(r.Body)
 	var request MoveCommand
-	err := decoder.Decode(&request)
+	err = decoder.Decode(&request)
 	if err != nil {
 		log.Println("Failed to decode move request:", r.Body)
 		return
