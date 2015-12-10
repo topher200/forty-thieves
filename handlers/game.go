@@ -55,7 +55,9 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(data))
 }
 
-// HandleNewGameRequest saves a new GameState to the DB, then responds with a /state request.
+// HandleNewGameRequest saves a new GameState to the DB
+//
+// We respond just like a /state request
 func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 	gameState := libgame.NewGame()
 	gameStateDB, currentUser, err := databaseParams(w, r)
