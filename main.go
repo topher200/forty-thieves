@@ -86,7 +86,7 @@ func (app *Application) mux() *gorilla_mux.Router {
 	router.HandleFunc("/signup", handlers.PostSignup).Methods("POST").Name("/signup.Post")
 	router.HandleFunc("/login", handlers.GetLogin).Methods("GET").Name("/login.Get")
 	router.HandleFunc("/login", handlers.PostLogin).Methods("POST").Name("/login.Post")
-	router.HandleFunc("/logout", handlers.GetLogout).Methods("GET").Name("logout.Get")
+	router.HandleFunc("/logout", handlers.GetLogout).Methods("GET").Name("/logout.Get")
 
 	router.Handle(
 		"/users/{id:[0-9]+}",
@@ -96,6 +96,7 @@ func (app *Application) mux() *gorilla_mux.Router {
 
 	router.HandleFunc("/state", handlers.HandleStateRequest)
 	router.HandleFunc("/newgame", handlers.HandleNewGameRequest)
+	router.HandleFunc("/move", handlers.HandleMoveRequest)
 
 	router.PathPrefix("/bower_components").
 		Handler(http.StripPrefix("/bower_components/", http.FileServer(http.Dir("bower_components")))).

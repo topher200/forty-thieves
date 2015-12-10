@@ -41,7 +41,6 @@ func getGameState(w http.ResponseWriter, r *http.Request) (*libgame.GameState, e
 }
 
 func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/json")
 	gameState, err := getGameState(w, r)
 	if err != nil {
 		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
@@ -52,12 +51,15 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		libhttp.HandleErrorJson(w, err)
 		return
 	}
+	w.Header().Set("Content-Type", "text/json")
 	fmt.Fprint(w, string(data))
 }
 
-// HandleNewGameRequest saves a new GameState to the DB, then responds with a /state request.
-func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
-	gameState := libgame.NewGame()
+// saveGameStateAndRespond saves GameState to the DB, replies with the new state.
+//
+// Sends a json response with the new state using the /state route.
+func saveGameStateAndRespond(
+	w http.ResponseWriter, r *http.Request, gameState libgame.GameState) {
 	gameStateDB, currentUser, err := databaseParams(w, r)
 	if err != nil {
 		libhttp.HandleErrorJson(w, err)
@@ -71,22 +73,37 @@ func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 	HandleStateRequest(w, r)
 }
 
-func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
-	// temp
+// HandleNewGameRequest saves a new GameState to the DB
+//
+// We respond just like a /state request
+func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 	gameState := libgame.NewGame()
+	saveGameStateAndRespond(w, r, gameState)
+}
+
+type MoveCommand struct {
+	FromLocation string
+	FromIndex    int
+	ToLocation   string
+	ToIndex      int
+}
+
+// HandleMoveRequest makes the move and saves the new state to the db.
+//
+// We respond just like a /state request
+func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
+	gameState, err := getGameState(w, r)
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
+		return
+	}
 
 	// Parse the request from json
-	type Message struct {
-		FromLocation string
-		FromIndex    int
-		ToLocation   string
-		ToIndex      int
-	}
 	decoder := json.NewDecoder(r.Body)
-	var request Message
-	err := decoder.Decode(&request)
+	var request MoveCommand
+	err = decoder.Decode(&request)
 	if err != nil {
-		log.Println("Failed to decode move request:", r.Body)
+		libhttp.HandleErrorJson(w, fmt.Errorf("failure to decode move request: %v", err))
 		return
 	}
 	log.Printf("Handling move request from %s-%d to %s-%d\n",
@@ -101,7 +118,7 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 		case "foundation":
 			d = &gameState.Foundations[index]
 		default:
-			panic("Unable to find deck")
+			libhttp.HandleErrorJson(w, fmt.Errorf("unable to find deck: %v", err))
 		}
 		return d
 	}
@@ -110,9 +127,10 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 
 	// Move the card
 	err = gameState.MoveCard(from, to)
-	if err == nil {
-		http.Redirect(w, r, "/", 200)
-	} else {
-		http.Error(w, err.Error(), 400)
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("invalid move: %v", err))
+		return
 	}
+
+	saveGameStateAndRespond(w, r, *gameState)
 }

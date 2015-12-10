@@ -17,6 +17,14 @@ function CardGameViewModel()  {
         $.post("/newgame", '{ }', self.updateGamestate, "json");
     };
 
+    // Send a dummy move request on button click
+    self.movePost = function() {
+        $.post(
+            "/move",
+            '{ "FromLocation": "tableau", "FromIndex": 0, "ToLocation": "tableau", "ToIndex": 1 }',
+            self.updateGamestate, "json");
+    };
+
     self.updateGamestate = function(gamestate) {
         self.stock(gamestate.Stock.Cards);
         self.foundations(gamestate.Foundations);

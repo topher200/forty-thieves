@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -14,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/topher200/forty-thieves/dal"
+	"github.com/topher200/forty-thieves/handlers"
 )
 
 const (
@@ -49,6 +52,7 @@ func (testSuite *MainTestSuite) TestUserStory() {
 	testSuite.loginPost()
 	testSuite.newgamePost()
 	testSuite.stateGet()
+	testSuite.movePost()
 }
 
 // checkResponse asserts that we didn't err and that our response looks good
@@ -93,6 +97,17 @@ func (testSuite *MainTestSuite) loginPost() {
 // newgamePost assumes that you're signed in
 func (testSuite *MainTestSuite) newgamePost() {
 	resp, err := testSuite.client.Post(testSuite.server.URL+"/newgame", "text/json", nil)
+	defer resp.Body.Close()
+	checkResponse(testSuite.T(), resp, err)
+}
+
+// movePost assumes that you're signed in
+func (testSuite *MainTestSuite) movePost() {
+	requestStruct := handlers.MoveCommand{"tableau", 0, "tableau", 1}
+	jsonRequest, err := json.Marshal(requestStruct)
+	assert.Nil(testSuite.T(), err)
+	resp, err := testSuite.client.Post(
+		testSuite.server.URL+"/move", "text/json", bytes.NewBuffer(jsonRequest))
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 }
