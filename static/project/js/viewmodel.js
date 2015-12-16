@@ -34,3 +34,13 @@ function CardGameViewModel()  {
     // Update gamestate on load
     $.getJSON("/state", self.updateGamestate);
 }
+
+function allowDrop(event) {
+    event.preventDefault();
+}
+
+function cardDrop(event) {
+    event.preventDefault();
+    console.log($(event.target.parentElement).attr("data-location"));
+    console.log($(event.target.parentElement).attr("index"));
+}
