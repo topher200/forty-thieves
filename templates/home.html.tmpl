@@ -17,7 +17,7 @@
             <div ondrop="cardDrop(event)"
                  ondragover="allowDrop(event)"
                  data-location="tableau"
-                 data-bind="attr:{ index: $index() }">
+                 data-bind="attr:{ index: $parentContext.$index() }">
               <img class="card-spot card tableau"
                    data-bind="attr:{
                               src: $root.imageFilename($data),
