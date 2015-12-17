@@ -82,6 +82,9 @@ func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 	saveGameStateAndRespond(w, r, gameState)
 }
 
+// Although it's weird, the docs want our decoder to be a global
+var decoder = schema.NewDecoder()
+
 type MoveCommand struct {
 	FromLocation string
 	FromIndex    int
@@ -106,7 +109,6 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 			w, fmt.Errorf("failure to decode move request: %v", err))
 		return
 	}
-	var decoder = schema.NewDecoder()
 	var request MoveCommand
 	err = decoder.Decode(&request, r.PostForm)
 	if err != nil {
