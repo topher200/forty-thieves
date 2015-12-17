@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -16,7 +14,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/topher200/forty-thieves/dal"
-	"github.com/topher200/forty-thieves/handlers"
 )
 
 const (
@@ -103,11 +100,13 @@ func (testSuite *MainTestSuite) newgamePost() {
 
 // movePost assumes that you're signed in
 func (testSuite *MainTestSuite) movePost() {
-	requestStruct := handlers.MoveCommand{"tableau", 0, "tableau", 1}
-	jsonRequest, err := json.Marshal(requestStruct)
-	assert.Nil(testSuite.T(), err)
-	resp, err := testSuite.client.Post(
-		testSuite.server.URL+"/move", "text/json", bytes.NewBuffer(jsonRequest))
+	form := url.Values{
+		"FromLocation": {"tableau"},
+		"FromIndex":    {"0"},
+		"ToLocation":   {"tableau"},
+		"ToIndex":      {"1"},
+	}
+	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/move", form)
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 }
