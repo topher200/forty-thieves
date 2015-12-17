@@ -17,7 +17,7 @@ function CardGameViewModel()  {
         $.post("/newgame", '{ }', self.updateGamestate, "json");
     };
 
-    // Send a dummy move request on button click
+    // Send a move request. Use the response to update cards
     self.movePost = function(fromLocation, fromIndex, toLocation, toIndex) {
         $.post(
             "/move",
