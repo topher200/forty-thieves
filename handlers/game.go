@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/context"
+	"github.com/gorilla/schema"
 	"github.com/jmoiron/sqlx"
 	"github.com/topher200/deck"
 	"github.com/topher200/forty-thieves/dal"
@@ -99,12 +100,19 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse the request from json
-	decoder := json.NewDecoder(r.Body)
-	var request MoveCommand
-	err = decoder.Decode(&request)
+	err = r.ParseForm()
 	if err != nil {
-		libhttp.HandleErrorJson(w,
-			fmt.Errorf("failure to decode move request: %v. request: '%v'", err, r.Body))
+		libhttp.HandleErrorJson(
+			w, fmt.Errorf("failure to decode move request: %v", err))
+		return
+	}
+	var decoder = schema.NewDecoder()
+	var request MoveCommand
+	err = decoder.Decode(&request, r.PostForm)
+	if err != nil {
+		libhttp.HandleErrorJson(
+			w, fmt.Errorf("failure to decode move request: %v. form values: %v",
+				err, r.PostForm))
 		return
 	}
 	log.Printf("Handling move request from %s-%d to %s-%d\n",
