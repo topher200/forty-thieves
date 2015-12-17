@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/context"
+	"github.com/gorilla/schema"
 	"github.com/jmoiron/sqlx"
 	"github.com/topher200/deck"
 	"github.com/topher200/forty-thieves/dal"
@@ -81,6 +82,9 @@ func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 	saveGameStateAndRespond(w, r, gameState)
 }
 
+// Although it's weird, the docs want our decoder to be a global
+var decoder = schema.NewDecoder()
+
 type MoveCommand struct {
 	FromLocation string
 	FromIndex    int
@@ -99,18 +103,25 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse the request from json
-	decoder := json.NewDecoder(r.Body)
-	var request MoveCommand
-	err = decoder.Decode(&request)
+	err = r.ParseForm()
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("failure to decode move request: %v", err))
+		libhttp.HandleErrorJson(
+			w, fmt.Errorf("failure to decode move request: %v", err))
+		return
+	}
+	var request MoveCommand
+	err = decoder.Decode(&request, r.PostForm)
+	if err != nil {
+		libhttp.HandleErrorJson(
+			w, fmt.Errorf("failure to decode move request: %v. form values: %v",
+				err, r.PostForm))
 		return
 	}
 	log.Printf("Handling move request from %s-%d to %s-%d\n",
 		request.FromLocation, request.FromIndex, request.ToLocation, request.ToIndex)
 
 	// Translate from string pile description to actual Decks
-	parse := func(location string, index int) *deck.Deck {
+	parseFunc := func(location string, index int) (*deck.Deck, error) {
 		var d *deck.Deck
 		switch location {
 		case "tableau":
@@ -118,12 +129,19 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 		case "foundation":
 			d = &gameState.Foundations[index]
 		default:
-			libhttp.HandleErrorJson(w, fmt.Errorf("unable to find deck: %v", err))
+			libhttp.HandleErrorJson(w, fmt.Errorf("unknown pile name '%s'", location))
+			return nil, errors.New("unknown pile name")
 		}
-		return d
+		return d, nil
 	}
-	from := parse(request.FromLocation, request.FromIndex)
-	to := parse(request.ToLocation, request.ToIndex)
+	from, err := parseFunc(request.FromLocation, request.FromIndex)
+	if err != nil {
+		return
+	}
+	to, err := parseFunc(request.ToLocation, request.ToIndex)
+	if err != nil {
+		return
+	}
 
 	// Move the card
 	err = gameState.MoveCard(from, to)

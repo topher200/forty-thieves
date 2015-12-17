@@ -17,11 +17,14 @@ function CardGameViewModel()  {
         $.post("/newgame", '{ }', self.updateGamestate, "json");
     };
 
-    // Send a dummy move request on button click
-    self.movePost = function() {
+    // Send a move request. Use the response to update cards
+    self.movePost = function(fromLocation, fromIndex, toLocation, toIndex) {
         $.post(
             "/move",
-            '{ "FromLocation": "tableau", "FromIndex": 0, "ToLocation": "tableau", "ToIndex": 1 }',
+            { "FromLocation": fromLocation,
+              "FromIndex": fromIndex,
+              "ToLocation": toLocation,
+              "ToIndex": toIndex},
             self.updateGamestate, "json");
     };
 
@@ -33,4 +36,28 @@ function CardGameViewModel()  {
 
     // Update gamestate on load
     $.getJSON("/state", self.updateGamestate);
+}
+
+var viewmodel = new CardGameViewModel();
+ko.applyBindings(viewmodel);
+
+function allowDrop(event) {
+    event.preventDefault();
+}
+
+function cardDrag(event) {
+    event.dataTransfer.setData(
+        "FromLocation", $(event.target.parentElement).attr("data-location"));
+    event.dataTransfer.setData(
+        "FromIndex", $(event.target.parentElement).attr("index"));
+}
+
+function cardDrop(event) {
+    event.preventDefault();
+    viewmodel.movePost(
+        event.dataTransfer.getData("FromLocation"),
+        event.dataTransfer.getData("FromIndex"),
+        $(event.target.parentElement).attr("data-location"),
+        $(event.target.parentElement).attr("index")
+    );
 }
