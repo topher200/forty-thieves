@@ -18,10 +18,13 @@ function CardGameViewModel()  {
     };
 
     // Send a dummy move request on button click
-    self.movePost = function() {
+    self.movePost = function(fromLocation, fromIndex, toLocation, toIndex) {
         $.post(
             "/move",
-            '{ "FromLocation": "tableau", "FromIndex": 0, "ToLocation": "tableau", "ToIndex": 1 }',
+            { "FromLocation": fromLocation,
+              "FromIndex": fromIndex,
+              "ToLocation": toLocation,
+              "ToIndex": toIndex},
             self.updateGamestate, "json");
     };
 
@@ -42,9 +45,19 @@ function allowDrop(event) {
     event.preventDefault();
 }
 
+function cardDrag(event) {
+    event.dataTransfer.setData(
+        "FromLocation", $(event.target.parentElement).attr("data-location"));
+    event.dataTransfer.setData(
+        "FromIndex", $(event.target.parentElement).attr("index"));
+}
+
 function cardDrop(event) {
     event.preventDefault();
-    console.log($(event.target.parentElement).attr("data-location"));
-    console.log($(event.target.parentElement).attr("index"));
-    viewmodel.movePost();
+    viewmodel.movePost(
+        event.dataTransfer.getData("FromLocation"),
+        event.dataTransfer.getData("FromIndex"),
+        $(event.target.parentElement).attr("data-location"),
+        $(event.target.parentElement).attr("index")
+    );
 }

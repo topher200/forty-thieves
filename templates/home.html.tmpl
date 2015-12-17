@@ -14,10 +14,10 @@
           <img class="card-spot blank-card" src="project/cards-png/b1fv.png"/>
           <!-- Each card in the tableau -->
           <span data-bind="foreach: Cards">
-            <div ondrop="cardDrop(event)"
-                 ondragover="allowDrop(event)"
-                 data-location="tableau"
-                 data-bind="attr:{ index: $parentContext.$index() }">
+            <div
+               ondragstart="cardDrag(event)"
+               data-location="tableau"
+               data-bind="attr:{ index: $parentContext.$index() }">
               <img class="card-spot card tableau"
                    data-bind="attr:{
                               src: $root.imageFilename($data),
