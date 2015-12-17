@@ -86,7 +86,6 @@
   </body>
 
   <!-- Load scripts -->
-  <script type="text/javascript" src="project/js/viewmodel.js"></script>
   <script type="text/javascript" src="bower_components/fallback/fallback.min.js"></script>
   <script>
     fallback.load({
@@ -109,18 +108,19 @@
       '$.fn.modal': [
         "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js",
         "bower_components/bootstrap/dist/js/bootstrap.min.js"
+      ],
+
+      <!-- load our knockout viewmodel -->
+      'viewmodel': [
+        "project/js/viewmodel.js"
       ]
     }, {
       shim: {
         'ko.mapping': ['ko'],
+        'viewmodel': ['ko.mapping'],
         <!-- Bootstrap's js requires jQuery -->
         '$.fn.modal': ['jQuery']
       }
-    });
-
-    fallback.ready(['ko', 'ko.mapping'], function() {
-      var model = new CardGameViewModel();
-      ko.applyBindings(model);
     });
   </script>
 </html>

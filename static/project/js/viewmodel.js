@@ -35,6 +35,9 @@ function CardGameViewModel()  {
     $.getJSON("/state", self.updateGamestate);
 }
 
+var viewmodel = new CardGameViewModel();
+ko.applyBindings(viewmodel);
+
 function allowDrop(event) {
     event.preventDefault();
 }
@@ -43,4 +46,5 @@ function cardDrop(event) {
     event.preventDefault();
     console.log($(event.target.parentElement).attr("data-location"));
     console.log($(event.target.parentElement).attr("index"));
+    viewmodel.movePost();
 }
