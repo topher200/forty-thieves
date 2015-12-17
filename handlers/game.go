@@ -103,7 +103,8 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	var request MoveCommand
 	err = decoder.Decode(&request)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("failure to decode move request: %v", err))
+		libhttp.HandleErrorJson(w,
+			fmt.Errorf("failure to decode move request: %v. request: '%v'", err, r.Body))
 		return
 	}
 	log.Printf("Handling move request from %s-%d to %s-%d\n",
