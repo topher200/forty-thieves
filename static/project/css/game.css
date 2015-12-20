@@ -10,7 +10,6 @@
 }
 
 .card-spot {
-    /* display: table-cell; */
     margin: 10px;
     padding: 10px;
     width: 100px;
@@ -18,7 +17,6 @@
 }
 
 .pile {
-    /* display: table; */
     position: relative;
     float: left;
     counter-reset: card-number;
@@ -36,9 +34,6 @@
 
 .tableau {
     position: absolute;
-    /* top: 50px * 1000; */
-    counter-increment: card-number;
-    /* top: 50px; */
 }
 
 .wrapper {
