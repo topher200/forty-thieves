@@ -12,6 +12,7 @@ type GameState struct {
 	Stock       deck.Deck
 	Foundations []deck.Deck
 	Tableaus    []deck.Deck
+	Waste       deck.Deck
 }
 
 const (
@@ -63,7 +64,7 @@ func NewGame() (state GameState) {
 }
 
 func (state GameState) String() string {
-	str := fmt.Sprintf("stock: %v\n", state.Stock)
+	str := fmt.Sprintf("Stock: %v\n", state.Stock)
 	str += "Foundations\n"
 	for _, foundation := range state.Foundations {
 		str += fmt.Sprintf(" :%v\n", foundation)
@@ -72,5 +73,6 @@ func (state GameState) String() string {
 	for _, tableau := range state.Tableaus {
 		str += fmt.Sprintf(" :%v\n", tableau)
 	}
+	str += fmt.Sprintf("Waste: %v\n", state.Waste)
 	return str
 }
