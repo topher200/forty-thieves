@@ -19,7 +19,6 @@
 .pile {
     position: relative;
     float: left;
-    counter-reset: card-number;
     width: 100px;
     height: 150px;
 }
