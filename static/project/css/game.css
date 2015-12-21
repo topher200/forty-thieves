@@ -23,6 +23,7 @@
     height: 150px;
 }
 
-.tableau {
+/* These cards stack on top of each other */
+.stackable {
     position: absolute;
 }

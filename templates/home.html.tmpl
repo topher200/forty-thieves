@@ -7,15 +7,17 @@
   <div class="pile"
        ondrop="cardDrop(event)"
        ondragover="allowDrop(event)"
-       data-location="stock">
+       data-location="stock"
+       data-index=0>
     <!-- Blank card spot -->
     <img class="card-spot" src="project/cards-png/b1fv.png"/>
     <span data-bind="foreach: stock">
       <div
          ondragstart="cardDrag(event)"
          data-location="stock"
+         data-index=0
          >
-        <img class="card-spot tableau"
+        <img class="card-spot stackable"
              data-bind="attr:{
                         src: $root.imageFilename($data),
                         style: 'top: 0px'
@@ -28,7 +30,8 @@
   <div class="pile"
        ondrop="cardDrop(event)"
        ondragover="allowDrop(event)"
-       data-location="waste">
+       data-location="waste"
+       data-index=0>
     <!-- Blank card spot -->
     <img class="card-spot" src="project/cards-png/b1fv.png"/>
   </div>
@@ -48,7 +51,7 @@
            ondragstart="cardDrag(event)"
            data-location="foundation"
            data-bind="attr:{ 'data-index': $parentContext.$index() }">
-          <img class="card-spot"
+          <img class="card-spot stackable"
                data-bind="attr:{
                           src: $root.imageFilename($data),
                           style: 'top: 0px'
@@ -78,7 +81,7 @@
            ondragstart="cardDrag(event)"
            data-location="tableau"
            data-bind="attr:{ 'data-index': $parentContext.$index() }">
-          <img class="card-spot tableau"
+          <img class="card-spot stackable"
                data-bind="attr:{
                           src: $root.imageFilename($data),
                           style: $root.tableauPosition($index())
