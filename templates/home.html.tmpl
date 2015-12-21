@@ -39,7 +39,7 @@
          ondrop="cardDrop(event)"
          ondragover="allowDrop(event)"
          data-location="foundation"
-         data-bind="attr:{ index: $index() }">
+         data-bind="attr:{ 'data-index': $index() }">
       <!-- Blank card spot -->
       <img class="card-spot" src="project/cards-png/b1fv.png"/>
       <!-- Each card in the foundation -->
@@ -47,7 +47,7 @@
         <div
            ondragstart="cardDrag(event)"
            data-location="foundation"
-           data-bind="attr:{ index: $parentContext.$index() }">
+           data-bind="attr:{ 'data-index': $parentContext.$index() }">
           <img class="card-spot"
                data-bind="attr:{
                           src: $root.imageFilename($data),
@@ -69,7 +69,7 @@
          ondrop="cardDrop(event)"
          ondragover="allowDrop(event)"
          data-location="tableau"
-         data-bind="attr:{ index: $index() }">
+         data-bind="attr:{ 'data-index': $index() }">
       <!-- Blank card spot -->
       <img class="card-spot" src="project/cards-png/b1fv.png"/>
       <!-- Each card in the tableau -->
@@ -77,7 +77,7 @@
         <div
            ondragstart="cardDrag(event)"
            data-location="tableau"
-           data-bind="attr:{ index: $parentContext.$index() }">
+           data-bind="attr:{ 'data-index': $parentContext.$index() }">
           <img class="card-spot tableau"
                data-bind="attr:{
                           src: $root.imageFilename($data),
