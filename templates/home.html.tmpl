@@ -4,25 +4,8 @@
 
 <div id="container" float:left>
   <!-- stock -->
-  <div class="pile"
-       ondrop="cardDrop(event)"
-       data-location="stock"
-       data-index=0>
-    <!-- Blank card spot -->
-    <img class="card-spot" src="project/cards-png/b1fv.png"/>
-    <span data-bind="foreach: stock">
-      <div
-         ondragstart="cardDrag(event)"
-         data-location="stock"
-         data-index=0
-         >
-        <img class="card-spot stackable"
-             data-bind="attr:{
-                        src: $root.imageFilename($data),
-                        style: 'top: 0px'
-                        }"/>
-      </div>
-    </span>
+  <div class="pile">
+    <img id="stock" class="card-spot" src="project/cards-png/b1fv.png"/>
   </div>
 
   <!-- waste -->
