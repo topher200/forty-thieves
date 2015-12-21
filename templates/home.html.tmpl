@@ -32,6 +32,31 @@
     <!-- Blank card spot -->
     <img class="card-spot" src="project/cards-png/b1fv.png"/>
   </div>
+
+  <!-- foundations -->
+  <div data-bind="foreach: foundations">
+    <div class="pile"
+         ondrop="cardDrop(event)"
+         ondragover="allowDrop(event)"
+         data-location="foundation"
+         data-bind="attr:{ index: $index() }">
+      <!-- Blank card spot -->
+      <img class="card-spot" src="project/cards-png/b1fv.png"/>
+      <!-- Each card in the foundation -->
+      <span data-bind="foreach: Cards">
+        <div
+           ondragstart="cardDrag(event)"
+           data-location="foundation"
+           data-bind="attr:{ index: $parentContext.$index() }">
+          <img class="card-spot"
+               data-bind="attr:{
+                          src: $root.imageFilename($data),
+                          style: 'top: 0px'
+                          }"/>
+        </div>
+      </span>
+    </div>
+  </div>
 </div>
 
 <!-- pagebreak between top and bottom -->
