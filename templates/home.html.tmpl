@@ -15,7 +15,10 @@
          data-location="stock"
          >
         <img class="card-spot tableau"
-             data-bind="attr:{ src: $root.imageFilename($data) }"/>
+             data-bind="attr:{
+                        src: $root.imageFilename($data),
+                        style: 'top: 0px'
+                        }"/>
       </div>
     </span>
   </div>
