@@ -3,6 +3,7 @@ function CardGameViewModel()  {
     self.stock = ko.observableArray();
     self.foundations = ko.observableArray();
     self.tableaus = ko.observableArray();
+    self.waste = ko.observableArray();
 
     self.imageFilename = function(card) {
         return 'project/cards-png/' + card.Suit + '-' + card.Face + '.png';
@@ -32,6 +33,7 @@ function CardGameViewModel()  {
         self.stock(gamestate.Stock.Cards);
         self.foundations(gamestate.Foundations);
         self.tableaus(gamestate.Tableaus);
+        self.waste(gamestate.Waste.Cards);
     };
 
     // Update gamestate on load
