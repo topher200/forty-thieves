@@ -5,7 +5,7 @@
 }
 
 .clearfix {
-	  float:none;
+	  float: none;
 	  clear: both;
 }
 
@@ -19,24 +19,11 @@
 .pile {
     position: relative;
     float: left;
-    counter-reset: card-number;
     width: 100px;
     height: 150px;
 }
 
-.blank-card {
-    z-index: 9;
-}
-
-.card {
-    z-index: 10;
-}
-
-.tableau {
+/* These cards stack on top of each other */
+.stackable {
     position: absolute;
-}
-
-.wrapper {
-    padding: 10px;
-    position: relative;
 }

@@ -3,6 +3,7 @@ function CardGameViewModel()  {
     self.stock = ko.observableArray();
     self.foundations = ko.observableArray();
     self.tableaus = ko.observableArray();
+    self.waste = ko.observableArray();
 
     self.imageFilename = function(card) {
         return 'project/cards-png/' + card.Suit + '-' + card.Face + '.png';
@@ -32,6 +33,7 @@ function CardGameViewModel()  {
         self.stock(gamestate.Stock.Cards);
         self.foundations(gamestate.Foundations);
         self.tableaus(gamestate.Tableaus);
+        self.waste(gamestate.Waste.Cards);
     };
 
     // Update gamestate on load
@@ -49,7 +51,7 @@ function cardDrag(event) {
     event.dataTransfer.setData(
         "FromLocation", $(event.target.parentElement).attr("data-location"));
     event.dataTransfer.setData(
-        "FromIndex", $(event.target.parentElement).attr("index"));
+        "FromIndex", $(event.target.parentElement).attr("data-index"));
 }
 
 function cardDrop(event) {
@@ -58,6 +60,6 @@ function cardDrop(event) {
         event.dataTransfer.getData("FromLocation"),
         event.dataTransfer.getData("FromIndex"),
         $(event.target.parentElement).attr("data-location"),
-        $(event.target.parentElement).attr("index")
+        $(event.target.parentElement).attr("data-index")
     );
 }
