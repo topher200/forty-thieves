@@ -1,27 +1,49 @@
 {{define "content"}}
 <button data-bind="click: newgamePost">Deal New Game</button>
 <button data-bind="click: movePost">Move</button>
-<div data-bind="foreach: tableaus">
+<div id="container" float:left>
   <div class="pile"
         ondrop="cardDrop(event)"
         ondragover="allowDrop(event)"
-        data-location="tableau"
-        data-bind="attr:{ index: $index() }">
+        data-location="stock">
     <!-- Blank card spot -->
     <img class="card-spot" src="project/cards-png/b1fv.png"/>
-    <!-- Each card in the tableau -->
-    <span data-bind="foreach: Cards">
+    <!-- Each card in stock -->
+    <span data-bind="foreach: stock">
       <div
           ondragstart="cardDrag(event)"
-          data-location="tableau"
-          data-bind="attr:{ index: $parentContext.$index() }">
+          data-location="stock"
+         >
         <img class="card-spot tableau"
-              data-bind="attr:{
-                        src: $root.imageFilename($data),
-                        style: $root.tableauPosition($index())
-                        }"/>
+              data-bind="attr:{ src: $root.imageFilename($data) }"/>
       </div>
     </span>
+  </div>
+</div>
+<div class="clearfix" />
+<div id="container" float:left>
+  <div data-bind="foreach: tableaus">
+    <div class="pile"
+          ondrop="cardDrop(event)"
+          ondragover="allowDrop(event)"
+          data-location="tableau"
+          data-bind="attr:{ index: $index() }">
+      <!-- Blank card spot -->
+      <img class="card-spot" src="project/cards-png/b1fv.png"/>
+      <!-- Each card in the tableau -->
+      <span data-bind="foreach: Cards">
+        <div
+            ondragstart="cardDrag(event)"
+            data-location="tableau"
+            data-bind="attr:{ index: $parentContext.$index() }">
+          <img class="card-spot tableau"
+                data-bind="attr:{
+                          src: $root.imageFilename($data),
+                          style: $root.tableauPosition($index())
+                          }"/>
+        </div>
+      </span>
+    </div>
   </div>
 </div>
 {{end}}
