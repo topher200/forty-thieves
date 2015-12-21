@@ -85,6 +85,7 @@ func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 // Although it's weird, the docs want our decoder to be a global
 var decoder = schema.NewDecoder()
 
+// Index must be included but is ignored for "stock" and "waste"
 type MoveCommand struct {
 	FromLocation string
 	FromIndex    int
@@ -128,6 +129,10 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 			d = &gameState.Tableaus[index]
 		case "foundation":
 			d = &gameState.Foundations[index]
+		case "stock":
+			d = &gameState.Stock
+		case "waste":
+			d = &gameState.Waste
 		default:
 			libhttp.HandleErrorJson(w, fmt.Errorf("unknown pile name '%s'", location))
 			return nil, errors.New("unknown pile name")
