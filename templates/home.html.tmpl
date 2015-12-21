@@ -2,8 +2,8 @@
 <button data-bind="click: newgamePost">Deal New Game</button>
 <button data-bind="click: movePost">Move</button>
 
-<!-- stock -->
 <div id="container" float:left>
+  <!-- stock -->
   <div class="pile"
        ondrop="cardDrop(event)"
        ondragover="allowDrop(event)"
@@ -22,6 +22,15 @@
                         }"/>
       </div>
     </span>
+  </div>
+
+  <!-- waste -->
+  <div class="pile"
+       ondrop="cardDrop(event)"
+       ondragover="allowDrop(event)"
+       data-location="waste">
+    <!-- Blank card spot -->
+    <img class="card-spot" src="project/cards-png/b1fv.png"/>
   </div>
 </div>
 
