@@ -1,6 +1,8 @@
 {{define "content"}}
 <button data-bind="click: newgamePost">Deal New Game</button>
 <button data-bind="click: movePost">Move</button>
+
+<!-- stock -->
 <div id="container" float:left>
   <div class="pile"
        ondrop="cardDrop(event)"
@@ -8,7 +10,6 @@
        data-location="stock">
     <!-- Blank card spot -->
     <img class="card-spot" src="project/cards-png/b1fv.png"/>
-    <!-- Each card in stock -->
     <span data-bind="foreach: stock">
       <div
          ondragstart="cardDrag(event)"
@@ -23,7 +24,11 @@
     </span>
   </div>
 </div>
+
+<!-- pagebreak between top and bottom -->
 <div class="clearfix" />
+
+<!-- tableaus -->
 <div id="container" float:left>
   <div data-bind="foreach: tableaus">
     <div class="pile"
