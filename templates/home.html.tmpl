@@ -8,14 +8,14 @@
         data-location="tableau"
         data-bind="attr:{ index: $index() }">
     <!-- Blank card spot -->
-    <img class="card-spot blank-card" src="project/cards-png/b1fv.png"/>
+    <img class="card-spot" src="project/cards-png/b1fv.png"/>
     <!-- Each card in the tableau -->
     <span data-bind="foreach: Cards">
       <div
           ondragstart="cardDrag(event)"
           data-location="tableau"
           data-bind="attr:{ index: $parentContext.$index() }">
-        <img class="card-spot card tableau"
+        <img class="card-spot tableau"
               data-bind="attr:{
                         src: $root.imageFilename($data),
                         style: $root.tableauPosition($index())
