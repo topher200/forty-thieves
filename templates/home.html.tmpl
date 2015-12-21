@@ -34,6 +34,18 @@
        data-index=0>
     <!-- Blank card spot -->
     <img class="card-spot" src="project/cards-png/b1fv.png"/>
+    <span data-bind="foreach: waste">
+      <div
+         ondragstart="cardDrag(event)"
+         data-location="waste"
+         data-index=0
+         >
+        <img class="card-spot stackable"
+             data-bind="attr:{
+                        src: $root.imageFilename($data),
+                        style: 'top: 0px'
+                        }"/>
+      </div>
   </div>
 
   <!-- foundations -->
