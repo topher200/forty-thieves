@@ -29,6 +29,11 @@ function CardGameViewModel()  {
             self.updateGamestate, "json");
     };
 
+    // Send a flip stock request. Use the response to update cards
+    self.flipStockPost = function() {
+        $.post("/flipstock", {}, self.updateGamestate, "json");
+    };
+
     self.updateGamestate = function(gamestate) {
         self.stock(gamestate.Stock.Cards);
         self.foundations(gamestate.Foundations);
@@ -62,4 +67,8 @@ function cardDrop(event) {
         $(event.target.parentElement).attr("data-location"),
         $(event.target.parentElement).attr("data-index")
     );
+}
+
+function flipStock() {
+    viewmodel.flipStockPost();
 }
