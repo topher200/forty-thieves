@@ -46,12 +46,12 @@ func TestMoveCard(t *testing.T) {
 	assert.Equal(t, cardToMove, cardInNewSpot)
 }
 
-func TestMoveCardFromStackToWaste(t *testing.T) {
+func TestFlipStock(t *testing.T) {
 	state := NewGame()
 	stockLenStart := len(state.Stock.Cards)
 	wasteLenStart := len(state.Waste.Cards)
 
-	err := state.MoveCard(&state.Stock, &state.Waste)
+	err := state.FlipStock()
 	assert.Nil(t, err)
 	assert.Len(t, state.Stock.Cards, stockLenStart-1)
 	assert.Len(t, state.Waste.Cards, wasteLenStart+1)

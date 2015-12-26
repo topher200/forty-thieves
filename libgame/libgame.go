@@ -40,6 +40,16 @@ func (state *GameState) MoveCard(from, to *deck.Deck) error {
 	return nil
 }
 
+func (state *GameState) FlipStock() error {
+	card, err := state.popFromStock()
+	if err != nil {
+		return errors.New("Can't flip empty stock")
+	}
+
+	state.Waste.Cards = append(state.Waste.Cards, card)
+	return nil
+}
+
 func NewGame() (state GameState) {
 	// Combine two decks to make our game deck
 	newDeck := deck.NewDeck(false)
