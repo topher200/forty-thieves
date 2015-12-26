@@ -157,3 +157,19 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 
 	saveGameStateAndRespond(w, r, *gameState)
 }
+
+func HandleFlipStockRequest(w http.ResponseWriter, r *http.Request) {
+	gameState, err := getGameState(w, r)
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
+		return
+	}
+
+	err = gameState.FlipStock()
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("can't flip stock: %v", err))
+		return
+	}
+
+	saveGameStateAndRespond(w, r, *gameState)
+}

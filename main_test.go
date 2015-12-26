@@ -49,6 +49,7 @@ func (testSuite *MainTestSuite) TestUserStory() {
 	testSuite.loginPost()
 	testSuite.newgamePost()
 	testSuite.stateGet()
+	testSuite.flipStockPost()
 	testSuite.movePost()
 }
 
@@ -94,6 +95,14 @@ func (testSuite *MainTestSuite) loginPost() {
 // newgamePost assumes that you're signed in
 func (testSuite *MainTestSuite) newgamePost() {
 	resp, err := testSuite.client.Post(testSuite.server.URL+"/newgame", "text/json", nil)
+	defer resp.Body.Close()
+	checkResponse(testSuite.T(), resp, err)
+}
+
+// flipStockPost assumes that you're signed in
+func (testSuite *MainTestSuite) flipStockPost() {
+	resp, err := testSuite.client.Post(
+		testSuite.server.URL+"/flipstock", "text/json", nil)
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 }
