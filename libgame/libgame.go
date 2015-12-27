@@ -86,3 +86,15 @@ func (state GameState) String() string {
 	str += fmt.Sprintf("Waste: %v\n", state.Waste)
 	return str
 }
+
+// a GameState's Score is the number of cards not in foundations.
+//
+// The game is won when score is 0
+func (state GameState) Score() (score int) {
+	score += len(state.Stock.Cards)
+	for i := range state.Tableaus {
+		score += len(state.Tableaus[i].Cards)
+	}
+	score += len(state.Waste.Cards)
+	return score
+}

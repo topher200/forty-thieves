@@ -56,3 +56,8 @@ func TestFlipStock(t *testing.T) {
 	assert.Len(t, state.Stock.Cards, stockLenStart-1)
 	assert.Len(t, state.Waste.Cards, wasteLenStart+1)
 }
+
+func TestScore(t *testing.T) {
+	state := NewGame()
+	assert.Equal(t, 104, state.Score())
+}
