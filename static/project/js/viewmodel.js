@@ -4,6 +4,7 @@ function CardGameViewModel()  {
     self.foundations = ko.observableArray();
     self.tableaus = ko.observableArray();
     self.waste = ko.observableArray();
+    self.score = ko.observable();
 
     self.imageFilename = function(card) {
         return 'project/cards-png/' + card.Suit + '-' + card.Face + '.png';
@@ -39,6 +40,7 @@ function CardGameViewModel()  {
         self.foundations(gamestate.Foundations);
         self.tableaus(gamestate.Tableaus);
         self.waste(gamestate.Waste.Cards);
+        self.score(gamestate.Score);
     };
 
     // Update gamestate on load
