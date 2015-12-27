@@ -3,32 +3,6 @@
 <button data-bind="click: movePost">Move</button>
 
 <div id="container" float:left>
-  <!-- stock -->
-  <div class="pile">
-    <img onclick="flipStock();" class="card-spot" src="project/cards-png/blank-card-spot.png"/>
-  </div>
-
-  <!-- waste -->
-  <div class="pile"
-       ondrop="cardDrop(event)"
-       data-location="waste"
-       data-index=0>
-    <!-- Blank card spot -->
-    <img class="card-spot" src="project/cards-png/blank-card-spot.png"/>
-    <span data-bind="foreach: waste">
-      <div
-         ondragstart="cardDrag(event)"
-         data-location="waste"
-         data-index=0
-         >
-        <img class="card-spot stackable"
-             data-bind="attr:{
-                        src: $root.imageFilename($data),
-                        style: 'top: 0px'
-                        }"/>
-      </div>
-  </div>
-
   <!-- foundations -->
   <div data-bind="foreach: foundations">
     <div class="pile"
@@ -52,6 +26,43 @@
         </div>
       </span>
     </div>
+  </div>
+
+  <!-- waste -->
+  <div class="pile"
+       ondrop="cardDrop(event)"
+       data-location="waste"
+       data-index=0>
+    <!-- Blank card spot -->
+    <img class="card-spot" src="project/cards-png/blank-card-spot.png"/>
+    <span data-bind="foreach: waste">
+      <div
+         ondragstart="cardDrag(event)"
+         data-location="waste"
+         data-index=0
+         >
+        <img class="card-spot stackable"
+             data-bind="attr:{
+                        src: $root.imageFilename($data),
+                        style: 'top: 0px'
+                        }"/>
+      </div>
+  </div>
+
+  <!-- stock -->
+  <div class="pile">
+    <!-- blank card spot -->
+    <img onclick="flipStock();" class="card-spot" src="project/cards-png/blank-card-spot.png"/>
+    <!-- each card in stock -->
+    <span data-bind="foreach: stock">
+      <div>
+        <img class="card-spot stackable"
+             src="project/cards-png/b1fv.png"
+             style="top: 0px"
+             onclick="flipStock();" 
+             />
+      </div>
+    </span>
   </div>
 </div>
 
