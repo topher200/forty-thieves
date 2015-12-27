@@ -59,5 +59,5 @@ func TestFlipStock(t *testing.T) {
 
 func TestScore(t *testing.T) {
 	state := NewGame()
-	assert.Equal(t, 104, state.Score())
+	assert.Equal(t, 104, state.Score)
 }

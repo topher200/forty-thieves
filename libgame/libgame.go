@@ -13,6 +13,8 @@ type GameState struct {
 	Foundations []deck.Deck
 	Tableaus    []deck.Deck
 	Waste       deck.Deck
+	// Must be updated after any modifications to the Decks above
+	Score int
 }
 
 const (
@@ -22,6 +24,8 @@ const (
 )
 
 // popFromStock returns error if there's no cards in the stock.
+//
+// Doesn't call 'updateScore' because it's a private function.
 func (state *GameState) popFromStock() (deck.Card, error) {
 	if len(state.Stock.Cards) <= 0 {
 		return deck.Card{}, errors.New("Empty stock")
@@ -37,6 +41,8 @@ func (state *GameState) MoveCard(from, to *deck.Deck) error {
 	}
 	to.Cards = append(to.Cards, from.Cards[len(from.Cards)-1])
 	from.Cards = from.Cards[:len(from.Cards)-1]
+
+	state.updateScore()
 	return nil
 }
 
@@ -47,6 +53,8 @@ func (state *GameState) FlipStock() error {
 	}
 
 	state.Waste.Cards = append(state.Waste.Cards, card)
+
+	state.updateScore()
 	return nil
 }
 
@@ -70,6 +78,8 @@ func NewGame() (state GameState) {
 			state.Tableaus[i].Cards = append(state.Tableaus[i].Cards, card)
 		}
 	}
+
+	state.updateScore()
 	return
 }
 
@@ -89,12 +99,15 @@ func (state GameState) String() string {
 
 // a GameState's Score is the number of cards not in foundations.
 //
-// The game is won when score is 0
-func (state GameState) Score() (score int) {
+// The game is won when score is 0.
+//
+// This function must be called after any function that manipulates the Decks.
+func (state *GameState) updateScore() {
+	score := 0
 	score += len(state.Stock.Cards)
 	for i := range state.Tableaus {
 		score += len(state.Tableaus[i].Cards)
 	}
 	score += len(state.Waste.Cards)
-	return score
+	state.Score = score
 }
