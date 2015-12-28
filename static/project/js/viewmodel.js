@@ -35,6 +35,11 @@ function CardGameViewModel()  {
         $.post("/flipstock", {}, self.updateGamestate, "json");
     };
 
+    // Send a undo move request. Use the response to update cards
+    self.undoMovePost = function() {
+        $.post("/undomove", {}, self.updateGamestate, "json");
+    };
+
     self.updateGamestate = function(gamestate) {
         self.stock(gamestate.Stock.Cards);
         self.foundations(gamestate.Foundations);
