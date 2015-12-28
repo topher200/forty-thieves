@@ -71,15 +71,26 @@ func (db *GameStateDB) SaveGameState(
 		return errors.New(
 			fmt.Sprintf("expected to change 1 row, changed %d", insertResult.RowsAffected))
 	}
-	logrus.Info("Saved new gamestate to db")
+
+	id, err := insertResult.LastInsertId()
+	logrus.Infof("Saved new gamestate (id %d) to db", id)
 	return nil
 }
 
 func (db *GameStateDB) DeleteLatestGameState(
 	tx *sqlx.Tx, userRow UserRow) error {
-	queryWhereStatement := fmt.Sprintf(
-		"id=(SELECT id from game_state WHERE user_id=%d ORDER BY id DESC LIMIT 1)",
-		userRow.ID)
+	// Get latest gamestate's ID
+	var gameStateRow GameStateRow
+	query := fmt.Sprintf(
+		"SELECT * FROM %s WHERE user_id=$1 ORDER BY id DESC LIMIT 1", db.table)
+	err := db.db.Get(&gameStateRow, query, userRow.ID)
+	if err != nil {
+		return fmt.Errorf("Error getting latest gamestate: %v", err)
+	}
+	logrus.Infof("Deleting latest gamestate (id %d) from db", gameStateRow.ID)
+
+	// Delete the gamestate
+	queryWhereStatement := fmt.Sprintf("id=%d", gameStateRow.ID)
 	res, err := db.DeleteFromTable(tx, queryWhereStatement)
 	if err != nil {
 		logrus.Warning("Error deleting last game state: ", err)
@@ -90,6 +101,5 @@ func (db *GameStateDB) DeleteLatestGameState(
 		return errors.New(
 			fmt.Sprintf("expected to change 1 row, changed %d", res.RowsAffected))
 	}
-	logrus.Info("Deleted latest gamestate from db")
 	return nil
 }
