@@ -73,3 +73,22 @@ func (db *GameStateDB) SaveGameState(
 	logrus.Info("Saved new gamestate to db")
 	return nil
 }
+
+func (db *GameStateDB) DeleteLatestGameState(
+	tx *sqlx.Tx, userRow UserRow) error {
+	queryWhereStatement := fmt.Sprintf(
+		"id=(SELECT id from game_state WHERE user_id=%d ORDER BY id DESC LIMIT 1)",
+		userRow.ID)
+	res, err := db.DeleteFromTable(tx, queryWhereStatement)
+	if err != nil {
+		logrus.Warning("Error deleting last game state: ", err)
+		return err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil || rowsAffected != 1 {
+		return errors.New(
+			fmt.Sprintf("expected to change 1 row, changed %d", res.RowsAffected))
+	}
+	logrus.Info("Deleted latest gamestate from db")
+	return nil
+}

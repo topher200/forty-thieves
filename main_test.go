@@ -51,6 +51,8 @@ func (testSuite *MainTestSuite) TestUserStory() {
 	testSuite.stateGet()
 	testSuite.flipStockPost()
 	testSuite.movePost()
+	// TODO: compare this gamestate to the gamestate before the last move?
+	testSuite.undoMovePost()
 }
 
 // checkResponse asserts that we didn't err and that our response looks good
@@ -116,6 +118,13 @@ func (testSuite *MainTestSuite) movePost() {
 		"ToIndex":      {"1"},
 	}
 	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/move", form)
+	defer resp.Body.Close()
+	checkResponse(testSuite.T(), resp, err)
+}
+
+// undoMovePost assumes that you're signed in
+func (testSuite *MainTestSuite) undoMovePost() {
+	resp, err := testSuite.client.Post(testSuite.server.URL+"/undomove", "text/json", nil)
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 }

@@ -173,3 +173,23 @@ func HandleFlipStockRequest(w http.ResponseWriter, r *http.Request) {
 
 	saveGameStateAndRespond(w, r, *gameState)
 }
+
+// HandleUndoMove deletes the latest move for the current user.
+//
+// If no error, responds with the gamestate for the new latest move (after
+// deletion).
+func HandleUndoMove(w http.ResponseWriter, r *http.Request) {
+	gameStateDB, currentUser, err := databaseParams(w, r)
+	if err != nil {
+		libhttp.HandleErrorJson(w, err)
+		return
+	}
+
+	err = gameStateDB.DeleteLatestGameState(nil, *currentUser)
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("Undo failed: %v", err))
+		return
+	}
+
+	HandleStateRequest(w, r)
+}
