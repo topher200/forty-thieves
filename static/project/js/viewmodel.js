@@ -23,9 +23,9 @@ function CardGameViewModel()  {
     self.movePost = function(fromLocation, fromIndex, toLocation, toIndex) {
         $.post(
             "/move",
-            { "FromLocation": fromLocation,
+            { "FromPile": fromLocation,
               "FromIndex": fromIndex,
-              "ToLocation": toLocation,
+              "ToPile": toLocation,
               "ToIndex": toIndex},
             self.updateGamestate, "json");
     };

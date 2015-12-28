@@ -35,12 +35,67 @@ func (state *GameState) popFromStock() (deck.Card, error) {
 	return card, nil
 }
 
-func (state *GameState) MoveCard(from, to *deck.Deck) error {
-	if len(from.Cards) <= 0 {
-		return errors.New("Can't complete move")
+// Pile locations
+type PileLocation string
+
+const (
+	stock      PileLocation = "stock"
+	foundation              = "foundation"
+	tableau                 = "tableau"
+	waste                   = "waste"
+)
+
+type Move struct {
+	FromPile  PileLocation
+	FromIndex int
+	ToPile    PileLocation
+	ToIndex   int
+}
+
+func (state *GameState) MoveIsLegal(move Move) bool {
+	// todo
+	return false
+}
+
+func (state *GameState) parseMove(move Move) (*deck.Deck, *deck.Deck, error) {
+	parseFunc := func(pileLocation PileLocation, index int) (*deck.Deck, error) {
+		var d *deck.Deck
+		switch pileLocation {
+		case "tableau":
+			d = &state.Tableaus[index]
+		case "foundation":
+			d = &state.Foundations[index]
+		case "stock":
+			d = &state.Stock
+		case "waste":
+			d = &state.Waste
+		default:
+			return nil, fmt.Errorf("unknown pile name '%s'", pileLocation)
+		}
+		return d, nil
 	}
-	to.Cards = append(to.Cards, from.Cards[len(from.Cards)-1])
-	from.Cards = from.Cards[:len(from.Cards)-1]
+	from, err := parseFunc(move.FromPile, move.FromIndex)
+	if err != nil {
+		return nil, nil, err
+	}
+	to, err := parseFunc(move.ToPile, move.ToIndex)
+	if err != nil {
+		return nil, nil, err
+	}
+	return from, to, nil
+}
+
+func (state *GameState) MoveCard(move Move) error {
+	fromDeck, toDeck, err := state.parseMove(move)
+	if err != nil {
+		return fmt.Errorf("Can't parse Move: %v", err)
+	}
+
+	if len(fromDeck.Cards) <= 0 {
+		return errors.New("From deck empty - can't complete move")
+	}
+	toDeck.Cards = append(toDeck.Cards, fromDeck.Cards[len(fromDeck.Cards)-1])
+	fromDeck.Cards = fromDeck.Cards[:len(fromDeck.Cards)-1]
 
 	state.updateScore()
 	return nil
