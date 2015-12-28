@@ -33,7 +33,8 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 // GetGameState returns the latest gamestate for a user
 func (db *GameStateDB) GetGameState(userRow UserRow) (*libgame.GameState, error) {
 	var gameStateRow GameStateRow
-	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id=$1 ORDER BY id DESC LIMIT 1", db.table)
+	query := fmt.Sprintf(
+		"SELECT * FROM %s WHERE user_id=$1 ORDER BY id DESC LIMIT 1", db.table)
 	err := db.db.Get(&gameStateRow, query, userRow.ID)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
