@@ -61,3 +61,87 @@ func TestScore(t *testing.T) {
 	state := NewGame()
 	assert.Equal(t, 104, state.Score)
 }
+
+func TestIsMoveLegal(t *testing.T) {
+	// move to waste and stock
+	assert.Error(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.KING, Suit: deck.CLUB}}},
+		waste,
+		deck.Deck{}),
+		"moving to waste is illegal")
+	assert.Error(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.KING, Suit: deck.CLUB}}},
+		stock,
+		deck.Deck{}),
+		"moving to stock is illegal")
+
+	// move to foundation
+	assert.Nil(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.ACE, Suit: deck.CLUB}}},
+		foundation,
+		deck.Deck{}),
+		"moving to empty foundation with ace is OK")
+	assert.Error(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.KING, Suit: deck.CLUB}}},
+		foundation,
+		deck.Deck{}),
+		"moving non-ace to empty foundation is illegal")
+	assert.Error(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.ACE, Suit: deck.CLUB}}},
+		foundation,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.KING, Suit: deck.CLUB}}}),
+		"moving ace to populated foundation is illegal")
+	assert.Error(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.TEN, Suit: deck.CLUB}}},
+		foundation,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.JACK, Suit: deck.CLUB}}}),
+		"moving ten onto jack in foundation is illegal")
+	assert.Nil(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.TWO, Suit: deck.CLUB}}},
+		foundation,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.ACE, Suit: deck.CLUB}}}),
+		"moving two on top of ace in foundation is OK")
+	assert.Nil(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.THREE, Suit: deck.CLUB}}},
+		foundation,
+		deck.Deck{Cards: []deck.Card{
+			deck.Card{Face: deck.ACE, Suit: deck.CLUB},
+			deck.Card{Face: deck.TWO, Suit: deck.CLUB}}}),
+		"moving three on top of ace/two in foundation is OK")
+
+	// moving to tableaus
+	assert.Nil(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.THREE, Suit: deck.CLUB}}},
+		tableau,
+		deck.Deck{}),
+		"moving to an empty tableau is OK")
+	assert.Nil(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.TEN, Suit: deck.CLUB}}},
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.JACK, Suit: deck.CLUB}}}),
+		"moving ten onto jack in tableau is ok")
+	assert.Nil(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.NINE, Suit: deck.CLUB}}},
+		tableau,
+		deck.Deck{Cards: []deck.Card{
+			deck.Card{Face: deck.JACK, Suit: deck.CLUB},
+			deck.Card{Face: deck.TEN, Suit: deck.CLUB}}}),
+		"moving nine onto jack/ten in tableau is ok")
+	assert.Error(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.JACK, Suit: deck.CLUB}}},
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.TEN, Suit: deck.CLUB}}}),
+		"moving jack onto ten in tableau is illegal")
+}
