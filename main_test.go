@@ -112,10 +112,10 @@ func (testSuite *MainTestSuite) flipStockPost() {
 // movePost assumes that you're signed in
 func (testSuite *MainTestSuite) movePost() {
 	form := url.Values{
-		"FromLocation": {"tableau"},
-		"FromIndex":    {"0"},
-		"ToLocation":   {"tableau"},
-		"ToIndex":      {"1"},
+		"FromPile":  {"tableau"},
+		"FromIndex": {"0"},
+		"ToPile":    {"tableau"},
+		"ToIndex":   {"1"},
 	}
 	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/move", form)
 	defer resp.Body.Close()
