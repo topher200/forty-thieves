@@ -31,13 +31,13 @@ func TestMoveCard(t *testing.T) {
 	// Make sure that the size of each deck has inc/decreased, and that the moved
 	// card is now at the bottom of deck #2
 	state := NewGame()
-	deckFrom := state.Tableaus[0]
+	deckFrom := &state.Tableaus[0]
 	deckFromLen := len(deckFrom.Cards)
 	cardToMove := deckFrom.Cards[deckFromLen-1]
-	deckTo := state.Tableaus[1]
+	deckTo := &state.Tableaus[1]
 	deckToLen := len(deckTo.Cards)
 
-	err := state.MoveCard(&deckFrom, &deckTo)
+	err := state.MoveCard(MoveRequest{tableau, 0, tableau, 1})
 
 	assert.Nil(t, err)
 	assert.Len(t, deckFrom.Cards, deckFromLen-1)
