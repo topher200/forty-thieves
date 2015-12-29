@@ -143,8 +143,9 @@ func (state *GameState) MoveCard(move MoveRequest) error {
 		return fmt.Errorf("Can't parse Move: %v", err)
 	}
 
-	if len(fromDeck.Cards) <= 0 {
-		return errors.New("From deck empty - can't complete move")
+	err = IsMoveLegal(move.FromPile, *fromDeck, move.ToPile, *toDeck)
+	if err != nil {
+		return fmt.Errorf("Can't complete move: %v", err)
 	}
 	toDeck.Cards = append(toDeck.Cards, fromDeck.Cards[len(fromDeck.Cards)-1])
 	fromDeck.Cards = fromDeck.Cards[:len(fromDeck.Cards)-1]
