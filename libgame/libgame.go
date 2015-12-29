@@ -48,7 +48,7 @@ const (
 // IsMoveLegal analyzes the to/from Piles and the cards involved to give a yes/no
 //
 // Returns an error (with explanation) if move shouldn't be done
-func (state *GameState) IsMoveLegal(
+func IsMoveLegal(
 	fromPile PileLocation, fromDeck deck.Deck,
 	toPile PileLocation, toDeck deck.Deck) error {
 	// Is the destination always illegal?
