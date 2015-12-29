@@ -79,20 +79,20 @@ func IsMoveLegal(
 		}
 		switch toPile {
 		case tableau:
-			decrementedFace, err := deck.Decrement(cardBeingMoved.Face)
+			decrementedDestination, err := deck.Decrement(destinationCard.Face)
 			if err != nil {
 				return err
 			}
-			if decrementedFace != destinationCard.Face {
-				return fmt.Errorf("Illegal move - foundation cards must decrease (%s on %s)",
+			if decrementedDestination != cardBeingMoved.Face {
+				return fmt.Errorf("Illegal move - tableau cards must decrease (%s on %s)",
 					cardBeingMoved, destinationCard)
 			}
 		case foundation:
-			incrementedFace, err := deck.Increment(cardBeingMoved.Face)
+			incrementedDestination, err := deck.Increment(destinationCard.Face)
 			if err != nil {
 				return err
 			}
-			if incrementedFace != destinationCard.Face {
+			if incrementedDestination != cardBeingMoved.Face {
 				return fmt.Errorf("Illegal move - foundation cards must increase (%s on %s)",
 					cardBeingMoved, destinationCard)
 			}
