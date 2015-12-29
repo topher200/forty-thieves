@@ -104,7 +104,7 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 			w, fmt.Errorf("failure to decode move request: %v", err))
 		return
 	}
-	var moveRequest libgame.Move
+	var moveRequest libgame.MoveRequest
 	err = decoder.Decode(&moveRequest, r.PostForm)
 	if err != nil {
 		libhttp.HandleErrorJson(

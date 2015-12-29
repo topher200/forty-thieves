@@ -45,19 +45,71 @@ const (
 	waste                   = "waste"
 )
 
-type Move struct {
+// IsMoveLegal analyzes the to/from Piles and the cards involved to give a yes/no
+//
+// Returns an error (with explanation) if move shouldn't be done
+func (state *GameState) IsMoveLegal(
+	fromPile PileLocation, fromDeck deck.Deck,
+	toPile PileLocation, toDeck deck.Deck) error {
+	// Is the destination always illegal?
+	if toPile == stock || toPile == waste {
+		return fmt.Errorf("Illegal move - destination '%s' illegal", toPile)
+	}
+
+	// Is there a card to move?
+	if len(fromDeck.Cards) <= 0 {
+		return fmt.Errorf("Illegal move - 'from' pile '%s' empty", fromPile)
+	}
+	cardBeingMoved := fromDeck.Cards[len(fromDeck.Cards)-1]
+
+	// Is our destination empty?
+	if len(toDeck.Cards) <= 0 {
+		// Empty foundations can only take aces
+		if toPile == foundation && cardBeingMoved.Face != deck.ACE {
+			return fmt.Errorf(
+				"Illegal move - moving to empty foundation requires ACE, not '%s'",
+				cardBeingMoved)
+		}
+		// Empty tableaus are always OK moves
+	} else {
+		destinationCard := toDeck.Cards[len(toDeck.Cards)-1]
+		if cardBeingMoved.Suit != destinationCard.Suit {
+			return fmt.Errorf("Illegal move - suits much match (%s on %s)",
+				cardBeingMoved, destinationCard)
+		}
+		switch toPile {
+		case tableau:
+			decrementedFace, err := deck.Decrement(cardBeingMoved.Face)
+			if err != nil {
+				return err
+			}
+			if decrementedFace != destinationCard.Face {
+				return fmt.Errorf("Illegal move - foundation cards must decrease (%s on %s)",
+					cardBeingMoved, destinationCard)
+			}
+		case foundation:
+			incrementedFace, err := deck.Increment(cardBeingMoved.Face)
+			if err != nil {
+				return err
+			}
+			if incrementedFace != destinationCard.Face {
+				return fmt.Errorf("Illegal move - foundation cards must increase (%s on %s)",
+					cardBeingMoved, destinationCard)
+			}
+		}
+	}
+	return nil
+}
+
+type MoveRequest struct {
 	FromPile  PileLocation
 	FromIndex int
 	ToPile    PileLocation
 	ToIndex   int
 }
 
-func (state *GameState) MoveIsLegal(move Move) bool {
-	// todo
-	return false
-}
-
-func (state *GameState) parseMove(move Move) (*deck.Deck, *deck.Deck, error) {
+func (state *GameState) parseMoveRequest(
+	move MoveRequest) (*deck.Deck, *deck.Deck, error) {
 	parseFunc := func(pileLocation PileLocation, index int) (*deck.Deck, error) {
 		var d *deck.Deck
 		switch pileLocation {
@@ -85,8 +137,8 @@ func (state *GameState) parseMove(move Move) (*deck.Deck, *deck.Deck, error) {
 	return from, to, nil
 }
 
-func (state *GameState) MoveCard(move Move) error {
-	fromDeck, toDeck, err := state.parseMove(move)
+func (state *GameState) MoveCard(move MoveRequest) error {
+	fromDeck, toDeck, err := state.parseMoveRequest(move)
 	if err != nil {
 		return fmt.Errorf("Can't parse Move: %v", err)
 	}
