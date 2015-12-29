@@ -31,9 +31,19 @@ func TestMoveCard(t *testing.T) {
 	// Make sure that the size of each deck has inc/decreased, and that the moved
 	// card is now at the bottom of deck #2
 	state := NewGame()
+	state.Tableaus[0].Cards = []deck.Card{
+		deck.Card{Face: deck.KING, Suit: deck.CLUB},
+		deck.Card{Face: deck.QUEEN, Suit: deck.CLUB},
+		deck.Card{Face: deck.JACK, Suit: deck.CLUB},
+		deck.Card{Face: deck.NINE, Suit: deck.CLUB}}
 	deckFrom := &state.Tableaus[0]
 	deckFromLen := len(deckFrom.Cards)
 	cardToMove := deckFrom.Cards[deckFromLen-1]
+	state.Tableaus[1].Cards = []deck.Card{
+		deck.Card{Face: deck.KING, Suit: deck.CLUB},
+		deck.Card{Face: deck.QUEEN, Suit: deck.CLUB},
+		deck.Card{Face: deck.JACK, Suit: deck.CLUB},
+		deck.Card{Face: deck.TEN, Suit: deck.CLUB}}
 	deckTo := &state.Tableaus[1]
 	deckToLen := len(deckTo.Cards)
 
