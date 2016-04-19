@@ -1,6 +1,6 @@
 #!/bin/bash
 
-go test ./... -v
+go test ./...
 
 retval=$?
 if [ $retval != 0 ]; then
