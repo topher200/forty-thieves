@@ -13,7 +13,7 @@ func newEmailForTest() string {
 }
 
 func TestNewTransactionIfNeeded(t *testing.T) {
-	base := newBaseForTest(t)
+	base := newBaseDBForTest(t)
 
 	// New Transaction block
 	tx, wrapInSingleTransaction, err := base.newTransactionIfNeeded(nil)
@@ -44,7 +44,7 @@ func TestNewTransactionIfNeeded(t *testing.T) {
 }
 
 func TestCreateDeleteGeneric(t *testing.T) {
-	base := newBaseForTest(t)
+	base := newBaseDBForTest(t)
 	base.table = "users"
 
 	// INSERT INTO users (name) VALUES (...)
@@ -73,7 +73,7 @@ func TestCreateDeleteGeneric(t *testing.T) {
 }
 
 func TestCreateDeleteById(t *testing.T) {
-	base := newBaseForTest(t)
+	base := newBaseDBForTest(t)
 	base.table = "users"
 
 	// INSERT INTO users (...) VALUES (...)
@@ -100,7 +100,7 @@ func TestCreateDeleteById(t *testing.T) {
 }
 
 func TestCreateUpdateGenericDelete(t *testing.T) {
-	base := newBaseForTest(t)
+	base := newBaseDBForTest(t)
 	base.table = "users"
 
 	// INSERT INTO users (...) VALUES (...)
@@ -136,7 +136,7 @@ func TestCreateUpdateGenericDelete(t *testing.T) {
 }
 
 func TestCreateUpdateByIdDelete(t *testing.T) {
-	base := newBaseForTest(t)
+	base := newBaseDBForTest(t)
 	base.table = "users"
 
 	// INSERT INTO users (...) VALUES (...)
@@ -171,7 +171,7 @@ func TestCreateUpdateByIdDelete(t *testing.T) {
 }
 
 func TestCreateUpdateByKeyValueStringDelete(t *testing.T) {
-	base := newBaseForTest(t)
+	base := newBaseDBForTest(t)
 	base.table = "users"
 
 	originalEmail := newEmailForTest()

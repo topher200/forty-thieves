@@ -54,7 +54,7 @@ func newDbForTest(t *testing.T) *sqlx.DB {
 	return db
 }
 
-func newBaseForTest(t *testing.T) *Base {
+func newBaseDBForTest(t *testing.T) *Base {
 	base := &Base{}
 	base.db = newDbForTest(t)
 
