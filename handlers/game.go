@@ -11,7 +11,6 @@ import (
 	"github.com/gorilla/context"
 	"github.com/gorilla/schema"
 	"github.com/jmoiron/sqlx"
-	"github.com/topher200/deck"
 	"github.com/topher200/forty-thieves/dal"
 	"github.com/topher200/forty-thieves/libgame"
 	"github.com/topher200/forty-thieves/libhttp"
@@ -85,15 +84,10 @@ func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 // Although it's weird, the docs want our decoder to be a global
 var decoder = schema.NewDecoder()
 
-// Index must be included but is ignored for "stock" and "waste"
-type MoveCommand struct {
-	FromLocation string
-	FromIndex    int
-	ToLocation   string
-	ToIndex      int
-}
-
 // HandleMoveRequest makes the move and saves the new state to the db.
+//
+// Requests are of the form libgame.Move. The index must be included (but is
+// ignored) for "stock" and "waste" piles.
 //
 // We respond just like a /state request
 func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
@@ -110,8 +104,8 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 			w, fmt.Errorf("failure to decode move request: %v", err))
 		return
 	}
-	var request MoveCommand
-	err = decoder.Decode(&request, r.PostForm)
+	var moveRequest libgame.MoveRequest
+	err = decoder.Decode(&moveRequest, r.PostForm)
 	if err != nil {
 		libhttp.HandleErrorJson(
 			w, fmt.Errorf("failure to decode move request: %v. form values: %v",
@@ -119,37 +113,11 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("Handling move request from %s-%d to %s-%d\n",
-		request.FromLocation, request.FromIndex, request.ToLocation, request.ToIndex)
-
-	// Translate from string pile description to actual Decks
-	parseFunc := func(location string, index int) (*deck.Deck, error) {
-		var d *deck.Deck
-		switch location {
-		case "tableau":
-			d = &gameState.Tableaus[index]
-		case "foundation":
-			d = &gameState.Foundations[index]
-		case "stock":
-			d = &gameState.Stock
-		case "waste":
-			d = &gameState.Waste
-		default:
-			libhttp.HandleErrorJson(w, fmt.Errorf("unknown pile name '%s'", location))
-			return nil, errors.New("unknown pile name")
-		}
-		return d, nil
-	}
-	from, err := parseFunc(request.FromLocation, request.FromIndex)
-	if err != nil {
-		return
-	}
-	to, err := parseFunc(request.ToLocation, request.ToIndex)
-	if err != nil {
-		return
-	}
+		moveRequest.FromPile, moveRequest.FromIndex,
+		moveRequest.ToPile, moveRequest.ToIndex)
 
 	// Move the card
-	err = gameState.MoveCard(from, to)
+	err = gameState.MoveCard(moveRequest)
 	if err != nil {
 		libhttp.HandleErrorJson(w, fmt.Errorf("invalid move: %v", err))
 		return
