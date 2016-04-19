@@ -126,6 +126,14 @@ func TestIsMoveLegal(t *testing.T) {
 			deck.Card{Face: deck.ACE, Suit: deck.CLUB},
 			deck.Card{Face: deck.TWO, Suit: deck.CLUB}}}),
 		"moving three on top of ace/two in foundation is OK")
+	assert.Error(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.THREE, Suit: deck.HEART}}},
+		foundation,
+		deck.Deck{Cards: []deck.Card{
+			deck.Card{Face: deck.ACE, Suit: deck.CLUB},
+			deck.Card{Face: deck.TWO, Suit: deck.CLUB}}}),
+		"moving heart on top of clubs in foundation is error")
 
 	// moving to tableaus
 	assert.Nil(t, IsMoveLegal(
@@ -154,4 +162,12 @@ func TestIsMoveLegal(t *testing.T) {
 		tableau,
 		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.TEN, Suit: deck.CLUB}}}),
 		"moving jack onto ten in tableau is illegal")
+	assert.Error(t, IsMoveLegal(
+		tableau,
+		deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.NINE, Suit: deck.HEART}}},
+		tableau,
+		deck.Deck{Cards: []deck.Card{
+			deck.Card{Face: deck.JACK, Suit: deck.CLUB},
+			deck.Card{Face: deck.TEN, Suit: deck.CLUB}}}),
+		"moving heart on top of clubs in tableau is illegal")
 }
