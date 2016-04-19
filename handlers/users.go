@@ -34,7 +34,7 @@ func PostSignup(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("Password")
 	passwordAgain := r.FormValue("PasswordAgain")
 
-	_, err := dal.NewUser(db).Signup(nil, email, password, passwordAgain)
+	_, err := dal.NewUserDB(db).Signup(nil, email, password, passwordAgain)
 	if err != nil {
 		libhttp.HandleErrorJson(w, err)
 		return
@@ -79,7 +79,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("Email")
 	password := r.FormValue("Password")
 
-	u := dal.NewUser(db)
+	u := dal.NewUserDB(db)
 
 	user, err := u.GetUserByEmailAndPassword(nil, email, password)
 	if err != nil {
@@ -148,7 +148,7 @@ func PutUsersID(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("Password")
 	passwordAgain := r.FormValue("PasswordAgain")
 
-	u := dal.NewUser(db)
+	u := dal.NewUserDB(db)
 
 	currentUser, err = u.UpdateEmailAndPasswordById(nil, currentUser.ID, email, password, passwordAgain)
 	if err != nil {

@@ -12,7 +12,7 @@ func newGameStateDBForTest(t *testing.T) *GameStateDB {
 }
 
 func TestGetEmptyGameState(t *testing.T) {
-	u := NewUserForTest(t)
+	u := NewUserDBForTest(t)
 	userRow := u.signupNewUserRowForTest(t)
 	gameStateDB := newGameStateDBForTest(t)
 
@@ -22,7 +22,7 @@ func TestGetEmptyGameState(t *testing.T) {
 }
 
 func TestSaveAndGetGameState(t *testing.T) {
-	u := NewUserForTest(t)
+	u := NewUserDBForTest(t)
 	userRow := u.signupNewUserRowForTest(t)
 	gameStateDB := newGameStateDBForTest(t)
 

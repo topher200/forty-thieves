@@ -10,11 +10,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func NewUserForTest(t *testing.T) *User {
-	return NewUser(newDbForTest(t))
+func NewUserDBForTest(t *testing.T) *User {
+	return NewUserDB(newDbForTest(t))
 }
 
-func NewUser(db *sqlx.DB) *User {
+func NewUserDB(db *sqlx.DB) *User {
 	user := &User{}
 	user.db = db
 	user.table = "users"

@@ -16,7 +16,7 @@ func (u *User) signupNewUserRowForTest(t *testing.T) *UserRow {
 }
 
 func TestUserCRUD(t *testing.T) {
-	u := NewUserForTest(t)
+	u := NewUserDBForTest(t)
 
 	// Signup
 	userRow := u.signupNewUserRowForTest(t)
