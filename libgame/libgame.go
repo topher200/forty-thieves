@@ -18,9 +18,9 @@ type GameState struct {
 }
 
 const (
-	numTableaus                = 10
+	NumFoundations             = 8
+	NumTableaus                = 10
 	numStartingCardsPerTableau = 4
-	numFoundations             = 8
 )
 
 // popFromStock returns error if there's no cards in the stock.
@@ -176,10 +176,10 @@ func NewGame() (state GameState) {
 
 	// All cards start in the stock, and our foundations start empty
 	state.Stock.Cards = newDeck.Cards
-	state.Foundations = make([]deck.Deck, 8)
+	state.Foundations = make([]deck.Deck, NumFoundations)
 
 	// Populate our tableaus with cards off the stock
-	state.Tableaus = make([]deck.Deck, 10)
+	state.Tableaus = make([]deck.Deck, NumTableaus)
 	for i, _ := range state.Tableaus {
 		for j := 0; j < numStartingCardsPerTableau; j++ {
 			card, err := state.popFromStock()
