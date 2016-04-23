@@ -25,7 +25,8 @@ const (
 
 // popFromStock returns error if there's no cards in the stock.
 //
-// Doesn't call 'updateScore' because it's a private function.
+// Doesn't call 'updateScore' because it's a private function. Caller is
+// expected to do that for us.
 func (state *GameState) popFromStock() (deck.Card, error) {
 	if len(state.Stock.Cards) <= 0 {
 		return deck.Card{}, errors.New("Empty stock")
@@ -108,7 +109,7 @@ type MoveRequest struct {
 	ToIndex   int
 }
 
-func (state *GameState) parseMoveRequest(
+func (state *GameState) parseDecksFromMoveRequest(
 	move MoveRequest) (*deck.Deck, *deck.Deck, error) {
 	parseFunc := func(pileLocation PileLocation, index int) (*deck.Deck, error) {
 		var d *deck.Deck
@@ -138,7 +139,7 @@ func (state *GameState) parseMoveRequest(
 }
 
 func (state *GameState) MoveCard(move MoveRequest) error {
-	fromDeck, toDeck, err := state.parseMoveRequest(move)
+	fromDeck, toDeck, err := state.parseDecksFromMoveRequest(move)
 	if err != nil {
 		return fmt.Errorf("Can't parse Move: %v", err)
 	}
