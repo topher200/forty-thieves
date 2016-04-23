@@ -62,7 +62,7 @@ func IsMoveLegal(
 	}
 	cardBeingMoved := fromDeck.Cards[len(fromDeck.Cards)-1]
 
-	// Is our destination empty?
+	// Are our destination empty?
 	if len(toDeck.Cards) <= 0 {
 		// Empty foundations can only take aces
 		if toPile == foundation && cardBeingMoved.Face != deck.ACE {
