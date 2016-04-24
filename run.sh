@@ -5,4 +5,4 @@ set -e
 
 # install then run
 go build
-./forty-thieves --deterministic
+./forty-thieves "$@"
