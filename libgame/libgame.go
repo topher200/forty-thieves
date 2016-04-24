@@ -83,31 +83,32 @@ func isMoveLegal(
 				cardBeingMoved)
 		}
 		// Empty tableaus are always OK moves
-	} else {
-		destinationCard := toDeck.Cards[len(toDeck.Cards)-1]
-		if cardBeingMoved.Suit != destinationCard.Suit {
-			return fmt.Errorf("Illegal move - suits much match (%s on %s)",
+	}
+
+	// Does the card we're moving "fit" on top of the card that's there?
+	destinationCard := toDeck.Cards[len(toDeck.Cards)-1]
+	if cardBeingMoved.Suit != destinationCard.Suit {
+		return fmt.Errorf("Illegal move - suits much match (%s on %s)",
+			cardBeingMoved, destinationCard)
+	}
+	switch toPile {
+	case tableau:
+		decrementedDestination, err := deck.Decrement(destinationCard.Face)
+		if err != nil {
+			return err
+		}
+		if decrementedDestination != cardBeingMoved.Face {
+			return fmt.Errorf("Illegal move - tableau cards must decrease (%s on %s)",
 				cardBeingMoved, destinationCard)
 		}
-		switch toPile {
-		case tableau:
-			decrementedDestination, err := deck.Decrement(destinationCard.Face)
-			if err != nil {
-				return err
-			}
-			if decrementedDestination != cardBeingMoved.Face {
-				return fmt.Errorf("Illegal move - tableau cards must decrease (%s on %s)",
-					cardBeingMoved, destinationCard)
-			}
-		case foundation:
-			incrementedDestination, err := deck.Increment(destinationCard.Face)
-			if err != nil {
-				return err
-			}
-			if incrementedDestination != cardBeingMoved.Face {
-				return fmt.Errorf("Illegal move - foundation cards must increase (%s on %s)",
-					cardBeingMoved, destinationCard)
-			}
+	case foundation:
+		incrementedDestination, err := deck.Increment(destinationCard.Face)
+		if err != nil {
+			return err
+		}
+		if incrementedDestination != cardBeingMoved.Face {
+			return fmt.Errorf("Illegal move - foundation cards must increase (%s on %s)",
+				cardBeingMoved, destinationCard)
 		}
 	}
 	return nil
