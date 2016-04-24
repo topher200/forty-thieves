@@ -14,6 +14,7 @@ import (
 	"github.com/topher200/forty-thieves/dal"
 	"github.com/topher200/forty-thieves/libgame"
 	"github.com/topher200/forty-thieves/libhttp"
+	"github.com/topher200/forty-thieves/libsolver"
 )
 
 // Returns the DB paramaters required to be able to get/save GameStates for this user.
@@ -160,4 +161,20 @@ func HandleUndoMove(w http.ResponseWriter, r *http.Request) {
 	}
 
 	HandleStateRequest(w, r)
+}
+
+func HandleFoundationAvailableCardRequest(w http.ResponseWriter, r *http.Request) {
+	gameState, err := getGameState(w, r)
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
+		return
+	}
+
+	err = libsolver.FoundationAvailableCard(gameState)
+	if err != nil {
+		libhttp.HandleErrorJson(w, fmt.Errorf("can't foundation card: %v", err))
+		return
+	}
+
+	saveGameStateAndRespond(w, r, *gameState)
 }
