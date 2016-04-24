@@ -46,12 +46,23 @@ const (
 	waste                   = "waste"
 )
 
-// IsMoveLegal analyzes the to/from Piles and the cards involved to give a yes/no
+// IsMoveRequestLegal requests legality of a MoveRequest for a given GameState.
 //
 // Returns an error (with explanation) if move shouldn't be done
-func IsMoveLegal(
-	fromPile PileLocation, fromDeck deck.Deck,
-	toPile PileLocation, toDeck deck.Deck) error {
+func (state *GameState) IsMoveRequestLegal(move MoveRequest) error {
+	fromDeck, toDeck, err := state.parseDecksFromMoveRequest(move)
+	if err != nil {
+		return err
+	}
+
+	return isMoveLegal(move.FromPile, fromDeck, move.ToPile, toDeck)
+}
+
+// isMoveLegal checks the cards and decks involved for legality.
+func isMoveLegal(
+	fromPile PileLocation, fromDeck *deck.Deck,
+	toPile PileLocation, toDeck *deck.Deck) error {
+
 	// Is the destination always illegal?
 	if toPile == stock || toPile == waste {
 		return fmt.Errorf("Illegal move - destination '%s' illegal", toPile)
@@ -139,15 +150,15 @@ func (state *GameState) parseDecksFromMoveRequest(
 }
 
 func (state *GameState) MoveCard(move MoveRequest) error {
-	fromDeck, toDeck, err := state.parseDecksFromMoveRequest(move)
-	if err != nil {
-		return fmt.Errorf("Can't parse Move: %v", err)
-	}
-
-	err = IsMoveLegal(move.FromPile, *fromDeck, move.ToPile, *toDeck)
+	err := state.IsMoveRequestLegal(move)
 	if err != nil {
 		return fmt.Errorf("Can't complete move: %v", err)
 	}
+	fromDeck, toDeck, err := state.parseDecksFromMoveRequest(move)
+	if err != nil {
+		return err
+	}
+
 	toDeck.Cards = append(toDeck.Cards, fromDeck.Cards[len(fromDeck.Cards)-1])
 	fromDeck.Cards = fromDeck.Cards[:len(fromDeck.Cards)-1]
 
