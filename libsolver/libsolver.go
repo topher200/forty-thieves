@@ -45,9 +45,9 @@ func getPossibleMoves(state *libgame.GameState) []libgame.MoveRequest {
 
 func FoundationAvailableCard(state *libgame.GameState) error {
 	for _, move := range getPossibleMoves(state) {
-		if move.ToPile == "foundation" {
+		if move.FromPile != "foundation" && move.ToPile == "foundation" {
 			return state.MoveCard(move)
 		}
 	}
-	return fmt.Errorf("No Foundationable cards found")
+	return fmt.Errorf("No foundationable cards found")
 }
