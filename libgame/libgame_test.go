@@ -73,6 +73,14 @@ func TestScore(t *testing.T) {
 }
 
 func TestIsMoveLegal(t *testing.T) {
+	// move from stock
+	assert.Error(t, isMoveLegal(
+		stock,
+		&deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.TWO, Suit: deck.CLUB}}},
+		foundation,
+		&deck.Deck{Cards: []deck.Card{deck.Card{Face: deck.ACE, Suit: deck.CLUB}}}),
+		"moving from stock is illegal")
+
 	// move to waste and stock
 	assert.Error(t, isMoveLegal(
 		tableau,
