@@ -1,10 +1,14 @@
 {
 	"ImportPath": "github.com/topher200/forty-thieves",
-	"GoVersion": "go1.5.1",
+	"GoVersion": "go1.5.2",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
+		{
+			"ImportPath": "github.com/GaryBoone/GoStats/stats",
+			"Rev": "1993eafbef57be29ee8f5eb9d26a22f20ff3c207"
+		},
 		{
 			"ImportPath": "github.com/Sirupsen/logrus",
 			"Comment": "v0.8.7-47-ga22723f",
@@ -15,12 +19,24 @@
 			"Rev": "50c09d12f8624ab10532f931cb630d0bf5f7c2c7"
 		},
 		{
+			"ImportPath": "github.com/golang/gddo/httputil",
+			"Rev": "56fdb27532ffe5f8f0d2c7c8b1f0b4d1da481f10"
+		},
+		{
 			"ImportPath": "github.com/gorilla/context",
 			"Rev": "1c83b3eabd45b6d76072b66b746c20815fb2872d"
 		},
 		{
+			"ImportPath": "github.com/gorilla/handlers",
+			"Rev": "e96366d97736da3bdec18b7fbaedd37c6fc97fb9"
+		},
+		{
 			"ImportPath": "github.com/gorilla/mux",
 			"Rev": "9c068cf16d982f8bd444b8c352acbeec34c4fe5b"
+		},
+		{
+			"ImportPath": "github.com/gorilla/schema",
+			"Rev": "14c555599c2a4f493c1e13fd1ea6fdf721739028"
 		},
 		{
 			"ImportPath": "github.com/gorilla/securecookie",
@@ -41,6 +57,29 @@
 			"Rev": "83c4f410d0aed80a0f44bac6a576a7f2435791f3"
 		},
 		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.0-71-g0d5a14c",
+			"Rev": "0d5a14c5a477957864f3b747d95255ad4e34bcc0"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/require",
+			"Comment": "v1.0-71-g0d5a14c",
+			"Rev": "0d5a14c5a477957864f3b747d95255ad4e34bcc0"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/suite",
+			"Comment": "v1.0-71-g0d5a14c",
+			"Rev": "0d5a14c5a477957864f3b747d95255ad4e34bcc0"
+		},
+		{
+			"ImportPath": "github.com/topher200/baseutil",
+			"Rev": "4c047cfcd6b0b738f8e35f19d8ca7be77b614958"
+		},
+		{
+			"ImportPath": "github.com/topher200/deck",
+			"Rev": "f675ba362569906640f0ce3caca8eb80a3866dcd"
+		},
+		{
 			"ImportPath": "github.com/tylerb/graceful",
 			"Comment": "v1.2.3",
 			"Rev": "48afeb21e2fcbcff0f30bd5ad6b97747b0fae38e"
@@ -54,8 +93,20 @@
 			"Rev": "346896d57731cb5670b36c6178fc5519f3225980"
 		},
 		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "1d9fd3b8333e891c0e7353e1adcfe8a612573033"
+		},
+		{
 			"ImportPath": "golang.org/x/net/netutil",
 			"Rev": "1d9fd3b8333e891c0e7353e1adcfe8a612573033"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/compute/metadata",
+			"Rev": "90d95c0fd227ee148e2753691c9b16f0ba5c870d"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/internal",
+			"Rev": "90d95c0fd227ee148e2753691c9b16f0ba5c870d"
 		}
 	]
 }
