@@ -1,6 +1,6 @@
 #!/bin/bash
 
-go test ./...
+go test ./... "$@"
 
 retval=$?
 if [ $retval != 0 ]; then
