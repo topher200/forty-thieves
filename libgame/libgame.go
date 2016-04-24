@@ -63,7 +63,12 @@ func isMoveLegal(
 	fromPile PileLocation, fromDeck *deck.Deck,
 	toPile PileLocation, toDeck *deck.Deck) error {
 
-	// Is the destination always illegal?
+	// Is the origin location illegal?
+	if fromPile == stock {
+		return fmt.Errorf("Illegal move - origin '%s' illegal", fromPile)
+	}
+
+	// Is the destination location illegal?
 	if toPile == stock || toPile == waste {
 		return fmt.Errorf("Illegal move - destination '%s' illegal", toPile)
 	}
