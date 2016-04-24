@@ -40,6 +40,10 @@ function CardGameViewModel()  {
         $.post("/undomove", {}, self.updateGamestate, "json");
     };
 
+    self.foundationCardPost = function() {
+        $.post("/foundationcard", {}, self.updateGamestate, "json");
+    };
+
     self.updateGamestate = function(gamestate) {
         self.stock(gamestate.Stock.Cards);
         self.foundations(gamestate.Foundations);
