@@ -14,7 +14,7 @@
          data-location="foundation"
          data-bind="attr:{ 'data-index': $index() }">
       <!-- Blank card spot -->
-      <img class="card-spot" src="project/cards-png/b1fv.png"/>
+      <img class="card-spot" src="static/project/cards-png/b1fv.png"/>
       <!-- Each card in the foundation -->
       <span data-bind="foreach: Cards">
         <div
@@ -37,7 +37,7 @@
        data-location="waste"
        data-index=0>
     <!-- Blank card spot -->
-    <img class="card-spot" src="project/cards-png/blank-card-spot.png"/>
+    <img class="card-spot" src="static/project/cards-png/blank-card-spot.png"/>
     <span data-bind="foreach: waste">
       <div
          ondragstart="cardDrag(event)"
@@ -55,12 +55,12 @@
   <!-- stock -->
   <div class="pile">
     <!-- blank card spot -->
-    <img onclick="flipStock();" class="card-spot" src="project/cards-png/blank-card-spot.png"/>
+    <img onclick="flipStock();" class="card-spot" src="static/project/cards-png/blank-card-spot.png"/>
     <!-- each card in stock -->
     <span data-bind="foreach: stock">
       <div>
         <img class="card-spot stackable"
-             src="project/cards-png/b1fv.png"
+             src="static/project/cards-png/b1fv.png"
              style="top: 0px"
              onclick="flipStock();" 
              />
@@ -81,7 +81,7 @@
          data-location="tableau"
          data-bind="attr:{ 'data-index': $index() }">
       <!-- Blank card spot -->
-      <img class="card-spot" src="project/cards-png/b1fv.png"/>
+      <img class="card-spot" src="static/project/cards-png/b1fv.png"/>
       <!-- Each card in the tableau -->
       <span data-bind="foreach: Cards">
         <div

@@ -7,7 +7,7 @@ function CardGameViewModel()  {
     self.score = ko.observable();
 
     self.imageFilename = function(card) {
-        return 'project/cards-png/' + card.Suit + '-' + card.Face + '.png';
+        return 'static/project/cards-png/' + card.Suit + '-' + card.Face + '.png';
     };
 
     self.tableauPosition = function(index) {

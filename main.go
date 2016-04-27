@@ -104,7 +104,7 @@ func (app *Application) mux() *gorilla_mux.Router {
 	router.PathPrefix("/bower_components").
 		Handler(http.StripPrefix("/bower_components/", http.FileServer(http.Dir("bower_components")))).
 		Name("/bower_components")
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("static"))).Name("/static")
+	router.PathPrefix("/static").Handler(http.FileServer(http.Dir(""))).Name("/static")
 
 	return router
 }
