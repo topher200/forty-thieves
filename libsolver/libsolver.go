@@ -13,13 +13,13 @@ type pile struct {
 
 func allPiles() []pile {
 	piles := make([]pile, 0)
-	piles = append(piles, pile{"stock", 0})
-	piles = append(piles, pile{"waste", 0})
-	for i := 0; i < libgame.NumFoundations; i++ {
-		piles = append(piles, pile{"foundation", i})
-	}
 	for i := 0; i < libgame.NumTableaus; i++ {
 		piles = append(piles, pile{"tableau", i})
+	}
+	piles = append(piles, pile{"waste", 0})
+	piles = append(piles, pile{"stock", 0})
+	for i := 0; i < libgame.NumFoundations; i++ {
+		piles = append(piles, pile{"foundation", i})
 	}
 	return piles
 }
