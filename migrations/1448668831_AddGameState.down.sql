@@ -1,1 +1,3 @@
+DROP TABLE IF EXISTS winning_moves CASCADE;
+DROP TABLE IF EXISTS analyzation_queue CASCADE;
 DROP TABLE IF EXISTS game_state CASCADE;
