@@ -3,10 +3,8 @@ package dal
 import (
 	"bytes"
 	"encoding/gob"
-	"errors"
 	"fmt"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
 	"github.com/topher200/forty-thieves/libgame"
 )
@@ -16,9 +14,12 @@ type GameStateDB struct {
 }
 
 type GameStateRow struct {
-	ID             int64  `db:"id"`
-	UserID         int64  `db:"user_id"`
-	BinarizedState []byte `db:"binarized_state"`
+	ID                  int64  `db:"id"`
+	GameID              int64  `db:"game_id"`
+	MoveNum             int64  `db:"move_num"`
+	Score               int64  `db:"score"`
+	BinarizedState      []byte `db:"binarized_state"`
+	PreviousGameStateID int64  `db:"previous_game_state_id"`
 }
 
 func NewGameStateDB(db *sqlx.DB) *GameStateDB {
@@ -30,12 +31,12 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 	return gs
 }
 
-// GetGameState returns the latest gamestate for a user
-func (db *GameStateDB) GetGameState(userRow UserRow) (*libgame.GameState, error) {
+// GetLatestGameState returns the latest gamestate for a game
+func (db *GameStateDB) GetLatestGameState(gameID int64) (*libgame.GameState, error) {
 	var gameStateRow GameStateRow
 	query := fmt.Sprintf(
-		"SELECT * FROM %s WHERE user_id=$1 ORDER BY id DESC LIMIT 1", db.table)
-	err := db.db.Get(&gameStateRow, query, userRow.ID)
+		"SELECT * FROM %s WHERE game_id=$1 ORDER BY id DESC LIMIT 1", db.table)
+	err := db.db.Get(&gameStateRow, query, gameID)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
 	}

@@ -1,3 +1,8 @@
+CREATE TABLE game (
+       id BIGSERIAL PRIMARY KEY NOT NULL,
+       user_id INTEGER REFERENCES users
+);
+
 CREATE TABLE game_state (
        id BIGSERIAL PRIMARY KEY NOT NULL,
        game_id INTEGER NOT NULL,
@@ -9,11 +14,11 @@ CREATE TABLE game_state (
 
 CREATE TABLE analyzation_queue (
        id BIGSERIAL PRIMARY KEY NOT NULL,
-       game_state_id INTEGER NOT NULL,
+       game_state_id INTEGER REFERENCES game_state NOT NULL,
        analyzed BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE winning_moves (
        id BIGSERIAL PRIMARY KEY NOT NULL,
-       game_state_id INTEGER NOT NULL,
+       game_state_id INTEGER REFERENCES game_state NOT NULL
 );

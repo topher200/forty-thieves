@@ -19,22 +19,28 @@ import (
 
 // Returns the DB paramaters required to be able to get/save GameStates for this user.
 func databaseParams(
-	w http.ResponseWriter, r *http.Request) (*dal.GameStateDB, *dal.UserRow, error) {
+	w http.ResponseWriter, r *http.Request) (
+	*dal.GameDB, *dal.GameStateDB, *dal.UserRow, error) {
 	db := context.Get(r, "db").(*sqlx.DB)
-	gameStateDB := dal.NewGameStateDB(db)
 	currentUser, exists := getCurrentUser(w, r)
 	if !exists {
-		return nil, nil, errors.New("User not found")
+		return nil, nil, nil, errors.New("User not found")
 	}
-	return gameStateDB, currentUser, nil
+	gameDB := dal.NewGameDB(db)
+	gameStateDB := dal.NewGameStateDB(db)
+	return gameDB, gameStateDB, currentUser, nil
 }
 
 func getGameState(w http.ResponseWriter, r *http.Request) (*libgame.GameState, error) {
-	gameStateDB, currentUser, err := databaseParams(w, r)
+	gameDB, gameStateDB, currentUser, err := databaseParams(w, r)
 	if err != nil {
 		return nil, err
 	}
-	gameState, err := gameStateDB.GetGameState(*currentUser)
+	gameID, err := gameDB.GetLatestGameID(*currentUser)
+	if err != nil {
+		return nil, err
+	}
+	gameState, err := gameStateDB.GetLatestGameState(gameID)
 	if err != nil {
 		return nil, fmt.Errorf("No game state found. %v.", err)
 	}
