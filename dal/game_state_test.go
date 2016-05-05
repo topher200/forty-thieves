@@ -36,7 +36,7 @@ func TestSaveAndGetGameState(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Retrieved saved game state
-	retrievedGameState, err := gameStateDB.GetLatestGameState(*userRow)
+	retrievedGameState, err := gameStateDB.GetLatestGameState(gameID)
 	assert.Nil(t, err)
 	assert.Equal(t, originalGameState, *retrievedGameState)
 }

@@ -88,12 +88,12 @@ func (db *GameStateDB) SaveGameState(
 }
 
 func (db *GameStateDB) DeleteLatestGameState(
-	tx *sqlx.Tx, userRow UserRow) error {
+	tx *sqlx.Tx, gameID int64) error {
 	// Get latest gamestate's ID
 	var gameStateRow GameStateRow
 	query := fmt.Sprintf(
-		"SELECT * FROM %s WHERE user_id=$1 ORDER BY id DESC LIMIT 1", db.table)
-	err := db.db.Get(&gameStateRow, query, userRow.ID)
+		"SELECT * FROM %s WHERE game_id=$1 ORDER BY id DESC LIMIT 1", db.table)
+	err := db.db.Get(&gameStateRow, query, gameID)
 	if err != nil {
 		return fmt.Errorf("Error getting latest gamestate: %v", err)
 	}
