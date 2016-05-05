@@ -39,4 +39,8 @@ func TestSaveAndGetGameState(t *testing.T) {
 	retrievedGameState, err := gameStateDB.GetLatestGameState(gameID)
 	assert.Nil(t, err)
 	assert.Equal(t, originalGameState, *retrievedGameState)
+
+	// Now delete that game state
+	err = gameStateDB.DeleteLatestGameState(nil, gameID)
+	assert.Nil(t, err)
 }
