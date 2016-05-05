@@ -3,8 +3,10 @@ package dal
 import (
 	"bytes"
 	"encoding/gob"
+	"errors"
 	"fmt"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
 	"github.com/topher200/forty-thieves/libgame"
 )
@@ -49,19 +51,26 @@ func (db *GameStateDB) GetLatestGameState(gameID int64) (*libgame.GameState, err
 	return &gameState, nil
 }
 
-// SaveGameState saves the current gamestate for a user. Does not delete old gamestates.
+// SaveGameState saves the current gamestate for a game. Does not delete old gamestates.
 func (db *GameStateDB) SaveGameState(
-	tx *sqlx.Tx, userRow UserRow, gameState libgame.GameState) error {
+	tx *sqlx.Tx, gameID int64, moveNum int64, gameState libgame.GameState,
+	previousGameStateID int64) error {
 	var binarizedState bytes.Buffer
 	encoder := gob.NewEncoder(&binarizedState)
 	encoder.Encode(gameState)
 	dataStruct := GameStateRow{}
-	dataStruct.UserID = userRow.ID
+	dataStruct.GameID = gameID
+	dataStruct.MoveNum = moveNum
+	dataStruct.Score = int64(gameState.Score)
 	dataStruct.BinarizedState = binarizedState.Bytes()
+	dataStruct.PreviousGameStateID = previousGameStateID
 
 	dataMap := make(map[string]interface{})
-	dataMap["user_id"] = dataStruct.UserID
+	dataMap["game_id"] = dataStruct.GameID
+	dataMap["move_num"] = dataStruct.MoveNum
+	dataMap["score"] = dataStruct.Score
 	dataMap["binarized_state"] = dataStruct.BinarizedState
+	dataMap["previous_game_state_id"] = dataStruct.PreviousGameStateID
 	insertResult, err := db.InsertIntoTable(tx, dataMap)
 	if err != nil {
 		logrus.Warning("error saving game state:", err)
