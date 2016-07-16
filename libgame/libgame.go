@@ -14,7 +14,9 @@ type GameState struct {
 	Tableaus    []deck.Deck
 	Waste       deck.Deck
 	// Must be updated after any modifications to the Decks above
-	Score int
+	Score   int
+	MoveNum int64
+	ID      int64
 }
 
 const (

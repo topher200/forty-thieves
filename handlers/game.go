@@ -67,7 +67,7 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 // Sends a json response with the new state using the /state route.
 func saveGameStateAndRespond(
 	w http.ResponseWriter, r *http.Request, gameState libgame.GameState) {
-	gameStateDB, currentUser, err := databaseParams(w, r)
+	_, gameStateDB, currentUser, err := databaseParams(w, r)
 	if err != nil {
 		libhttp.HandleErrorJson(w, err)
 		return
@@ -154,19 +154,20 @@ func HandleFlipStockRequest(w http.ResponseWriter, r *http.Request) {
 // If no error, responds with the gamestate for the new latest move (after
 // deletion).
 func HandleUndoMove(w http.ResponseWriter, r *http.Request) {
-	gameStateDB, currentUser, err := databaseParams(w, r)
-	if err != nil {
-		libhttp.HandleErrorJson(w, err)
-		return
-	}
+	// TODO(topher)
+	// gameStateDB, currentUser, err := databaseParams(w, r)
+	// if err != nil {
+	// 	libhttp.HandleErrorJson(w, err)
+	// 	return
+	// }
 
-	err = gameStateDB.DeleteLatestGameState(nil, *currentUser)
-	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("Undo failed: %v", err))
-		return
-	}
+	// err = gameStateDB.DeleteLatestGameState(nil, *currentUser)
+	// if err != nil {
+	// 	libhttp.HandleErrorJson(w, fmt.Errorf("Undo failed: %v", err))
+	// 	return
+	// }
 
-	HandleStateRequest(w, r)
+	// HandleStateRequest(w, r)
 }
 
 func HandleFoundationAvailableCardRequest(w http.ResponseWriter, r *http.Request) {

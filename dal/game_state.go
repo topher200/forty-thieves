@@ -48,6 +48,8 @@ func (db *GameStateDB) GetLatestGameState(gameID int64) (*libgame.GameState, err
 	if err != nil {
 		return nil, fmt.Errorf("Error decoding: %v", err)
 	}
+	gameState.MoveNum = gameStateRow.MoveNum
+	gameState.ID = gameStateRow.ID
 	return &gameState, nil
 }
 
