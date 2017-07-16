@@ -1,4 +1,5 @@
-FROM golang
+FROM golang:1.8
+RUN echo 'set -o vi' >> /root/.bashrc
 
 # Fetch dependencies
 RUN go get github.com/tools/godep
