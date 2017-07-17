@@ -74,7 +74,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
 	db := context.Get(r, "db").(*sqlx.DB)
-	cookieStore := context.Get(r, "cookieStore").(*sessions.CookieStore)
+	sessionStore := context.Get(r, "sessionStore").(sessions.Store)
 
 	email := r.FormValue("Email")
 	password := r.FormValue("Password")
@@ -87,7 +87,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, _ := cookieStore.Get(r, "forty-thieves-session")
+	session, _ := sessionStore.Get(r, "forty-thieves-session")
 	session.Values["user"] = user
 
 	err = session.Save(r, w)
@@ -102,9 +102,9 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 func GetLogout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
-	cookieStore := context.Get(r, "cookieStore").(*sessions.CookieStore)
+	sessionStore := context.Get(r, "sessionStore").(sessions.Store)
 
-	session, _ := cookieStore.Get(r, "forty-thieves-session")
+	session, _ := sessionStore.Get(r, "forty-thieves-session")
 
 	delete(session.Values, "user")
 	session.Save(r, w)
@@ -132,9 +132,9 @@ func PutUsersID(w http.ResponseWriter, r *http.Request) {
 
 	db := context.Get(r, "db").(*sqlx.DB)
 
-	cookieStore := context.Get(r, "cookieStore").(*sessions.CookieStore)
+	sessionStore := context.Get(r, "sessionStore").(sessions.Store)
 
-	session, _ := cookieStore.Get(r, "forty-thieves-session")
+	session, _ := sessionStore.Get(r, "forty-thieves-session")
 
 	currentUser := session.Values["user"].(*dal.UserRow)
 

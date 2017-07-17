@@ -13,8 +13,8 @@ import (
 )
 
 func getCurrentUser(w http.ResponseWriter, r *http.Request) (*dal.UserRow, bool) {
-	cookieStore := context.Get(r, "cookieStore").(*sessions.CookieStore)
-	session, _ := cookieStore.Get(r, "forty-thieves-session")
+	sessionStore := context.Get(r, "sessionStore").(sessions.Store)
+	session, _ := sessionStore.Get(r, "forty-thieves-session")
 	currentUser, exists := session.Values["user"].(*dal.UserRow)
 	return currentUser, exists
 }

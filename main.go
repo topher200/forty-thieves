@@ -51,22 +51,22 @@ func NewApplication(testing bool) (*Application, error) {
 	app := &Application{}
 	app.dsn = dsn
 	app.db = db
-	app.cookieStore = sessions.NewCookieStore([]byte(cookieStoreSecret))
+	app.sessionStore = sessions.NewCookieStore([]byte(cookieStoreSecret))
 
 	return app, err
 }
 
 // Application is the application object that runs HTTP server.
 type Application struct {
-	dsn         string
-	db          *sqlx.DB
-	cookieStore *sessions.CookieStore
+	dsn          string
+	db           *sqlx.DB
+	sessionStore sessions.Store
 }
 
 func (app *Application) middlewareStruct(logWriter io.Writer) (*interpose.Middleware, error) {
 	middle := interpose.New()
 	middle.Use(middlewares.SetDB(app.db))
-	middle.Use(middlewares.SetCookieStore(app.cookieStore))
+	middle.Use(middlewares.SetSessionStore(app.sessionStore))
 	middle.Use(middlewares.SetupLogger(logWriter))
 
 	middle.UseHandler(app.mux())
