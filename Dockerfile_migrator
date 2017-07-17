@@ -5,11 +5,13 @@ RUN apt-get update && apt-get install -y \
   postgresql \
   postgresql-contrib
 RUN go get github.com/rnubel/pgmgr
+RUN go get github.com/tools/godep
 
-ENV DSN postgres://db
+ENV DSN postgres://postgres@db:5432/forty-thieves?sslmode=disable
 
 ADD . /go/src/github.com/topher200/forty-thieves
-
 WORKDIR /go/src/github.com/topher200/forty-thieves
+RUN go get -t
+RUN godep go build
 
-CMD pgmgr --url postgres://postgres@db:5432/forty-thieves db migrate
+CMD pgmgr db migrate
