@@ -1,0 +1,15 @@
+FROM golang:1.8
+RUN echo 'set -o vi' >> /root/.bashrc
+
+RUN apt-get update && apt-get install -y \
+  postgresql \
+  postgresql-contrib
+RUN go get github.com/rnubel/pgmgr
+
+ENV DSN postgres://db
+
+ADD . /go/src/github.com/topher200/forty-thieves
+
+WORKDIR /go/src/github.com/topher200/forty-thieves
+
+CMD pgmgr --url postgres://postgres@db:5432/forty-thieves db migrate
