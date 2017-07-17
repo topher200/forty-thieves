@@ -3,7 +3,7 @@ RUN echo 'set -o vi' >> /root/.bashrc
 
 RUN go get github.com/tools/godep
 
-ENV USER topher
+ENV USER root
 ENV HTTP_ADDR :8888
 ENV HTTP_DRAIN_INTERVAL 1s
 ENV COOKIE_SECRET ittwiP92o0oi6P4i

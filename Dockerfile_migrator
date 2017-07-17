@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
 RUN go get github.com/rnubel/pgmgr
 RUN go get github.com/tools/godep
 
+ENV USER root
 ENV DSN postgres://postgres@db:5432/forty-thieves?sslmode=disable
 
 ADD . /go/src/github.com/topher200/forty-thieves
