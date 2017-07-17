@@ -6,14 +6,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/topher200/forty-thieves/dal"
 )
 
 func getCurrentUser(w http.ResponseWriter, r *http.Request) (*dal.UserRow, bool) {
-	sessionStore := context.Get(r, "sessionStore").(sessions.Store)
+	sessionStore := r.Context().Value("sessionStore").(sessions.Store)
 	session, _ := sessionStore.Get(r, "forty-thieves-session")
 	currentUser, exists := session.Values["user"].(*dal.UserRow)
 	return currentUser, exists
