@@ -15,4 +15,4 @@ WORKDIR /go/src/github.com/topher200/forty-thieves
 RUN go get -t
 RUN godep go build
 
-CMD pgmgr db migrate
+CMD ./test.sh
