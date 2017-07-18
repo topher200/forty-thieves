@@ -65,6 +65,7 @@ func (db *GameStateDB) SaveGameState(
 	dataStruct.GameID = game.ID
 	dataStruct.BinarizedState = binarizedState.Bytes()
 	dataStruct.GameStateID = gameState.GameStateID
+	dataStruct.MoveNum = gameState.MoveNum
 	dataStruct.PreviousGameState = gameState.PreviousGameState
 	dataStruct.Score = gameState.Score
 
@@ -73,6 +74,7 @@ func (db *GameStateDB) SaveGameState(
 	dataMap["binarized_state"] = dataStruct.BinarizedState
 	dataMap["game_state_id"] = dataStruct.GameStateID
 	dataMap["previous_game_state"] = dataStruct.PreviousGameState
+	dataMap["move_num"] = dataStruct.MoveNum
 	dataMap["score"] = dataStruct.Score
 	insertResult, err := db.InsertIntoTable(tx, dataMap)
 	if err != nil {

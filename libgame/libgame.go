@@ -17,6 +17,7 @@ type GameState struct {
 	ID                int64
 	GameStateID       uuid.UUID
 	PreviousGameState uuid.UUID
+	MoveNum           int64
 	Stock             deck.Deck
 	Foundations       []deck.Deck
 	Tableaus          []deck.Deck
@@ -193,6 +194,7 @@ func (state *GameState) FlipStock() error {
 // DealNewGame takes a game and randomly deals a starting gamestate for that game
 func DealNewGame(game Game) (state GameState) {
 	state.GameStateID = uuid.NewV4()
+	state.MoveNum = 0
 
 	// Combine two decks to make our game deck
 	newDeck := deck.NewDeck(false)
