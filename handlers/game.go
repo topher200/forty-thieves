@@ -87,6 +87,11 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	replyWithGameState(w, *gameState)
+}
+
+// replyWithGameState sends a JSON reponse with the given game state
+func replyWithGameState(w http.ResponseWriter, gameState libgame.GameState) {
 	data, err := json.Marshal(&gameState)
 	if err != nil {
 		libhttp.HandleErrorJson(w, err)
@@ -103,16 +108,15 @@ func saveGameStateAndRespond(
 	w http.ResponseWriter, r *http.Request, gameState libgame.GameState) {
 	_, gameStateDB, _, err := databaseParams(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleErrorJson(w, fmt.Errorf("Error getting database params: %v.", err))
 		return
 	}
-	// tx *sqlx.Tx, game libgame.Game, gameState libgame.GameState) error {
 	err = gameStateDB.SaveGameState(nil, gameState)
 	if err != nil {
 		libhttp.HandleErrorJson(w, fmt.Errorf("error saving gamestate: %v", err))
 		return
 	}
-	HandleStateRequest(w, r)
+	replyWithGameState(w, gameState)
 }
 
 // HandleNewGameRequest saves a new GameState to the DB
@@ -121,12 +125,12 @@ func saveGameStateAndRespond(
 func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 	gameDB, _, currentUserRow, err := databaseParams(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleErrorJson(w, fmt.Errorf("Error getting database params: %v.", err))
 		return
 	}
 	game, err := gameDB.CreateNewGame(nil, *currentUserRow)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleErrorJson(w, fmt.Errorf("Error creating new game: %v.", err))
 		return
 	}
 	gameState := libgame.DealNewGame(*game)
