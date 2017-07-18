@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/context"
 	"github.com/gorilla/schema"
 	"github.com/jmoiron/sqlx"
 	"github.com/topher200/forty-thieves/dal"
@@ -20,7 +19,7 @@ import (
 // Returns the DB paramaters required to be able to get/save GameStates for this user.
 func databaseParams(
 	w http.ResponseWriter, r *http.Request) (*dal.GameStateDB, *dal.UserRow, error) {
-	db := context.Get(r, "db").(*sqlx.DB)
+	db := r.Context().Value("db").(*sqlx.DB)
 	gameStateDB := dal.NewGameStateDB(db)
 	currentUser, exists := getCurrentUser(w, r)
 	if !exists {

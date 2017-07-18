@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/context"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	"github.com/topher200/forty-thieves/dal"
@@ -28,7 +27,7 @@ func GetSignup(w http.ResponseWriter, r *http.Request) {
 func PostSignup(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
-	db := context.Get(r, "db").(*sqlx.DB)
+	db := r.Context().Value("db").(*sqlx.DB)
 
 	email := r.FormValue("Email")
 	password := r.FormValue("Password")
@@ -73,8 +72,8 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 func PostLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
-	db := context.Get(r, "db").(*sqlx.DB)
-	sessionStore := context.Get(r, "sessionStore").(sessions.Store)
+	db := r.Context().Value("db").(*sqlx.DB)
+	sessionStore := r.Context().Value("sessionStore").(sessions.Store)
 
 	email := r.FormValue("Email")
 	password := r.FormValue("Password")
@@ -102,7 +101,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 func GetLogout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
-	sessionStore := context.Get(r, "sessionStore").(sessions.Store)
+	sessionStore := r.Context().Value("sessionStore").(sessions.Store)
 
 	session, _ := sessionStore.Get(r, "forty-thieves-session")
 
@@ -130,9 +129,9 @@ func PutUsersID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db := context.Get(r, "db").(*sqlx.DB)
+	db := r.Context().Value("db").(*sqlx.DB)
 
-	sessionStore := context.Get(r, "sessionStore").(sessions.Store)
+	sessionStore := r.Context().Value("sessionStore").(sessions.Store)
 
 	session, _ := sessionStore.Get(r, "forty-thieves-session")
 
