@@ -55,10 +55,10 @@ func (db *GameStateDB) GetGameStateById(gameStateID uuid.UUID) (*libgame.GameSta
 	return &gameState, nil
 }
 
-// GetGameState returns the latest gamestate for the given game
+// GetLatestGameState returns the latest gamestate for the given game
 //
 // Returns error if there are no game states for the given game
-func (db *GameStateDB) GetGameState(game libgame.Game) (*libgame.GameState, error) {
+func (db *GameStateDB) GetLatestGameState(game libgame.Game) (*libgame.GameState, error) {
 	var gameStateRow GameStateRow
 	query := fmt.Sprintf(
 		"SELECT * FROM %s WHERE game_id=$1 ORDER BY id DESC LIMIT 1", db.table)

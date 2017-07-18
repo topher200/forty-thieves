@@ -27,7 +27,7 @@ func TestGetEmptyGameState(t *testing.T) {
 	defer gameDB.DeleteGame(nil, *game)
 
 	// We should err, since we haven't set a game yet
-	_, err := gameStateDB.GetGameState(*game)
+	_, err := gameStateDB.GetLatestGameState(*game)
 	assert.NotNil(t, err)
 }
 
@@ -43,8 +43,8 @@ func TestSaveAndGetGameState(t *testing.T) {
 	defer gameStateDB.DeleteGameState(nil, originalGameState)
 	assert.Nil(t, err)
 
-	// Retrieved saved game state
-	retrievedGameState, err := gameStateDB.GetGameState(*game)
+	// Retrieved saved game state by game
+	retrievedGameState, err := gameStateDB.GetLatestGameState(*game)
 	assert.Nil(t, err)
 	assert.Equal(t, originalGameState, *retrievedGameState)
 
