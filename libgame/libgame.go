@@ -192,6 +192,8 @@ func (state *GameState) FlipStock() error {
 
 // DealNewGame takes a game and randomly deals a starting gamestate for that game
 func DealNewGame(game Game) (state GameState) {
+	state.GameStateID = uuid.NewV4()
+
 	// Combine two decks to make our game deck
 	newDeck := deck.NewDeck(false)
 	newDeck2 := deck.NewDeck(false)
