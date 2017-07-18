@@ -112,7 +112,7 @@ func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) e
 // DeleteGameState deletes the given gamestate
 func (db *GameStateDB) DeleteGameState(
 	tx *sqlx.Tx, gameState libgame.GameState) error {
-	queryWhereStatement := fmt.Sprintf("game_state_id=%d", gameState.GameStateID)
+	queryWhereStatement := fmt.Sprintf("game_state_id='%v'", gameState.GameStateID)
 	res, err := db.DeleteFromTable(tx, queryWhereStatement)
 	if err != nil {
 		logrus.Warning("Error deleting game state: ", err)
