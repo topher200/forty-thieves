@@ -85,12 +85,14 @@ func (db *GameStateDB) SaveGameState(
 }
 
 // DeleteGameState deletes the given gamestate
+//
+// TODO(topher): should this take an ID instead? or maybe a GameState?
 func (db *GameStateDB) DeleteGameState(
 	tx *sqlx.Tx, gameStateRow GameStateRow) error {
 	queryWhereStatement := fmt.Sprintf("id=%d", gameStateRow.ID)
 	res, err := db.DeleteFromTable(tx, queryWhereStatement)
 	if err != nil {
-		logrus.Warning("Error deleting last game state: ", err)
+		logrus.Warning("Error deleting game state: ", err)
 		return err
 	}
 	rowsAffected, err := res.RowsAffected()
