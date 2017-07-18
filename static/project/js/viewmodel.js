@@ -20,10 +20,26 @@ function CardGameViewModel()  {
         $.post("/newgame", '{ }', self.updateGamestate, "json");
     };
 
+    // add our query param to a full URL
+    function addGameStateIdToURL(urlString) {
+        var url = new URL(urlString);
+        url.searchParams.set("gameStateID", self.gameStateID());
+        return url.href;
+    }
+
+    // add our query param to a partial (path only) url
+    function addGameStateIdToPath(path) {
+        if (path.includes("?")) {
+            console.log("warning: request %s already contains query param", path);
+        }
+        path += "?gameStateID" + self.gameStateID();
+        return path;
+    }
+
     // Send a move request. Use the response to update cards
     self.movePost = function(fromLocation, fromIndex, toLocation, toIndex) {
         $.post(
-            "/move",
+            addGameStateIdToPath("/move"),
             { "FromPile": fromLocation,
               "FromIndex": fromIndex,
               "ToPile": toLocation,
@@ -33,16 +49,11 @@ function CardGameViewModel()  {
 
     // Send a flip stock request. Use the response to update cards
     self.flipStockPost = function() {
-        $.post("/flipstock", {}, self.updateGamestate, "json");
-    };
-
-    // Send a undo move request. Use the response to update cards
-    self.undoMovePost = function() {
-        $.post("/undomove", {}, self.updateGamestate, "json");
+        $.post(addGameStateIdToPath("/flipstock"), {}, self.updateGamestate, "json");
     };
 
     self.foundationCardPost = function() {
-        $.post("/foundationcard", {}, self.updateGamestate, "json");
+        $.post(addGameStateIdToPath("/foundationcard"), {}, self.updateGamestate, "json");
     };
 
     self.updateGamestate = function(gamestate) {
@@ -54,9 +65,8 @@ function CardGameViewModel()  {
         self.gameStateID(gamestate.GameStateID);
 
         // set the url to match our gamestate
-        var url = new URL(window.location.href);
-        url.searchParams.set("gameStateID", self.gameStateID());
-        history.pushState(null, '', url.href);
+        var url = addGameStateIdToURL(window.location.href);
+        history.pushState(null, '', url);
     };
 
     // Update gamestate on load
