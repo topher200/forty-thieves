@@ -190,7 +190,8 @@ func (state *GameState) FlipStock() error {
 	return nil
 }
 
-func NewGame() (state GameState) {
+// DealNewGame takes a game and randomly deals a starting gamestate for that game
+func DealNewGame(game Game) (state GameState) {
 	// Combine two decks to make our game deck
 	newDeck := deck.NewDeck(false)
 	newDeck2 := deck.NewDeck(false)

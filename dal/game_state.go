@@ -35,7 +35,9 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 	return gs
 }
 
-// GetGameState returns the gamestate for the given game
+// GetGameState returns the latest gamestate for the given game
+//
+// Returns error if there are no game states for the given game
 func (db *GameStateDB) GetGameState(game libgame.Game) (*libgame.GameState, error) {
 	var gameStateRow GameStateRow
 	query := fmt.Sprintf(

@@ -27,6 +27,9 @@ func NewGameDB(db *sqlx.DB) *GameDB {
 	return gs
 }
 
+// GetLatestGame gets the most recent game (by id) for the given user
+//
+// Returns error if there are no games for the given user
 func (db *GameDB) GetLatestGame(userRow UserRow) (*libgame.Game, error) {
 	var gameRow GameRow
 	query := fmt.Sprintf(

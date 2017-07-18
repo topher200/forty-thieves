@@ -7,8 +7,9 @@ import (
 	"github.com/topher200/deck"
 )
 
-func TestNewGame(t *testing.T) {
-	state := NewGame()
+func TestDealNewGame(t *testing.T) {
+	game := Game{0}
+	state := DealNewGame(game)
 	assert.NotEmpty(t, state.Stock.Cards)
 	for _, foundation := range state.Foundations {
 		assert.Empty(t, foundation.Cards)
@@ -19,7 +20,8 @@ func TestNewGame(t *testing.T) {
 }
 
 func TestPopFromStock(t *testing.T) {
-	state := NewGame()
+	game := Game{0}
+	state := DealNewGame(game)
 	numCards := len(state.Stock.Cards)
 	card, err := state.popFromStock()
 	assert.Nil(t, err)
@@ -30,7 +32,8 @@ func TestPopFromStock(t *testing.T) {
 func TestMoveCard(t *testing.T) {
 	// Make sure that the size of each deck has inc/decreased, and that the moved
 	// card is now at the bottom of deck #2
-	state := NewGame()
+	game := Game{0}
+	state := DealNewGame(game)
 	state.Tableaus[0].Cards = []deck.Card{
 		deck.Card{Face: deck.KING, Suit: deck.CLUB},
 		deck.Card{Face: deck.QUEEN, Suit: deck.CLUB},
@@ -57,7 +60,8 @@ func TestMoveCard(t *testing.T) {
 }
 
 func TestFlipStock(t *testing.T) {
-	state := NewGame()
+	game := Game{0}
+	state := DealNewGame(game)
 	stockLenStart := len(state.Stock.Cards)
 	wasteLenStart := len(state.Waste.Cards)
 
@@ -68,7 +72,8 @@ func TestFlipStock(t *testing.T) {
 }
 
 func TestScore(t *testing.T) {
-	state := NewGame()
+	game := Game{0}
+	state := DealNewGame(game)
 	assert.Equal(t, 104, state.Score)
 }
 
