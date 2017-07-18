@@ -9,7 +9,8 @@ import (
 )
 
 func createTestingGameState() libgame.GameState {
-	state := libgame.NewGame()
+	game := libgame.Game{1}
+	state := libgame.DealNewGame(game)
 	state.Stock.Cards = append(state.Waste.Cards, deck.Card{Face: "2", Suit: "clubs"})
 	state.Stock.Cards = append(state.Foundations[0].Cards, deck.Card{Face: "A", Suit: "clubs"})
 	return state
@@ -17,7 +18,15 @@ func createTestingGameState() libgame.GameState {
 
 func TestNumPiles(t *testing.T) {
 	assert.Equal(t, len(allPiles()), 20)
+}
+
+func TestGetPossibleMovesReturnsAMove(t *testing.T) {
 	state := createTestingGameState()
-	getPossibleMoves(&state)
+	moves := getPossibleMoves(&state)
+	assert.NotEmpty(t, moves)
+}
+
+func TestFoundationACard(t *testing.T) {
+	state := createTestingGameState()
 	assert.Nil(t, FoundationAvailableCard(&state))
 }
