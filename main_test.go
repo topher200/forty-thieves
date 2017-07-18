@@ -34,6 +34,9 @@ type MainTestSuite struct {
 //  - gets the logout page
 //  - gets the login page
 //  - posts to the login page
+//  - posts to create a new game
+//  - gets a json /state message
+//  - posts to flip the stock
 //  - gets a json /state message
 //
 // We do this in one function (as opposed to separate Test* functions) since
@@ -50,10 +53,10 @@ func (testSuite *MainTestSuite) TestUserStory() {
 	testSuite.newgamePost()
 	testSuite.stateGet()
 	testSuite.flipStockPost()
+	testSuite.stateGet()
+
 	// TODO: not testing movePost, since almost all moves would be illegal
 	// testSuite.movePost()
-	// TODO: compare this gamestate to the gamestate before the last move?
-	testSuite.undoMovePost()
 }
 
 // checkResponse asserts that we didn't err and that our response looks good
