@@ -8,6 +8,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
+	uuid "github.com/satori/go.uuid"
 	"github.com/topher200/forty-thieves/libgame"
 )
 
@@ -16,9 +17,13 @@ type GameStateDB struct {
 }
 
 type GameStateRow struct {
-	ID             int64  `db:"id"`
-	UserID         int64  `db:"user_id"`
-	BinarizedState []byte `db:"binarized_state"`
+	ID                int64         `db:"id"`
+	GameStateID       uuid.UUID     `db:"game_state_id"`
+	PreviousGameState uuid.NullUUID `db:"previous_game_state"`
+	GameID            int64         `db:"game_id"`
+	MoveNum           int64         `db:"move_num"`
+	Score             int64         `db:"score"`
+	BinarizedState    []byte        `db:"binarized_state"`
 }
 
 func NewGameStateDB(db *sqlx.DB) *GameStateDB {
@@ -30,12 +35,12 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 	return gs
 }
 
-// GetGameState returns the latest gamestate for a user
-func (db *GameStateDB) GetGameState(userRow UserRow) (*libgame.GameState, error) {
+// GetGameState returns the gamestate for the given game
+func (db *GameStateDB) GetGameState(gameRow GameRow) (*libgame.GameState, error) {
 	var gameStateRow GameStateRow
 	query := fmt.Sprintf(
-		"SELECT * FROM %s WHERE user_id=$1 ORDER BY id DESC LIMIT 1", db.table)
-	err := db.db.Get(&gameStateRow, query, userRow.ID)
+		"SELECT * FROM %s WHERE game_id=$1 ORDER BY id DESC LIMIT 1", db.table)
+	err := db.db.Get(&gameStateRow, query, gameRow.ID)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
 	}
@@ -48,18 +53,20 @@ func (db *GameStateDB) GetGameState(userRow UserRow) (*libgame.GameState, error)
 	return &gameState, nil
 }
 
-// SaveGameState saves the current gamestate for a user. Does not delete old gamestates.
+// SaveGameState saves the given gamestate to the db given the game and the gamestate
 func (db *GameStateDB) SaveGameState(
-	tx *sqlx.Tx, userRow UserRow, gameState libgame.GameState) error {
+	tx *sqlx.Tx, gameRow GameRow, gameState libgame.GameState) error {
 	var binarizedState bytes.Buffer
 	encoder := gob.NewEncoder(&binarizedState)
 	encoder.Encode(gameState)
 	dataStruct := GameStateRow{}
-	dataStruct.UserID = userRow.ID
+	dataStruct.GameID = gameRow.ID
 	dataStruct.BinarizedState = binarizedState.Bytes()
 
+	// TODO(topher): add the missing fields
+
 	dataMap := make(map[string]interface{})
-	dataMap["user_id"] = dataStruct.UserID
+	dataMap["game_id"] = dataStruct.GameID
 	dataMap["binarized_state"] = dataStruct.BinarizedState
 	insertResult, err := db.InsertIntoTable(tx, dataMap)
 	if err != nil {
@@ -77,19 +84,9 @@ func (db *GameStateDB) SaveGameState(
 	return nil
 }
 
-func (db *GameStateDB) DeleteLatestGameState(
-	tx *sqlx.Tx, userRow UserRow) error {
-	// Get latest gamestate's ID
-	var gameStateRow GameStateRow
-	query := fmt.Sprintf(
-		"SELECT * FROM %s WHERE user_id=$1 ORDER BY id DESC LIMIT 1", db.table)
-	err := db.db.Get(&gameStateRow, query, userRow.ID)
-	if err != nil {
-		return fmt.Errorf("Error getting latest gamestate: %v", err)
-	}
-	logrus.Infof("Deleting latest gamestate (id %d) from db", gameStateRow.ID)
-
-	// Delete the gamestate
+// DeleteGameState deletes the given gamestate
+func (db *GameStateDB) DeleteGameState(
+	tx *sqlx.Tx, gameStateRow GameStateRow) error {
 	queryWhereStatement := fmt.Sprintf("id=%d", gameStateRow.ID)
 	res, err := db.DeleteFromTable(tx, queryWhereStatement)
 	if err != nil {
