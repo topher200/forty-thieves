@@ -17,13 +17,13 @@ type GameStateDB struct {
 }
 
 type GameStateRow struct {
-	ID                int64         `db:"id"`
-	GameStateID       uuid.UUID     `db:"game_state_id"`
-	PreviousGameState uuid.NullUUID `db:"previous_game_state"`
-	GameID            int64         `db:"game_id"`
-	MoveNum           int64         `db:"move_num"`
-	Score             int64         `db:"score"`
-	BinarizedState    []byte        `db:"binarized_state"`
+	ID                int64     `db:"id"`
+	GameStateID       uuid.UUID `db:"game_state_id"`
+	PreviousGameState uuid.UUID `db:"previous_game_state"`
+	GameID            int64     `db:"game_id"`
+	MoveNum           int64     `db:"move_num"`
+	Score             int       `db:"score"`
+	BinarizedState    []byte    `db:"binarized_state"`
 }
 
 func NewGameStateDB(db *sqlx.DB) *GameStateDB {
@@ -64,12 +64,16 @@ func (db *GameStateDB) SaveGameState(
 	dataStruct := GameStateRow{}
 	dataStruct.GameID = game.ID
 	dataStruct.BinarizedState = binarizedState.Bytes()
-
-	// TODO(topher): add the missing fields
+	dataStruct.GameStateID = gameState.GameStateID
+	dataStruct.PreviousGameState = gameState.PreviousGameState
+	dataStruct.Score = gameState.Score
 
 	dataMap := make(map[string]interface{})
 	dataMap["game_id"] = dataStruct.GameID
 	dataMap["binarized_state"] = dataStruct.BinarizedState
+	dataMap["game_state_id"] = dataStruct.GameStateID
+	dataMap["previous_game_state"] = dataStruct.PreviousGameState
+	dataMap["score"] = dataStruct.Score
 	insertResult, err := db.InsertIntoTable(tx, dataMap)
 	if err != nil {
 		logrus.Warning("error saving game state:", err)
