@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	uuid "github.com/satori/go.uuid"
 	"github.com/topher200/baseutil"
 	"github.com/topher200/deck"
 )
@@ -13,11 +14,14 @@ type Game struct {
 }
 
 type GameState struct {
-	Stock       deck.Deck
-	Foundations []deck.Deck
-	Tableaus    []deck.Deck
-	Waste       deck.Deck
-	Score       int // Must be updated after any modifications to the Decks above
+	ID                int64
+	GameStateID       uuid.UUID
+	PreviousGameState uuid.UUID
+	Stock             deck.Deck
+	Foundations       []deck.Deck
+	Tableaus          []deck.Deck
+	Waste             deck.Deck
+	Score             int // Must be updated after any modifications to the Decks above
 }
 
 const (

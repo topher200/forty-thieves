@@ -36,11 +36,11 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 }
 
 // GetGameState returns the gamestate for the given game
-func (db *GameStateDB) GetGameState(gameRow GameRow) (*libgame.GameState, error) {
+func (db *GameStateDB) GetGameState(game libgame.Game) (*libgame.GameState, error) {
 	var gameStateRow GameStateRow
 	query := fmt.Sprintf(
 		"SELECT * FROM %s WHERE game_id=$1 ORDER BY id DESC LIMIT 1", db.table)
-	err := db.db.Get(&gameStateRow, query, gameRow.ID)
+	err := db.db.Get(&gameStateRow, query, game.ID)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
 	}
@@ -55,12 +55,12 @@ func (db *GameStateDB) GetGameState(gameRow GameRow) (*libgame.GameState, error)
 
 // SaveGameState saves the given gamestate to the db given the game and the gamestate
 func (db *GameStateDB) SaveGameState(
-	tx *sqlx.Tx, gameRow GameRow, gameState libgame.GameState) error {
+	tx *sqlx.Tx, game libgame.Game, gameState libgame.GameState) error {
 	var binarizedState bytes.Buffer
 	encoder := gob.NewEncoder(&binarizedState)
 	encoder.Encode(gameState)
 	dataStruct := GameStateRow{}
-	dataStruct.GameID = gameRow.ID
+	dataStruct.GameID = game.ID
 	dataStruct.BinarizedState = binarizedState.Bytes()
 
 	// TODO(topher): add the missing fields
@@ -85,11 +85,9 @@ func (db *GameStateDB) SaveGameState(
 }
 
 // DeleteGameState deletes the given gamestate
-//
-// TODO(topher): should this take an ID instead? or maybe a GameState?
 func (db *GameStateDB) DeleteGameState(
-	tx *sqlx.Tx, gameStateRow GameStateRow) error {
-	queryWhereStatement := fmt.Sprintf("id=%d", gameStateRow.ID)
+	tx *sqlx.Tx, gameState libgame.GameState) error {
+	queryWhereStatement := fmt.Sprintf("id=%d", gameState.ID)
 	res, err := db.DeleteFromTable(tx, queryWhereStatement)
 	if err != nil {
 		logrus.Warning("Error deleting game state: ", err)
