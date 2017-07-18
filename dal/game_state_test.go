@@ -39,7 +39,7 @@ func TestSaveAndGetGameState(t *testing.T) {
 
 	// Save game state
 	originalGameState := libgame.DealNewGame(*game)
-	err := gameStateDB.SaveGameState(nil, *game, originalGameState)
+	err := gameStateDB.SaveGameState(nil, originalGameState)
 	defer gameStateDB.DeleteGameState(nil, originalGameState)
 	assert.Nil(t, err)
 

@@ -76,13 +76,12 @@ func (db *GameStateDB) GetLatestGameState(game libgame.Game) (*libgame.GameState
 }
 
 // SaveGameState saves the given gamestate to the db given the game and the gamestate
-func (db *GameStateDB) SaveGameState(
-	tx *sqlx.Tx, game libgame.Game, gameState libgame.GameState) error {
+func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) error {
 	var binarizedState bytes.Buffer
 	encoder := gob.NewEncoder(&binarizedState)
 	encoder.Encode(gameState)
 	dataStruct := GameStateRow{}
-	dataStruct.GameID = game.ID
+	dataStruct.GameID = gameState.GameID
 	dataStruct.BinarizedState = binarizedState.Bytes()
 	dataStruct.GameStateID = gameState.GameStateID
 	dataStruct.MoveNum = gameState.MoveNum
@@ -115,7 +114,7 @@ func (db *GameStateDB) SaveGameState(
 // DeleteGameState deletes the given gamestate
 func (db *GameStateDB) DeleteGameState(
 	tx *sqlx.Tx, gameState libgame.GameState) error {
-	queryWhereStatement := fmt.Sprintf("id=%d", gameState.ID)
+	queryWhereStatement := fmt.Sprintf("game_state_id=%d", gameState.GameStateID)
 	res, err := db.DeleteFromTable(tx, queryWhereStatement)
 	if err != nil {
 		logrus.Warning("Error deleting game state: ", err)

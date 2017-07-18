@@ -13,7 +13,9 @@ type Game struct {
 	ID int64
 }
 
+// TODO(topher): this probably shouldn't have an ID field
 type GameState struct {
+	GameID            int64
 	ID                int64
 	GameStateID       uuid.UUID
 	PreviousGameState uuid.NullUUID
@@ -194,6 +196,7 @@ func (state *GameState) FlipStock() error {
 // DealNewGame takes a game and randomly deals a starting gamestate for that game
 func DealNewGame(game Game) (state GameState) {
 	state.GameStateID = uuid.NewV4()
+	state.GameID = game.ID
 	state.MoveNum = 0
 
 	// Combine two decks to make our game deck
