@@ -9,7 +9,7 @@ services:
         depends_on:
             - db
         ports:
-        - "8888:8888"
+            - "8888:8888"
 
     db:
         image: postgres:9.6
