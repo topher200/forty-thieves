@@ -3,7 +3,7 @@
 # uses the docker postgres database
 export DSN="postgres://postgres@localhost:5432/forty-thieves?sslmode=disable"
 
-go test ./... "$@"
+go test $(go list ./... | grep -v vendor) "$@"
 
 retval=$?
 if [ $retval != 0 ]; then
