@@ -16,7 +16,6 @@ type Game struct {
 // TODO(topher): this probably shouldn't have an ID field
 type GameState struct {
 	GameID            int64
-	ID                int64
 	GameStateID       uuid.UUID
 	PreviousGameState uuid.NullUUID
 	MoveNum           int64

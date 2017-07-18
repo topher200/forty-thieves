@@ -17,7 +17,6 @@ type GameStateDB struct {
 }
 
 type GameStateRow struct {
-	ID                int64         `db:"id"`
 	GameStateID       uuid.UUID     `db:"game_state_id"`
 	PreviousGameState uuid.NullUUID `db:"previous_game_state"`
 	GameID            int64         `db:"game_id"`
@@ -30,7 +29,7 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 	gs := &GameStateDB{}
 	gs.db = db
 	gs.table = "game_state"
-	gs.hasID = true
+	gs.hasID = false
 
 	return gs
 }
@@ -106,8 +105,7 @@ func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) e
 			fmt.Sprintf("expected to change 1 row, changed %d", insertResult.RowsAffected))
 	}
 
-	id, err := insertResult.LastInsertId()
-	logrus.Infof("Saved new gamestate (id %d) to db", id)
+	logrus.Infof("Saved new gamestate (id %v) to db", gameState.GameStateID)
 	return nil
 }
 
