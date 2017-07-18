@@ -101,12 +101,13 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 // Sends a json response with the new state using the /state route.
 func saveGameStateAndRespond(
 	w http.ResponseWriter, r *http.Request, gameState libgame.GameState) {
-	gameStateDB, currentUser, err := databaseParams(w, r)
+	_, gameStateDB, _, err := databaseParams(w, r)
 	if err != nil {
 		libhttp.HandleErrorJson(w, err)
 		return
 	}
-	err = gameStateDB.SaveGameState(nil, *currentUser, gameState)
+	// tx *sqlx.Tx, game libgame.Game, gameState libgame.GameState) error {
+	err = gameStateDB.SaveGameState(nil, gameState)
 	if err != nil {
 		libhttp.HandleErrorJson(w, fmt.Errorf("error saving gamestate: %v", err))
 		return
@@ -118,7 +119,17 @@ func saveGameStateAndRespond(
 //
 // We respond just like a /state request
 func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
-	gameState := libgame.NewGame()
+	gameDB, _, currentUserRow, err := databaseParams(w, r)
+	if err != nil {
+		libhttp.HandleErrorJson(w, err)
+		return
+	}
+	game, err := gameDB.CreateNewGame(nil, *currentUserRow)
+	if err != nil {
+		libhttp.HandleErrorJson(w, err)
+		return
+	}
+	gameState := libgame.DealNewGame(*game)
 	saveGameStateAndRespond(w, r, gameState)
 }
 
@@ -130,6 +141,7 @@ var decoder = schema.NewDecoder()
 // Requests are of the form libgame.Move. The index must be included (but is
 // ignored) for "stock" and "waste" piles.
 //
+// TODO(topher): change these to "respond like HandleMoveRequest"
 // We respond just like a /state request
 func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	gameState, err := getGameState(w, r)
