@@ -39,8 +39,7 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 // Returns error if there are no game states for the given game
 func (db *GameStateDB) GetGameStateById(gameStateID uuid.UUID) (*libgame.GameState, error) {
 	var gameStateRow GameStateRow
-	query := fmt.Sprintf(
-		"SELECT * FROM %s WHERE game_state_id=$1 ORDER BY id DESC LIMIT 1", db.table)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE game_state_id=$1 LIMIT 1", db.table)
 	err := db.db.Get(&gameStateRow, query, gameStateID)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
