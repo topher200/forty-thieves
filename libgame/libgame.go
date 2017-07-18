@@ -8,13 +8,16 @@ import (
 	"github.com/topher200/deck"
 )
 
+type Game struct {
+	ID int64
+}
+
 type GameState struct {
 	Stock       deck.Deck
 	Foundations []deck.Deck
 	Tableaus    []deck.Deck
 	Waste       deck.Deck
-	// Must be updated after any modifications to the Decks above
-	Score int
+	Score       int // Must be updated after any modifications to the Decks above
 }
 
 const (
