@@ -31,20 +31,67 @@ func databaseParams(
 	return gameDB, gameStateDB, currentUserRow, nil
 }
 
-func getGameState(w http.ResponseWriter, r *http.Request) (*libgame.GameState, error) {
-	gameStateDB, currentUser, err := databaseParams(w, r)
+// parseGameStateIdFromQuery gets the game state id from the URL
+//
+// Returns error on unexpected error. Returns uuid.Nil if no UUID is found.
+func parseGameStateIdFromQuery(r *http.Request) (uuid.UUID, error) {
+	queryStringValues, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	gameStateIDString := queryStringValues.Get("gameStateID")
+	if queryStringValues.Get("gameStateID") != "" {
+		gameStateID, err := uuid.FromString(gameStateIDString)
+		if err != nil {
+			return uuid.Nil, err
+		}
+		return gameStateID, nil
+	} else {
+		// request is empty
+		return uuid.Nil, nil
+	}
+}
+
+// parseGameStateFromQuery parses the gameStateID and returns the GameState
+func parseGameStateFromQuery(w http.ResponseWriter, r *http.Request) (*libgame.GameState, error) {
+	// check query param
+	gameStateID, err := parseGameStateIdFromQuery(r)
 	if err != nil {
 		return nil, err
 	}
-	gameState, err := gameStateDB.GetGameState(*currentUser)
+	if gameStateID == uuid.Nil {
+		return nil, fmt.Errorf("Game state id required in query param")
+	}
+
+	// get the referenced game state
+	_, gameStateDB, _, err := databaseParams(w, r)
 	if err != nil {
-		return nil, fmt.Errorf("No game state found. %v.", err)
+		return nil, err
+	}
+	// NOTE: we currently don't do any checking to make sure game state id
+	// and user id match
+	gameState, err := gameStateDB.GetGameStateById(gameStateID)
+	if err != nil {
+		return nil, fmt.Errorf("Game state id %v not found: %v", gameStateID, err)
 	}
 	return gameState, nil
 }
 
+// replyWithGameState sends a JSON reponse with the given game state
+func replyWithGameState(w http.ResponseWriter, gameState libgame.GameState) {
+	data, err := json.Marshal(&gameState)
+	if err != nil {
+		libhttp.HandleErrorJson(w, err)
+		return
+	}
+	w.Header().Set("Content-Type", "text/json")
+	fmt.Fprint(w, string(data))
+}
+
+// TODO(topher): describe response
 func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
-	queryStringValues, err := url.ParseQuery(r.URL.RawQuery)
+	gameStateID, err := parseGameStateIdFromQuery(r)
 	if err != nil {
 		libhttp.HandleErrorJson(w, err)
 		return
@@ -55,22 +102,17 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		libhttp.HandleErrorJson(w, err)
 		return
 	}
-	// If the game state id for the request is empty, send the latest for
-	// that user. Otherwise, send the one requested
-	gameStateIDString := queryStringValues.Get("gameStateID")
+	// If the game state id for the request is empty, send the latest game
+	// state for that user. Otherwise, send the one requested
 	var gameState *libgame.GameState
-	if queryStringValues.Get("gameStateID") != "" {
+	if gameStateID != uuid.Nil {
 		// NOTE: if the user provides a game state id, we currently
 		// don't do any checking against the user id to make sure they
 		// match
-		gameStateID, err := uuid.FromString(gameStateIDString)
-		if err != nil {
-			libhttp.HandleErrorJson(w, err)
-			return
-		}
 		gameState, err = gameStateDB.GetGameStateById(gameStateID)
 		if err != nil {
-			libhttp.HandleErrorJson(w, err)
+			libhttp.HandleErrorJson(w, fmt.Errorf("Game state id %v not found: %v",
+				gameStateID, err))
 			return
 		}
 	} else {
@@ -88,17 +130,6 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	replyWithGameState(w, *gameState)
-}
-
-// replyWithGameState sends a JSON reponse with the given game state
-func replyWithGameState(w http.ResponseWriter, gameState libgame.GameState) {
-	data, err := json.Marshal(&gameState)
-	if err != nil {
-		libhttp.HandleErrorJson(w, err)
-		return
-	}
-	w.Header().Set("Content-Type", "text/json")
-	fmt.Fprint(w, string(data))
 }
 
 // saveGameStateAndRespond saves GameState to the DB, replies with the new state.
@@ -148,9 +179,9 @@ var decoder = schema.NewDecoder()
 // TODO(topher): change these to "respond like HandleMoveRequest"
 // We respond just like a /state request
 func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
-	gameState, err := getGameState(w, r)
+	gameState, err := parseGameStateFromQuery(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
+		libhttp.HandleErrorJson(w, fmt.Errorf("failure to get game state: %v", err))
 		return
 	}
 
@@ -184,9 +215,9 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleFlipStockRequest(w http.ResponseWriter, r *http.Request) {
-	gameState, err := getGameState(w, r)
+	gameState, err := parseGameStateFromQuery(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
+		libhttp.HandleErrorJson(w, fmt.Errorf("failure to get game state: %v", err))
 		return
 	}
 
@@ -199,30 +230,10 @@ func HandleFlipStockRequest(w http.ResponseWriter, r *http.Request) {
 	saveGameStateAndRespond(w, r, *gameState)
 }
 
-// HandleUndoMove deletes the latest move for the current user.
-//
-// If no error, responds with the gamestate for the new latest move (after
-// deletion).
-func HandleUndoMove(w http.ResponseWriter, r *http.Request) {
-	gameStateDB, currentUser, err := databaseParams(w, r)
-	if err != nil {
-		libhttp.HandleErrorJson(w, err)
-		return
-	}
-
-	err = gameStateDB.DeleteLatestGameState(nil, *currentUser)
-	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("Undo failed: %v", err))
-		return
-	}
-
-	HandleStateRequest(w, r)
-}
-
 func HandleFoundationAvailableCardRequest(w http.ResponseWriter, r *http.Request) {
-	gameState, err := getGameState(w, r)
+	gameState, err := parseGameStateFromQuery(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
+		libhttp.HandleErrorJson(w, fmt.Errorf("failure to get game state: %v", err))
 		return
 	}
 

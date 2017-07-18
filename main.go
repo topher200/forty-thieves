@@ -95,7 +95,6 @@ func (app *Application) mux() *gorilla_mux.Router {
 	router.HandleFunc("/newgame", handlers.HandleNewGameRequest)
 	router.HandleFunc("/move", handlers.HandleMoveRequest)
 	router.HandleFunc("/flipstock", handlers.HandleFlipStockRequest)
-	router.HandleFunc("/undomove", handlers.HandleUndoMove)
 	router.HandleFunc("/foundationcard", handlers.HandleFoundationAvailableCardRequest)
 
 	router.PathPrefix("/bower_components").
