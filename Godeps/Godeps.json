@@ -1,0 +1,108 @@
+{
+	"ImportPath": "github.com/topher200/forty-thieves",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "github.com/GaryBoone/GoStats/stats",
+			"Rev": "1993eafbef57be29ee8f5eb9d26a22f20ff3c207"
+		},
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.7-47-ga22723f",
+			"Rev": "a22723f16efea2e89b7bd67d10ed077c47c14eb4"
+		},
+		{
+			"ImportPath": "github.com/carbocation/interpose",
+			"Rev": "50c09d12f8624ab10532f931cb630d0bf5f7c2c7"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "1c83b3eabd45b6d76072b66b746c20815fb2872d"
+		},
+		{
+			"ImportPath": "github.com/gorilla/handlers",
+			"Rev": "e96366d97736da3bdec18b7fbaedd37c6fc97fb9"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "9c068cf16d982f8bd444b8c352acbeec34c4fe5b"
+		},
+		{
+			"ImportPath": "github.com/gorilla/schema",
+			"Rev": "14c555599c2a4f493c1e13fd1ea6fdf721739028"
+		},
+		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Rev": "e95799a481bbcc3d01c2ad5178524cb8bec9f370"
+		},
+		{
+			"ImportPath": "github.com/gorilla/sessions",
+			"Rev": "f7261893ca3ea922c30eabe742c036d2c1de6e0a"
+		},
+		{
+			"ImportPath": "github.com/jmoiron/sqlx",
+			"Comment": "sqlx-v1.1-53-g54aec3f",
+			"Rev": "54aec3fd91a2b2129ffaca0d652b8a9223ee2d9e"
+		},
+		{
+			"ImportPath": "github.com/jmoiron/sqlx/reflectx",
+			"Comment": "sqlx-v1.1-53-g54aec3f",
+			"Rev": "54aec3fd91a2b2129ffaca0d652b8a9223ee2d9e"
+		},
+		{
+			"ImportPath": "github.com/lib/pq",
+			"Comment": "go1.0-cutoff-61-g83c4f41",
+			"Rev": "83c4f410d0aed80a0f44bac6a576a7f2435791f3"
+		},
+		{
+			"ImportPath": "github.com/lib/pq/oid",
+			"Comment": "go1.0-cutoff-61-g83c4f41",
+			"Rev": "83c4f410d0aed80a0f44bac6a576a7f2435791f3"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.0-71-g0d5a14c",
+			"Rev": "0d5a14c5a477957864f3b747d95255ad4e34bcc0"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/require",
+			"Comment": "v1.0-71-g0d5a14c",
+			"Rev": "0d5a14c5a477957864f3b747d95255ad4e34bcc0"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/suite",
+			"Comment": "v1.0-71-g0d5a14c",
+			"Rev": "0d5a14c5a477957864f3b747d95255ad4e34bcc0"
+		},
+		{
+			"ImportPath": "github.com/topher200/baseutil",
+			"Rev": "4c047cfcd6b0b738f8e35f19d8ca7be77b614958"
+		},
+		{
+			"ImportPath": "github.com/topher200/deck",
+			"Rev": "f675ba362569906640f0ce3caca8eb80a3866dcd"
+		},
+		{
+			"ImportPath": "github.com/tylerb/graceful",
+			"Comment": "v1.2.3",
+			"Rev": "48afeb21e2fcbcff0f30bd5ad6b97747b0fae38e"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Rev": "346896d57731cb5670b36c6178fc5519f3225980"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Rev": "346896d57731cb5670b36c6178fc5519f3225980"
+		},
+		{
+			"ImportPath": "golang.org/x/net/netutil",
+			"Rev": "1d9fd3b8333e891c0e7353e1adcfe8a612573033"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "4cd6d1a821c7175768725b55ca82f14683a29ea4"
+		}
+	]
+}
