@@ -3,3 +3,4 @@ Godeps/*
 *.min.css
 *.min.js*
 *.a
+vendor/*
