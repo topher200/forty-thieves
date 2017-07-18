@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/gorilla/schema"
 	"github.com/jmoiron/sqlx"
+	uuid "github.com/satori/go.uuid"
 	"github.com/topher200/forty-thieves/dal"
 	"github.com/topher200/forty-thieves/libgame"
 	"github.com/topher200/forty-thieves/libhttp"
@@ -18,14 +20,15 @@ import (
 
 // Returns the DB paramaters required to be able to get/save GameStates for this user.
 func databaseParams(
-	w http.ResponseWriter, r *http.Request) (*dal.GameStateDB, *dal.UserRow, error) {
+	w http.ResponseWriter, r *http.Request) (*dal.GameDB, *dal.GameStateDB, *dal.UserRow, error) {
 	db := r.Context().Value("db").(*sqlx.DB)
+	gameDB := dal.NewGameDB(db)
 	gameStateDB := dal.NewGameStateDB(db)
-	currentUser, exists := getCurrentUser(w, r)
+	currentUserRow, exists := getCurrentUser(w, r)
 	if !exists {
-		return nil, nil, errors.New("User not found")
+		return nil, nil, nil, errors.New("User not found")
 	}
-	return gameStateDB, currentUser, nil
+	return gameDB, gameStateDB, currentUserRow, nil
 }
 
 func getGameState(w http.ResponseWriter, r *http.Request) (*libgame.GameState, error) {
@@ -41,11 +44,49 @@ func getGameState(w http.ResponseWriter, r *http.Request) (*libgame.GameState, e
 }
 
 func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
-	gameState, err := getGameState(w, r)
+	queryStringValues, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("Can't get game state: %v.", err))
+		libhttp.HandleErrorJson(w, err)
 		return
 	}
+
+	gameDB, gameStateDB, currentUserRow, err := databaseParams(w, r)
+	if err != nil {
+		libhttp.HandleErrorJson(w, err)
+		return
+	}
+	// If the game state id for the request is empty, send the latest for
+	// that user. Otherwise, send the one requested
+	gameStateIDString := queryStringValues.Get("gameStateID")
+	var gameState *libgame.GameState
+	if queryStringValues.Get("gameStateID") != "" {
+		// NOTE: if the user provides a game state id, we currently
+		// don't do any checking against the user id to make sure they
+		// match
+		gameStateID, err := uuid.FromString(gameStateIDString)
+		if err != nil {
+			libhttp.HandleErrorJson(w, err)
+			return
+		}
+		gameState, err = gameStateDB.GetGameStateById(gameStateID)
+		if err != nil {
+			libhttp.HandleErrorJson(w, err)
+			return
+		}
+	} else {
+		// request is empty, find the latest
+		game, err := gameDB.GetLatestGame(*currentUserRow)
+		if err != nil {
+			libhttp.HandleErrorJson(w, err)
+			return
+		}
+		gameState, err = gameStateDB.GetLatestGameState(*game)
+		if err != nil {
+			libhttp.HandleErrorJson(w, err)
+			return
+		}
+	}
+
 	data, err := json.Marshal(&gameState)
 	if err != nil {
 		libhttp.HandleErrorJson(w, err)
