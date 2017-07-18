@@ -35,6 +35,26 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 	return gs
 }
 
+// GetGameStateById returns the game state for the given id
+//
+// Returns error if there are no game states for the given game
+func (db *GameStateDB) GetGameStateById(gameStateID uuid.UUID) (*libgame.GameState, error) {
+	var gameStateRow GameStateRow
+	query := fmt.Sprintf(
+		"SELECT * FROM %s WHERE game_state_id=$1 ORDER BY id DESC LIMIT 1", db.table)
+	err := db.db.Get(&gameStateRow, query, gameStateID)
+	if err != nil {
+		return nil, fmt.Errorf("Error on query: %v", err)
+	}
+	var gameState libgame.GameState
+	decoder := gob.NewDecoder(bytes.NewBuffer(gameStateRow.BinarizedState))
+	err = decoder.Decode(&gameState)
+	if err != nil {
+		return nil, fmt.Errorf("Error decoding: %v", err)
+	}
+	return &gameState, nil
+}
+
 // GetGameState returns the latest gamestate for the given game
 //
 // Returns error if there are no game states for the given game
