@@ -5,6 +5,7 @@ function CardGameViewModel()  {
     self.tableaus = ko.observableArray();
     self.waste = ko.observableArray();
     self.score = ko.observable();
+    self.gameStateID = ko.observable();
 
     self.imageFilename = function(card) {
         return 'static/project/cards-png/' + card.Suit + '-' + card.Face + '.png';
@@ -50,6 +51,12 @@ function CardGameViewModel()  {
         self.tableaus(gamestate.Tableaus);
         self.waste(gamestate.Waste.Cards);
         self.score(gamestate.Score);
+        self.gameStateID(gamestate.GameStateID);
+
+        // set the url to match our gamestate
+        var url = new URL(window.location.href);
+        url.searchParams.set("gameStateID", self.gameStateID());
+        history.pushState(null, '', url.href);
     };
 
     // Update gamestate on load
