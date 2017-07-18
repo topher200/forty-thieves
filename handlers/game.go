@@ -80,7 +80,7 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 			libhttp.HandleErrorJson(w, err)
 			return
 		}
-		gameState, err = gameStateDB.GetLatestGameState(*game)
+		gameState, err = gameStateDB.GetFirstGameState(*game)
 		if err != nil {
 			libhttp.HandleErrorJson(w, err)
 			return

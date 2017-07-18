@@ -54,13 +54,13 @@ func (db *GameStateDB) GetGameStateById(gameStateID uuid.UUID) (*libgame.GameSta
 	return &gameState, nil
 }
 
-// GetLatestGameState returns the latest gamestate for the given game
+// GetFirstGameState returns the first gamestate for the given game
 //
 // Returns error if there are no game states for the given game
-func (db *GameStateDB) GetLatestGameState(game libgame.Game) (*libgame.GameState, error) {
+func (db *GameStateDB) GetFirstGameState(game libgame.Game) (*libgame.GameState, error) {
 	var gameStateRow GameStateRow
 	query := fmt.Sprintf(
-		"SELECT * FROM %s WHERE game_id=$1 ORDER BY id DESC LIMIT 1", db.table)
+		"SELECT * FROM %s WHERE game_id=$1 and move_num=0 LIMIT 1", db.table)
 	err := db.db.Get(&gameStateRow, query, game.ID)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
