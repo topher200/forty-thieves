@@ -16,7 +16,7 @@ func setupNewGameForTest(t *testing.T, gameDB GameDB) *libgame.Game {
 	userRow := u.signupNewUserRowForTest(t)
 
 	game, err := gameDB.CreateNewGame(nil, *userRow)
-	assert.NotNil(t, err)
+	assert.Nil(t, err)
 	return game
 }
 
