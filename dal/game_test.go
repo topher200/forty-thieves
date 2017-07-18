@@ -33,4 +33,10 @@ func TestCreateAndGetGame(t *testing.T) {
 	retrievedGame, err := gameDB.GetLatestGame(*userRow)
 	assert.Nil(t, err)
 	assert.Equal(t, *originalGame, *retrievedGame)
+
+	// Finally, delete the game
+	// TODO(topher) should we wrap this in some kind of teardown function?
+	// 'testing' lib doesn't seem to support that too well, but...
+	err = gameDB.DeleteGame(nil, *retrievedGame)
+	assert.Nil(t, err)
 }
