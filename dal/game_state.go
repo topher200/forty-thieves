@@ -17,13 +17,13 @@ type GameStateDB struct {
 }
 
 type GameStateRow struct {
-	ID                int64     `db:"id"`
-	GameStateID       uuid.UUID `db:"game_state_id"`
-	PreviousGameState uuid.UUID `db:"previous_game_state"`
-	GameID            int64     `db:"game_id"`
-	MoveNum           int64     `db:"move_num"`
-	Score             int       `db:"score"`
-	BinarizedState    []byte    `db:"binarized_state"`
+	ID                int64         `db:"id"`
+	GameStateID       uuid.UUID     `db:"game_state_id"`
+	PreviousGameState uuid.NullUUID `db:"previous_game_state"`
+	GameID            int64         `db:"game_id"`
+	MoveNum           int64         `db:"move_num"`
+	Score             int           `db:"score"`
+	BinarizedState    []byte        `db:"binarized_state"`
 }
 
 func NewGameStateDB(db *sqlx.DB) *GameStateDB {

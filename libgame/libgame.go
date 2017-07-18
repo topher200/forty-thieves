@@ -16,7 +16,7 @@ type Game struct {
 type GameState struct {
 	ID                int64
 	GameStateID       uuid.UUID
-	PreviousGameState uuid.UUID
+	PreviousGameState uuid.NullUUID
 	MoveNum           int64
 	Stock             deck.Deck
 	Foundations       []deck.Deck

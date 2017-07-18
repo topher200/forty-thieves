@@ -17,6 +17,9 @@ func TestDealNewGame(t *testing.T) {
 	for _, tableau := range state.Tableaus {
 		assert.Len(t, tableau.Cards, 4)
 	}
+	assert.False(t, state.PreviousGameState.Valid)
+	assert.NotNil(t, state.MoveNum)
+	assert.EqualValues(t, 0, state.MoveNum)
 }
 
 func TestPopFromStock(t *testing.T) {
