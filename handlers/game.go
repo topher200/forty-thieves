@@ -118,6 +118,7 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
+		logrus.Infof("no game state provided - finding latest game")
 		// request is empty, find the latest
 		game, err := gameDB.GetLatestGame(*currentUserRow)
 		if err != nil {
