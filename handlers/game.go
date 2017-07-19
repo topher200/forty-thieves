@@ -83,7 +83,7 @@ func parseGameStateFromQuery(w http.ResponseWriter, r *http.Request) (*libgame.G
 func replyWithGameState(w http.ResponseWriter, gameState libgame.GameState) {
 	data, err := json.Marshal(&gameState)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 	w.Header().Set("Content-Type", "text/json")
@@ -94,13 +94,13 @@ func replyWithGameState(w http.ResponseWriter, gameState libgame.GameState) {
 func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 	gameStateID, err := parseGameStateIdFromQuery(r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
 	gameDB, gameStateDB, currentUserRow, err := databaseParams(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 	// If the game state id for the request is empty, send the latest game
@@ -113,7 +113,7 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		logrus.Infof("getting gamestate for gamestate id %v", gameStateID)
 		gameState, err = gameStateDB.GetGameStateById(gameStateID)
 		if err != nil {
-			libhttp.HandleErrorJson(w, fmt.Errorf("Game state id %v not found: %v",
+			libhttp.HandleServerError(w, fmt.Errorf("Game state id %v not found: %v",
 				gameStateID, err))
 			return
 		}
@@ -122,12 +122,12 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		// request is empty, find the latest
 		game, err := gameDB.GetLatestGame(*currentUserRow)
 		if err != nil {
-			libhttp.HandleErrorJson(w, err)
+			libhttp.HandleServerError(w, err)
 			return
 		}
 		gameState, err = gameStateDB.GetFirstGameState(*game)
 		if err != nil {
-			libhttp.HandleErrorJson(w, err)
+			libhttp.HandleServerError(w, err)
 			return
 		}
 	}
@@ -142,12 +142,12 @@ func saveGameStateAndRespond(
 	w http.ResponseWriter, r *http.Request, gameState libgame.GameState) {
 	_, gameStateDB, _, err := databaseParams(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("Error getting database params: %v.", err))
+		libhttp.HandleServerError(w, fmt.Errorf("Error getting database params: %v.", err))
 		return
 	}
 	err = gameStateDB.SaveGameState(nil, gameState)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("error saving gamestate: %v", err))
+		libhttp.HandleServerError(w, fmt.Errorf("error saving gamestate: %v", err))
 		return
 	}
 	replyWithGameState(w, gameState)
@@ -159,12 +159,12 @@ func saveGameStateAndRespond(
 func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
 	gameDB, _, currentUserRow, err := databaseParams(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("Error getting database params: %v.", err))
+		libhttp.HandleServerError(w, fmt.Errorf("Error getting database params: %v.", err))
 		return
 	}
 	game, err := gameDB.CreateNewGame(nil, *currentUserRow)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("Error creating new game: %v.", err))
+		libhttp.HandleServerError(w, fmt.Errorf("Error creating new game: %v.", err))
 		return
 	}
 	gameState := libgame.DealNewGame(*game)
@@ -184,21 +184,21 @@ var decoder = schema.NewDecoder()
 func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	gameState, err := parseGameStateFromQuery(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("failure to get game state: %v", err))
+		libhttp.HandleServerError(w, fmt.Errorf("failure to get game state: %v", err))
 		return
 	}
 
 	// Parse the request from json
 	err = r.ParseForm()
 	if err != nil {
-		libhttp.HandleErrorJson(
+		libhttp.HandleServerError(
 			w, fmt.Errorf("failure to decode move request: %v", err))
 		return
 	}
 	var moveRequest libgame.MoveRequest
 	err = decoder.Decode(&moveRequest, r.PostForm)
 	if err != nil {
-		libhttp.HandleErrorJson(
+		libhttp.HandleServerError(
 			w, fmt.Errorf("failure to decode move request: %v. form values: %v",
 				err, r.PostForm))
 		return
@@ -210,7 +210,7 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	// Move the card
 	err = gameState.MoveCard(moveRequest)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("invalid move: %v", err))
+		libhttp.HandleServerError(w, fmt.Errorf("invalid move: %v", err))
 		return
 	}
 
@@ -220,13 +220,13 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 func HandleFlipStockRequest(w http.ResponseWriter, r *http.Request) {
 	gameState, err := parseGameStateFromQuery(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("failure to get game state: %v", err))
+		libhttp.HandleServerError(w, fmt.Errorf("failure to get game state: %v", err))
 		return
 	}
 
 	err = gameState.FlipStock()
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("can't flip stock: %v", err))
+		libhttp.HandleServerError(w, fmt.Errorf("can't flip stock: %v", err))
 		return
 	}
 
@@ -236,13 +236,13 @@ func HandleFlipStockRequest(w http.ResponseWriter, r *http.Request) {
 func HandleFoundationAvailableCardRequest(w http.ResponseWriter, r *http.Request) {
 	gameState, err := parseGameStateFromQuery(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("failure to get game state: %v", err))
+		libhttp.HandleServerError(w, fmt.Errorf("failure to get game state: %v", err))
 		return
 	}
 
 	err = libsolver.FoundationAvailableCard(gameState)
 	if err != nil {
-		libhttp.HandleErrorJson(w, fmt.Errorf("can't foundation card: %v", err))
+		libhttp.HandleServerError(w, fmt.Errorf("can't foundation card: %v", err))
 		return
 	}
 

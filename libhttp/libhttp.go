@@ -42,8 +42,8 @@ func BasicAuthUnauthorized(w http.ResponseWriter, err error) {
 	http.Error(w, message, http.StatusUnauthorized)
 }
 
-// HandleErrorJson wraps error in JSON structure.
-func HandleErrorJson(w http.ResponseWriter, err error) {
+// HandleServerError wraps error in JSON structure.
+func HandleServerError(w http.ResponseWriter, err error) {
 	var errMap map[string]string
 
 	if err == nil {

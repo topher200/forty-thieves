@@ -17,7 +17,7 @@ func GetSignup(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles("templates/users/login-signup-parent.html.tmpl", "templates/users/signup.html.tmpl")
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -35,7 +35,7 @@ func PostSignup(w http.ResponseWriter, r *http.Request) {
 
 	_, err := dal.NewUserDB(db).Signup(nil, email, password, passwordAgain)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -48,7 +48,7 @@ func GetLoginWithoutSession(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles("templates/users/login-signup-parent.html.tmpl", "templates/users/login.html.tmpl")
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -82,7 +82,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 
 	user, err := u.GetUserByEmailAndPassword(nil, email, password)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -91,7 +91,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 
 	err = session.Save(r, w)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -125,7 +125,7 @@ func PostPutDeleteUsersID(w http.ResponseWriter, r *http.Request) {
 func PutUsersID(w http.ResponseWriter, r *http.Request) {
 	userId, err := getIdFromPath(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -139,7 +139,7 @@ func PutUsersID(w http.ResponseWriter, r *http.Request) {
 
 	if currentUser.ID != userId {
 		err := errors.New("Modifying other user is not allowed.")
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -151,7 +151,7 @@ func PutUsersID(w http.ResponseWriter, r *http.Request) {
 
 	currentUser, err = u.UpdateEmailAndPasswordById(nil, currentUser.ID, email, password, passwordAgain)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -159,7 +159,7 @@ func PutUsersID(w http.ResponseWriter, r *http.Request) {
 	session.Values["user"] = currentUser
 	err = session.Save(r, w)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -168,6 +168,6 @@ func PutUsersID(w http.ResponseWriter, r *http.Request) {
 
 func DeleteUsersID(w http.ResponseWriter, r *http.Request) {
 	err := errors.New("DELETE method is not implemented.")
-	libhttp.HandleErrorJson(w, err)
+	libhttp.HandleServerError(w, err)
 	return
 }
