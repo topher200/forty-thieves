@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/gorilla/schema"
 	"github.com/jmoiron/sqlx"
 	uuid "github.com/satori/go.uuid"
@@ -109,6 +110,7 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		// NOTE: if the user provides a game state id, we currently
 		// don't do any checking against the user id to make sure they
 		// match
+		logrus.Infof("getting gamestate for gamestate id %v", gameStateID)
 		gameState, err = gameStateDB.GetGameStateById(gameStateID)
 		if err != nil {
 			libhttp.HandleErrorJson(w, fmt.Errorf("Game state id %v not found: %v",
