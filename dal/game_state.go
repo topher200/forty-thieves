@@ -74,9 +74,9 @@ func (db *GameStateDB) GetFirstGameState(game libgame.Game) (*libgame.GameState,
 }
 
 func (db *GameStateDB) GetChildGameStates(gameState libgame.GameState) ([]uuid.UUID, error) {
-	query := fmt.Sprintf("SELECT game_state_id FROM %s WHERE previous_game_state=$1", db.table)
+	query := fmt.Sprintf("SELECT game_state_id FROM %s WHERE game_id=$1 and previous_game_state=$2", db.table)
 	var childIds []uuid.UUID
-	err := db.db.Select(&childIds, query, gameState.GameStateID)
+	err := db.db.Select(&childIds, query, gameState.GameID, gameState.GameStateID)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
 	}
