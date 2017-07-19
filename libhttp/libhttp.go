@@ -42,8 +42,8 @@ func BasicAuthUnauthorized(w http.ResponseWriter, err error) {
 	http.Error(w, message, http.StatusUnauthorized)
 }
 
-// HandleErrorJson wraps error in JSON structure.
-func HandleErrorJson(w http.ResponseWriter, err error) {
+// HandleServerError wraps an internal server error in JSON structure.
+func HandleServerError(w http.ResponseWriter, err error) {
 	var errMap map[string]string
 
 	if err == nil {
@@ -53,6 +53,23 @@ func HandleErrorJson(w http.ResponseWriter, err error) {
 	}
 
 	errJson, _ := json.Marshal(errMap)
-	fmt.Printf("Sending error reply: %v\n", string(errJson))
+	fmt.Printf("Sending server error reply: %v\n", string(errJson))
 	http.Error(w, string(errJson), http.StatusInternalServerError)
+}
+
+// HandleServerError wraps a client error in a JSON structure.
+//
+// Requires the caller to provide a status code for what when wrong
+func HandleClientError(w http.ResponseWriter, err error, code int) {
+	var errMap map[string]string
+
+	if err == nil {
+		errMap = map[string]string{"Error": "Error struct is nil."}
+	} else {
+		errMap = map[string]string{"Error": err.Error()}
+	}
+
+	errJson, _ := json.Marshal(errMap)
+	fmt.Printf("Sending client error reply: %v\n", string(errJson))
+	http.Error(w, string(errJson), code)
 }

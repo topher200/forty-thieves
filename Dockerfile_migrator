@@ -2,8 +2,11 @@ FROM golang:1.8
 RUN echo 'set -o vi' >> /root/.bashrc
 
 RUN apt-get update && apt-get install -y \
+  less \
   postgresql \
-  postgresql-contrib
+  postgresql-contrib \
+  screen \
+  vim
 RUN go get github.com/rnubel/pgmgr
 RUN go get github.com/tools/godep
 

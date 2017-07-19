@@ -5,7 +5,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/gorilla/context"
+	"context"
+
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
@@ -14,17 +15,17 @@ import (
 func SetDB(db *sqlx.DB) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-			context.Set(req, "db", db)
+			req = req.WithContext(context.WithValue(req.Context(), "db", db))
 
 			next.ServeHTTP(res, req)
 		})
 	}
 }
 
-func SetCookieStore(cookieStore *sessions.CookieStore) func(http.Handler) http.Handler {
+func SetSessionStore(sessionStore sessions.Store) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-			context.Set(req, "cookieStore", cookieStore)
+			req = req.WithContext(context.WithValue(req.Context(), "sessionStore", sessionStore))
 
 			next.ServeHTTP(res, req)
 		})
@@ -34,8 +35,8 @@ func SetCookieStore(cookieStore *sessions.CookieStore) func(http.Handler) http.H
 // MustLogin is a middleware that checks existence of current user.
 func MustLogin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		cookieStore := context.Get(req, "cookieStore").(*sessions.CookieStore)
-		session, _ := cookieStore.Get(req, "forty-thieves-session")
+		sessionStore := req.Context().Value("sessionStore").(sessions.Store)
+		session, _ := sessionStore.Get(req, "forty-thieves-session")
 		userRowInterface := session.Values["user"]
 
 		if userRowInterface == nil {

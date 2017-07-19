@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -11,6 +13,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/carbocation/interpose"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/topher200/forty-thieves/dal"
@@ -34,6 +37,9 @@ type MainTestSuite struct {
 //  - gets the logout page
 //  - gets the login page
 //  - posts to the login page
+//  - posts to create a new game
+//  - gets a json /state message
+//  - posts to flip the stock
 //  - gets a json /state message
 //
 // We do this in one function (as opposed to separate Test* functions) since
@@ -47,13 +53,14 @@ func (testSuite *MainTestSuite) TestUserStory() {
 	testSuite.makeGetRequest("/logout")
 	testSuite.makeGetRequest("/login")
 	testSuite.loginPost()
-	testSuite.newgamePost()
-	testSuite.stateGet()
-	testSuite.flipStockPost()
-	// TODO: not testing movePost, since almost all moves would be illegal
+
+	gameStateID := testSuite.newgamePost()
+	testSuite.stateGet(gameStateID)
+	testSuite.flipStockPost(gameStateID)
+	testSuite.stateGet(gameStateID)
+
+	// TODO(topher): test move post by checking that we don't get a 5xx error
 	// testSuite.movePost()
-	// TODO: compare this gamestate to the gamestate before the last move?
-	testSuite.undoMovePost()
 }
 
 // checkResponse asserts that we didn't err and that our response looks good
@@ -96,43 +103,52 @@ func (testSuite *MainTestSuite) loginPost() {
 }
 
 // newgamePost assumes that you're signed in
-func (testSuite *MainTestSuite) newgamePost() {
+func (testSuite *MainTestSuite) newgamePost() uuid.UUID {
 	resp, err := testSuite.client.Post(testSuite.server.URL+"/newgame", "text/json", nil)
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
+
+	// pull out the gameStateID
+	type Response struct {
+		GameStateID uuid.UUID
+	}
+	var response Response
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.Nil(testSuite.T(), err)
+	return response.GameStateID
+}
+
+func addGameStateIdToURL(url string, gameStateID uuid.UUID) string {
+	return fmt.Sprintf("%s?gameStateID=%s", url, gameStateID.String())
 }
 
 // flipStockPost assumes that you're signed in
-func (testSuite *MainTestSuite) flipStockPost() {
+func (testSuite *MainTestSuite) flipStockPost(gameStateID uuid.UUID) {
 	resp, err := testSuite.client.Post(
-		testSuite.server.URL+"/flipstock", "text/json", nil)
+		addGameStateIdToURL(testSuite.server.URL+"/flipstock", gameStateID),
+		"text/json", nil)
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 }
 
 // movePost assumes that you're signed in
-func (testSuite *MainTestSuite) movePost() {
+func (testSuite *MainTestSuite) movePost(gameStateID uuid.UUID) {
 	form := url.Values{
 		"FromPile":  {"tableau"},
 		"FromIndex": {"0"},
 		"ToPile":    {"tableau"},
 		"ToIndex":   {"1"},
 	}
-	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/move", form)
-	defer resp.Body.Close()
-	checkResponse(testSuite.T(), resp, err)
-}
-
-// undoMovePost assumes that you're signed in
-func (testSuite *MainTestSuite) undoMovePost() {
-	resp, err := testSuite.client.Post(testSuite.server.URL+"/undomove", "text/json", nil)
+	resp, err := testSuite.client.PostForm(
+		addGameStateIdToURL(testSuite.server.URL+"/move", gameStateID), form)
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 }
 
 // stateGet assumes you're already signed in
-func (testSuite *MainTestSuite) stateGet() {
-	bodyText := string(testSuite.makeGetRequest("/state"))
+func (testSuite *MainTestSuite) stateGet(gameStateID uuid.UUID) {
+	bodyText := string(testSuite.makeGetRequest(
+		addGameStateIdToURL("/state", gameStateID)))
 	// Check that our response contains one of the card pile names we expect
 	assert.True(testSuite.T(), strings.Contains(bodyText, "Stock"))
 }

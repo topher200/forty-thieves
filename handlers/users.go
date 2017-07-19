@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/context"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	"github.com/topher200/forty-thieves/dal"
@@ -18,7 +17,7 @@ func GetSignup(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles("templates/users/login-signup-parent.html.tmpl", "templates/users/signup.html.tmpl")
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -28,7 +27,7 @@ func GetSignup(w http.ResponseWriter, r *http.Request) {
 func PostSignup(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
-	db := context.Get(r, "db").(*sqlx.DB)
+	db := r.Context().Value("db").(*sqlx.DB)
 
 	email := r.FormValue("Email")
 	password := r.FormValue("Password")
@@ -36,7 +35,7 @@ func PostSignup(w http.ResponseWriter, r *http.Request) {
 
 	_, err := dal.NewUserDB(db).Signup(nil, email, password, passwordAgain)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -49,7 +48,7 @@ func GetLoginWithoutSession(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles("templates/users/login-signup-parent.html.tmpl", "templates/users/login.html.tmpl")
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -73,8 +72,8 @@ func GetLogin(w http.ResponseWriter, r *http.Request) {
 func PostLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
-	db := context.Get(r, "db").(*sqlx.DB)
-	cookieStore := context.Get(r, "cookieStore").(*sessions.CookieStore)
+	db := r.Context().Value("db").(*sqlx.DB)
+	sessionStore := r.Context().Value("sessionStore").(sessions.Store)
 
 	email := r.FormValue("Email")
 	password := r.FormValue("Password")
@@ -83,16 +82,16 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 
 	user, err := u.GetUserByEmailAndPassword(nil, email, password)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
-	session, _ := cookieStore.Get(r, "forty-thieves-session")
+	session, _ := sessionStore.Get(r, "forty-thieves-session")
 	session.Values["user"] = user
 
 	err = session.Save(r, w)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -102,9 +101,9 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 func GetLogout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
-	cookieStore := context.Get(r, "cookieStore").(*sessions.CookieStore)
+	sessionStore := r.Context().Value("sessionStore").(sessions.Store)
 
-	session, _ := cookieStore.Get(r, "forty-thieves-session")
+	session, _ := sessionStore.Get(r, "forty-thieves-session")
 
 	delete(session.Values, "user")
 	session.Save(r, w)
@@ -126,21 +125,21 @@ func PostPutDeleteUsersID(w http.ResponseWriter, r *http.Request) {
 func PutUsersID(w http.ResponseWriter, r *http.Request) {
 	userId, err := getIdFromPath(w, r)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
-	db := context.Get(r, "db").(*sqlx.DB)
+	db := r.Context().Value("db").(*sqlx.DB)
 
-	cookieStore := context.Get(r, "cookieStore").(*sessions.CookieStore)
+	sessionStore := r.Context().Value("sessionStore").(sessions.Store)
 
-	session, _ := cookieStore.Get(r, "forty-thieves-session")
+	session, _ := sessionStore.Get(r, "forty-thieves-session")
 
 	currentUser := session.Values["user"].(*dal.UserRow)
 
 	if currentUser.ID != userId {
 		err := errors.New("Modifying other user is not allowed.")
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -152,7 +151,7 @@ func PutUsersID(w http.ResponseWriter, r *http.Request) {
 
 	currentUser, err = u.UpdateEmailAndPasswordById(nil, currentUser.ID, email, password, passwordAgain)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -160,7 +159,7 @@ func PutUsersID(w http.ResponseWriter, r *http.Request) {
 	session.Values["user"] = currentUser
 	err = session.Save(r, w)
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 
@@ -169,6 +168,6 @@ func PutUsersID(w http.ResponseWriter, r *http.Request) {
 
 func DeleteUsersID(w http.ResponseWriter, r *http.Request) {
 	err := errors.New("DELETE method is not implemented.")
-	libhttp.HandleErrorJson(w, err)
+	libhttp.HandleServerError(w, err)
 	return
 }

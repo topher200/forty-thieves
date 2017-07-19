@@ -25,7 +25,7 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles("templates/dashboard.html.tmpl", "templates/home.html.tmpl")
 	if err != nil {
-		libhttp.HandleErrorJson(w, err)
+		libhttp.HandleServerError(w, err)
 		return
 	}
 

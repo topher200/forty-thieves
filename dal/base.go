@@ -138,6 +138,11 @@ func (b *Base) InsertIntoTable(tx *sqlx.Tx, data map[string]interface{}) (sql.Re
 		}
 
 		result.lastInsertId = lastInsertId
+	} else {
+		_, err := tx.Exec(query, values...)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if wrapInSingleTransaction == true {
