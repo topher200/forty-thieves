@@ -13,7 +13,6 @@ type Game struct {
 	ID int64
 }
 
-// TODO(topher): this probably shouldn't have an ID field
 type GameState struct {
 	GameID            int64
 	GameStateID       uuid.UUID
