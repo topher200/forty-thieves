@@ -1,6 +1,0 @@
-bower_components/*
-Godeps/*
-*.min.css
-*.min.js*
-*.a
-vendor/*
