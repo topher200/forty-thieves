@@ -17,9 +17,9 @@
       <!-- Each card in the foundation -->
       <span data-bind="foreach: Cards">
         <div
-           ondragstart="cardDrag(event)"
-           data-location="foundation"
-           data-bind="attr:{ 'data-index': $parentContext.$index() }">
+          ondragstart="cardDrag(event)"
+          data-location="foundation"
+          data-bind="attr:{ 'data-index': $parentContext.$index() }">
           <img class="card-spot stackable"
                data-bind="attr:{
                           src: $root.imageFilename($data),
@@ -39,10 +39,10 @@
     <img class="card-spot" src="static/project/cards-png/blank-card-spot.png"/>
     <span data-bind="foreach: waste">
       <div
-         ondragstart="cardDrag(event)"
-         data-location="waste"
-         data-index=0
-         >
+        ondragstart="cardDrag(event)"
+        data-location="waste"
+        data-index=0
+        >
         <img class="card-spot stackable"
              data-bind="attr:{
                         src: $root.imageFilename($data),
@@ -84,9 +84,9 @@
       <!-- Each card in the tableau -->
       <span data-bind="foreach: Cards">
         <div
-           ondragstart="cardDrag(event)"
-           data-location="tableau"
-           data-bind="attr:{ 'data-index': $parentContext.$index() }">
+          ondragstart="cardDrag(event)"
+          data-location="tableau"
+          data-bind="attr:{ 'data-index': $parentContext.$index() }">
           <img class="card-spot stackable"
                data-bind="attr:{
                           src: $root.imageFilename($data),
