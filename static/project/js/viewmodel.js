@@ -7,6 +7,12 @@ function CardGameViewModel()  {
     self.score = ko.observable();
     self.gameStateID = ko.observable();
 
+    // set our query param, if we have it, before we make any json requests
+    var pageUrl = new URL(window.location.href);
+    if (pageUrl.searchParams.get("gameStateID")) {
+        self.gameStateID(pageUrl.searchParams.get("gameStateID"));
+    }
+
     self.imageFilename = function(card) {
         return 'static/project/cards-png/' + card.Suit + '-' + card.Face + '.png';
     };
@@ -32,7 +38,7 @@ function CardGameViewModel()  {
         if (path.includes("?")) {
             console.log("warning: request %s already contains query param", path);
         }
-        path += "?gameStateID" + self.gameStateID();
+        path += "?gameStateID=" + self.gameStateID();
         return path;
     }
 
@@ -70,7 +76,7 @@ function CardGameViewModel()  {
     };
 
     // Update gamestate on load
-    $.getJSON("/state", self.updateGamestate);
+    $.getJSON(addGameStateIdToPath("/state"), self.updateGamestate);
 }
 
 var viewmodel = new CardGameViewModel();
