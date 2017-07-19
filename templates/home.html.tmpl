@@ -1,99 +1,113 @@
 {{define "content"}}
-<button data-bind="click: newgamePost">Deal New Game</button>
-<button data-bind="click: foundationCardPost">Foundation Card</button>
-<div><span data-bind="text: stock() ? stock().length : 'No'"></span> cards remaining</div>
-<div>Score: <span data-bind="text: score()"></span></div>
+<div class="col-md-9">
+  <button data-bind="click: newgamePost">Deal New Game</button>
+  <button data-bind="click: foundationCardPost">Foundation Card</button>
+  <div><span data-bind="text: stock() ? stock().length : 'No'"></span> cards remaining</div>
+  <div>Score: <span data-bind="text: score()"></span></div>
 
-<div id="container" float:left>
-  <!-- foundations -->
-  <div data-bind="foreach: foundations">
-    <div class="pile"
+  <div id="container">
+    <!-- foundations -->
+    <div data-bind="foreach: foundations">
+      <div class="col-md-1 pile"
+           ondrop="cardDrop(event)"
+           ondragover="allowDrop(event)"
+           data-location="foundation"
+           data-bind="attr:{ 'data-index': $index() }">
+        <!-- Blank card spot -->
+        <img class="card-spot" src="static/project/cards-png/b1fv.png"/>
+        <!-- Each card in the foundation -->
+        <span data-bind="foreach: Cards">
+          <div
+            ondragstart="cardDrag(event)"
+            data-location="foundation"
+            data-bind="attr:{ 'data-index': $parentContext.$index() }">
+            <img class="card-spot stackable"
+                 data-bind="attr:{
+                            src: $root.imageFilename($data),
+                            style: 'top: 0px'
+                            }"/>
+          </div>
+        </span>
+      </div>
+    </div>
+
+    <!-- waste -->
+    <div class="col-md-1 pile"
          ondrop="cardDrop(event)"
-         ondragover="allowDrop(event)"
-         data-location="foundation"
-         data-bind="attr:{ 'data-index': $index() }">
+         data-location="waste"
+         data-index=0>
       <!-- Blank card spot -->
-      <img class="card-spot" src="static/project/cards-png/b1fv.png"/>
-      <!-- Each card in the foundation -->
-      <span data-bind="foreach: Cards">
+      <img class="card-spot" src="static/project/cards-png/blank-card-spot.png"/>
+      <span data-bind="foreach: waste">
         <div
           ondragstart="cardDrag(event)"
-          data-location="foundation"
-          data-bind="attr:{ 'data-index': $parentContext.$index() }">
+          data-location="waste"
+          data-index=0
+          >
           <img class="card-spot stackable"
                data-bind="attr:{
                           src: $root.imageFilename($data),
                           style: 'top: 0px'
                           }"/>
         </div>
+    </div>
+
+    <!-- stock -->
+    <div class="col-md-1 pile">
+      <!-- blank card spot -->
+      <img onclick="flipStock();" class="card-spot" src="static/project/cards-png/blank-card-spot.png"/>
+      <!-- each card in stock -->
+      <span data-bind="foreach: stock">
+        <div>
+          <img class="card-spot stackable"
+               src="static/project/cards-png/b1fv.png"
+               style="top: 0px"
+               onclick="flipStock();"
+               />
+        </div>
       </span>
     </div>
   </div>
+</div>
 
-  <!-- waste -->
-  <div class="pile"
-       ondrop="cardDrop(event)"
-       data-location="waste"
-       data-index=0>
-    <!-- Blank card spot -->
-    <img class="card-spot" src="static/project/cards-png/blank-card-spot.png"/>
-    <span data-bind="foreach: waste">
-      <div
-        ondragstart="cardDrag(event)"
-        data-location="waste"
-        data-index=0
-        >
-        <img class="card-spot stackable"
-             data-bind="attr:{
-                        src: $root.imageFilename($data),
-                        style: 'top: 0px'
-                        }"/>
-      </div>
-  </div>
-
-  <!-- stock -->
-  <div class="pile">
-    <!-- blank card spot -->
-    <img onclick="flipStock();" class="card-spot" src="static/project/cards-png/blank-card-spot.png"/>
-    <!-- each card in stock -->
-    <span data-bind="foreach: stock">
-      <div>
-        <img class="card-spot stackable"
-             src="static/project/cards-png/b1fv.png"
-             style="top: 0px"
-             onclick="flipStock();" 
-             />
-      </div>
-    </span>
-  </div>
+<div class="col-md-3">
+  <button data-bind="text: parentGameStateId, click: goToParentState"></button>
+  <ul data-bind="foreach: childGameStateIds">
+    <li>
+      <button data-bind="text: $data, click: $parent.goToState"></button>
+    </li>
+  </ul>
+  <!-- <button data-bind="click: foundationCardPost">Foundation Card</button> -->
 </div>
 
 <!-- pagebreak between top and bottom -->
 <div class="clearfix" />
 
-<!-- tableaus -->
-<div id="container" float:left>
-  <div data-bind="foreach: tableaus">
-    <div class="pile"
-         ondrop="cardDrop(event)"
-         ondragover="allowDrop(event)"
-         data-location="tableau"
-         data-bind="attr:{ 'data-index': $index() }">
-      <!-- Blank card spot -->
-      <img class="card-spot" src="static/project/cards-png/b1fv.png"/>
-      <!-- Each card in the tableau -->
-      <span data-bind="foreach: Cards">
-        <div
-          ondragstart="cardDrag(event)"
-          data-location="tableau"
-          data-bind="attr:{ 'data-index': $parentContext.$index() }">
-          <img class="card-spot stackable"
-               data-bind="attr:{
-                          src: $root.imageFilename($data),
-                          style: $root.tableauPosition($index())
-                          }"/>
-        </div>
-      </span>
+<div class="col-md-9">
+  <!-- tableaus -->
+  <div id="container" float:left>
+    <div data-bind="foreach: tableaus">
+      <div class="col-md-1 pile"
+           ondrop="cardDrop(event)"
+           ondragover="allowDrop(event)"
+           data-location="tableau"
+           data-bind="attr:{ 'data-index': $index() }">
+        <!-- Blank card spot -->
+        <img class="card-spot" src="static/project/cards-png/b1fv.png"/>
+        <!-- Each card in the tableau -->
+        <span data-bind="foreach: Cards">
+          <div
+            ondragstart="cardDrag(event)"
+            data-location="tableau"
+            data-bind="attr:{ 'data-index': $parentContext.$index() }">
+            <img class="card-spot stackable"
+                 data-bind="attr:{
+                            src: $root.imageFilename($data),
+                            style: $root.tableauPosition($index())
+                            }"/>
+          </div>
+        </span>
+      </div>
     </div>
   </div>
 </div>

@@ -17,10 +17,6 @@
 }
 
 .pile {
-    position: relative;
-    float: left;
-    width: 100px;
-    height: 150px;
 }
 
 /* These cards stack on top of each other */
