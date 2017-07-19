@@ -29,7 +29,9 @@ function CardGameViewModel()  {
     // add our query param to a full URL
     function addGameStateIdToURL(urlString) {
         var url = new URL(urlString);
-        url.searchParams.set("gameStateID", self.gameStateID());
+        if (self.gameStateID()) {
+            url.searchParams.set("gameStateID", self.gameStateID());
+        }
         return url.href;
     }
 
@@ -38,7 +40,9 @@ function CardGameViewModel()  {
         if (path.includes("?")) {
             console.log("warning: request %s already contains query param", path);
         }
-        path += "?gameStateID=" + self.gameStateID();
+        if (self.gameStateID()) {
+            path += "?gameStateID=" + self.gameStateID();
+        }
         return path;
     }
 
