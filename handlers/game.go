@@ -113,8 +113,9 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		logrus.Infof("getting gamestate for gamestate id %v", gameStateID)
 		gameState, err = gameStateDB.GetGameStateById(gameStateID)
 		if err != nil {
-			libhttp.HandleServerError(w, fmt.Errorf("Game state id %v not found: %v",
-				gameStateID, err))
+			libhttp.HandleClientError(w,
+				fmt.Errorf("Game state id %v not found: %v", gameStateID, err),
+				http.StatusBadRequest)
 			return
 		}
 	} else {
@@ -122,7 +123,7 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		// request is empty, find the latest
 		game, err := gameDB.GetLatestGame(*currentUserRow)
 		if err != nil {
-			libhttp.HandleServerError(w, err)
+			libhttp.HandleClientError(w, fmt.Errorf("No game found: %v", err), http.StatusBadRequest)
 			return
 		}
 		gameState, err = gameStateDB.GetFirstGameState(*game)
@@ -210,7 +211,7 @@ func HandleMoveRequest(w http.ResponseWriter, r *http.Request) {
 	// Move the card
 	err = gameState.MoveCard(moveRequest)
 	if err != nil {
-		libhttp.HandleServerError(w, fmt.Errorf("invalid move: %v", err))
+		libhttp.HandleClientError(w, fmt.Errorf("invalid move: %v", err), http.StatusBadRequest)
 		return
 	}
 
@@ -226,7 +227,8 @@ func HandleFlipStockRequest(w http.ResponseWriter, r *http.Request) {
 
 	err = gameState.FlipStock()
 	if err != nil {
-		libhttp.HandleServerError(w, fmt.Errorf("can't flip stock: %v", err))
+		libhttp.HandleClientError(w, fmt.Errorf("can't flip stock: %v", err),
+			http.StatusBadRequest)
 		return
 	}
 
@@ -242,7 +244,8 @@ func HandleFoundationAvailableCardRequest(w http.ResponseWriter, r *http.Request
 
 	err = libsolver.FoundationAvailableCard(gameState)
 	if err != nil {
-		libhttp.HandleServerError(w, fmt.Errorf("can't foundation card: %v", err))
+		libhttp.HandleClientError(w, fmt.Errorf("can't foundation any cards: %v", err),
+			http.StatusBadRequest)
 		return
 	}
 
