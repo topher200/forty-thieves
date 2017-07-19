@@ -6,6 +6,8 @@ function CardGameViewModel()  {
     self.waste = ko.observableArray();
     self.score = ko.observable();
     self.gameStateID = ko.observable();
+    self.parentGameStateId = ko.observable();
+    self.childGameStateIds = ko.observable();
 
     // set our query param, if we have it, before we make any json requests
     var pageUrl = new URL(window.location.href);
@@ -66,6 +68,14 @@ function CardGameViewModel()  {
         $.post(addGameStateIdToPath("/foundationcard"), {}, self.updateGamestate, "json");
     };
 
+    self.goToState = function(gameStateId) {
+        $.getJSON("/state?gameStateID=" + gameStateId, self.updateGamestate);
+    };
+
+    self.goToParentState = function() {
+        self.goToState(self.parentGameStateId());
+    };
+
     self.updateGamestate = function(gamestate) {
         self.stock(gamestate.Stock.Cards);
         self.foundations(gamestate.Foundations);
@@ -73,6 +83,8 @@ function CardGameViewModel()  {
         self.waste(gamestate.Waste.Cards);
         self.score(gamestate.Score);
         self.gameStateID(gamestate.GameStateID);
+        self.parentGameStateId(gamestate.PreviousGameState.UUID);
+        self.childGameStateIds(gamestate.ChildGameStates);
 
         // set the url to match our gamestate
         var url = addGameStateIdToURL(window.location.href);

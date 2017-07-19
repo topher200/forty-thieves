@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/schema"
 	"github.com/jmoiron/sqlx"
 	uuid "github.com/satori/go.uuid"
+	"github.com/topher200/deck"
 	"github.com/topher200/forty-thieves/dal"
 	"github.com/topher200/forty-thieves/libgame"
 	"github.com/topher200/forty-thieves/libhttp"
@@ -80,8 +81,44 @@ func parseGameStateFromQuery(w http.ResponseWriter, r *http.Request) (*libgame.G
 }
 
 // replyWithGameState sends a JSON reponse with the given game state
-func replyWithGameState(w http.ResponseWriter, gameState libgame.GameState) {
-	data, err := json.Marshal(&gameState)
+func replyWithGameState(w http.ResponseWriter, r *http.Request, gameState libgame.GameState) {
+	type GameStateWithChildren struct {
+		GameID            int64
+		GameStateID       uuid.UUID
+		PreviousGameState uuid.NullUUID
+		MoveNum           int64
+		Stock             deck.Deck
+		Foundations       []deck.Deck
+		Tableaus          []deck.Deck
+		Waste             deck.Deck
+		Score             int
+		ChildGameStates   []uuid.UUID
+	}
+
+	// get children
+	_, gameStateDB, _, err := databaseParams(w, r)
+	childGameStates, err := gameStateDB.GetChildGameStates(gameState)
+	if err != nil {
+		libhttp.HandleServerError(w, err)
+		return
+	}
+
+	// make new struct with children
+	gs := GameStateWithChildren{
+		gameState.GameID,
+		gameState.GameStateID,
+		gameState.PreviousGameState,
+		gameState.MoveNum,
+		gameState.Stock,
+		gameState.Foundations,
+		gameState.Tableaus,
+		gameState.Waste,
+		gameState.Score,
+		childGameStates,
+	}
+
+	// convert to json and send
+	data, err := json.Marshal(&gs)
 	if err != nil {
 		libhttp.HandleServerError(w, err)
 		return
@@ -133,7 +170,7 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	replyWithGameState(w, *gameState)
+	replyWithGameState(w, r, *gameState)
 }
 
 // saveGameStateAndRespond saves GameState to the DB, replies with the new state.
@@ -151,7 +188,7 @@ func saveGameStateAndRespond(
 		libhttp.HandleServerError(w, fmt.Errorf("error saving gamestate: %v", err))
 		return
 	}
-	replyWithGameState(w, gameState)
+	replyWithGameState(w, r, gameState)
 }
 
 // HandleNewGameRequest saves a new GameState to the DB
