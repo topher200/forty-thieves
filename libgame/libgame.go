@@ -34,8 +34,8 @@ const (
 
 // popFromStock returns error if there's no cards in the stock.
 //
-// Doesn't call 'updateScore' because it's a private function. Caller is
-// expected to do that for us.
+// Doesn't call 'updateScore' or 'moveCreatesNewGameState' because we're a
+// private function. Caller is expected to do that for us.
 func (state *GameState) popFromStock() (deck.Card, error) {
 	if len(state.Stock.Cards) <= 0 {
 		return deck.Card{}, errors.New("Empty stock")
@@ -176,7 +176,7 @@ func (state *GameState) MoveCard(move MoveRequest) error {
 	toDeck.Cards = append(toDeck.Cards, fromDeck.Cards[len(fromDeck.Cards)-1])
 	fromDeck.Cards = fromDeck.Cards[:len(fromDeck.Cards)-1]
 
-	state.updateScore()
+	state.moveCreatesNewGameState()
 	return nil
 }
 
@@ -188,7 +188,7 @@ func (state *GameState) FlipStock() error {
 
 	state.Waste.Cards = append(state.Waste.Cards, card)
 
-	state.updateScore()
+	state.moveCreatesNewGameState()
 	return nil
 }
 
@@ -218,6 +218,7 @@ func DealNewGame(game Game) (state GameState) {
 		}
 	}
 
+	// not calling moveCreatesNewGameState because we are a new state
 	state.updateScore()
 	return
 }
@@ -242,6 +243,7 @@ func (state GameState) String() string {
 //
 // This function must be called after any function that manipulates the Decks.
 func (state *GameState) updateScore() {
+	// update score
 	score := 0
 	score += len(state.Stock.Cards)
 	for i := range state.Tableaus {
@@ -249,4 +251,16 @@ func (state *GameState) updateScore() {
 	}
 	score += len(state.Waste.Cards)
 	state.Score = score
+}
+
+// moveCreatesNewGameState should be called on a game state after a move has been made
+//
+// We increment the important fields, assign a new ID to this new game state, and update the score
+func (state *GameState) moveCreatesNewGameState() {
+	// increment the state IDs
+	state.MoveNum = state.MoveNum + 1
+	state.PreviousGameState = uuid.NullUUID{UUID: state.GameStateID, Valid: true}
+	state.GameStateID = uuid.NewV4()
+
+	state.updateScore()
 }
