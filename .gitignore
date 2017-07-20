@@ -1,6 +1,7 @@
 # Project specific
 forty-thieves
 *.debug
+gin-bin
 
 .DS_Store
 
