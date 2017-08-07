@@ -71,10 +71,10 @@
 </div>
 
 <div class="col-md-3">
-  <a data-bind="text: parentGameStateId, attr: {href: '/?gameStateID=' + parentGameStateId()}"></a>
+  <a data-bind="text: parentGameStateId, attr: {href: '/?gameStateID=' + parentGameStateId()}, click: goToParentState"></a>
   <ul data-bind="foreach: childGameStateIds">
     <li>
-      <a data-bind="text: $data, attr: {href: '/?gameStateID=' + $data}"></a>
+      <a data-bind="text: $data, attr: {href: '/?gameStateID=' + $data}, click: $parent.goToState"></a>
     </li>
   </ul>
   <!-- <button data-bind="click: foundationCardPost">Foundation Card</button> -->
