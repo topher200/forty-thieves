@@ -14,4 +14,4 @@ WORKDIR /go/src/github.com/topher200/forty-thieves/webcmd
 RUN godep go build
 
 EXPOSE 8888
-CMD ./forty-thieves
+CMD ./webcmd
