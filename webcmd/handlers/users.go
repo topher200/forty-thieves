@@ -8,8 +8,8 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
-	"github.com/topher200/forty-thieves/dal"
 	"github.com/topher200/forty-thieves/libhttp"
+	"github.com/topher200/forty-thieves/webcmd/dal"
 )
 
 func GetSignup(w http.ResponseWriter, r *http.Request) {

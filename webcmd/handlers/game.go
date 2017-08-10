@@ -14,10 +14,10 @@ import (
 	"github.com/jmoiron/sqlx"
 	uuid "github.com/satori/go.uuid"
 	"github.com/topher200/deck"
-	"github.com/topher200/forty-thieves/dal"
 	"github.com/topher200/forty-thieves/libgame"
 	"github.com/topher200/forty-thieves/libhttp"
 	"github.com/topher200/forty-thieves/libsolver"
+	"github.com/topher200/forty-thieves/webcmd/dal"
 )
 
 // Returns the DB paramaters required to be able to get/save GameStates for this user.

@@ -13,11 +13,11 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/topher200/forty-thieves/dal"
-	"github.com/topher200/forty-thieves/handlers"
 	"github.com/topher200/forty-thieves/libenv"
 	"github.com/topher200/forty-thieves/libunix"
-	"github.com/topher200/forty-thieves/middlewares"
+	"github.com/topher200/forty-thieves/webcmd/dal"
+	"github.com/topher200/forty-thieves/webcmd/handlers"
+	"github.com/topher200/forty-thieves/webcmd/middlewares"
 	"github.com/tylerb/graceful"
 )
 

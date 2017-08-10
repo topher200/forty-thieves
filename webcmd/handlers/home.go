@@ -4,8 +4,8 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/topher200/forty-thieves/dal"
 	"github.com/topher200/forty-thieves/libhttp"
+	"github.com/topher200/forty-thieves/webcmd/dal"
 )
 
 func GetHome(w http.ResponseWriter, r *http.Request) {
