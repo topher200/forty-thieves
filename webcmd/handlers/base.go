@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/topher200/forty-thieves/dal"
+	"github.com/topher200/forty-thieves/webcmd/dal"
 )
 
 func getCurrentUser(w http.ResponseWriter, r *http.Request) (*dal.UserRow, bool) {

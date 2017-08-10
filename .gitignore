@@ -2,6 +2,7 @@
 forty-thieves
 *.debug
 gin-bin
+webcmd/webcmd
 
 .DS_Store
 
