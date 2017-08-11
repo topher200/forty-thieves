@@ -17,7 +17,7 @@ import (
 	"github.com/topher200/forty-thieves/libgame"
 	"github.com/topher200/forty-thieves/libhttp"
 	"github.com/topher200/forty-thieves/libsolver"
-	"github.com/topher200/forty-thieves/webcmd/dal"
+	"github.com/topher200/forty-thieves/libdb"
 )
 
 // Returns the DB paramaters required to be able to get/save GameStates for this user.

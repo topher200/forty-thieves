@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/topher200/forty-thieves/libhttp"
-	"github.com/topher200/forty-thieves/webcmd/dal"
+	"github.com/topher200/forty-thieves/libdb"
 )
 
 func GetHome(w http.ResponseWriter, r *http.Request) {

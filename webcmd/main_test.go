@@ -16,7 +16,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/topher200/forty-thieves/webcmd/dal"
+	"github.com/topher200/forty-thieves/libdb"
 )
 
 const (
