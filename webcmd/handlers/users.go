@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	"github.com/topher200/forty-thieves/libhttp"
-	"github.com/topher200/forty-thieves/webcmd/dal"
+	"github.com/topher200/forty-thieves/libdb"
 )
 
 func GetSignup(w http.ResponseWriter, r *http.Request) {
