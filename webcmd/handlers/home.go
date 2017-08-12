@@ -18,7 +18,7 @@ func GetHome(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		CurrentUser *dal.UserRow
+		CurrentUser *libdb.UserRow
 	}{
 		currentUser,
 	}

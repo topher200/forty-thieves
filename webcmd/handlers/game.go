@@ -22,10 +22,10 @@ import (
 
 // Returns the DB paramaters required to be able to get/save GameStates for this user.
 func databaseParams(
-	w http.ResponseWriter, r *http.Request) (*dal.GameDB, *dal.GameStateDB, *dal.UserRow, error) {
+	w http.ResponseWriter, r *http.Request) (*libdb.GameDB, *libdb.GameStateDB, *libdb.UserRow, error) {
 	db := r.Context().Value("db").(*sqlx.DB)
-	gameDB := dal.NewGameDB(db)
-	gameStateDB := dal.NewGameStateDB(db)
+	gameDB := libdb.NewGameDB(db)
+	gameStateDB := libdb.NewGameStateDB(db)
 	currentUserRow, exists := getCurrentUser(w, r)
 	if !exists {
 		return nil, nil, nil, errors.New("User not found")

@@ -22,7 +22,7 @@ import (
 )
 
 func init() {
-	gob.Register(&dal.UserRow{})
+	gob.Register(&libdb.UserRow{})
 }
 
 // NewApplication is the constructor for Application struct.

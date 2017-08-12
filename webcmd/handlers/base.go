@@ -11,10 +11,10 @@ import (
 	"github.com/topher200/forty-thieves/libdb"
 )
 
-func getCurrentUser(w http.ResponseWriter, r *http.Request) (*dal.UserRow, bool) {
+func getCurrentUser(w http.ResponseWriter, r *http.Request) (*libdb.UserRow, bool) {
 	sessionStore := r.Context().Value("sessionStore").(sessions.Store)
 	session, _ := sessionStore.Get(r, "forty-thieves-session")
-	currentUser, exists := session.Values["user"].(*dal.UserRow)
+	currentUser, exists := session.Values["user"].(*libdb.UserRow)
 	return currentUser, exists
 }
 

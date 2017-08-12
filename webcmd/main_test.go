@@ -177,7 +177,7 @@ func (testSuite *MainTestSuite) SetupSuite() {
 }
 
 func deleteTestUser(t *testing.T) {
-	userDB := dal.NewUserDBForTest(t)
+	userDB := libdb.NewUserDBForTest(t)
 	userRow, err := userDB.GetByEmail(nil, testUserEmail)
 	assert.Nil(t, err)
 	_, err = userDB.DeleteById(nil, userRow.ID)
