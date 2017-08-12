@@ -1,5 +1,7 @@
 FROM golang:1.8
 RUN echo 'set -o vi' >> /root/.bashrc
+RUN echo '\\pset null -null-\n\\pset pager off' >> /root/.psqlrc
+RUN echo 'set editing-mode vi' >> /root/.inputrc
 
 RUN apt-get update && apt-get install -y \
   less \
