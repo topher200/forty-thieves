@@ -18,4 +18,5 @@ WORKDIR /go/src/github.com/topher200/forty-thieves/webcmd
 RUN go get -t
 RUN godep go build
 
+WORKDIR /go/src/github.com/topher200/forty-thieves
 CMD ./test.sh
