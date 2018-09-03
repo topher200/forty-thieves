@@ -1,1 +1,1 @@
-{ "url": "postgres://postgres@db:5432/forty_thieves?sslmode=disable", "migration-folder": "migrations", "dump-file": "migrations/dump.sql", "seed-tables": [] }
+{ "url": "postgres://postgres@localhost:5432/forty_thieves?sslmode=disable", "migration-folder": "migrations", "dump-file": "migrations/dump.sql", "seed-tables": [] }
