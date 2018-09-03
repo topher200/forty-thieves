@@ -1,3 +1,7 @@
+.PHONY: run
+run:
+	cd webcmd && go run main.go
+
 .PHONY: create-db
 create-db:
 	pgmgr db create
