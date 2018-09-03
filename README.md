@@ -90,19 +90,3 @@ godep go build
 # Running tests with godep
 godep go test ./...
 ```
-
-
-## Running in Vagrant
-
-There are two potential gotchas you need to know when running in Vagrant:
-
-1. `GOPATH` is not defined when you ssh into Vagrant. To fix the problem, do
-`export GOPATH=/go` immediately after ssh.
-
-2. PostgreSQL is not installed inside Vagrant. You must connect to your host
-PostgreSQL. Here's an example on how to run your application inside vagrant
-while connecting to your host PostgreSQL:
-
-```
-GOPATH=/go DSN=postgres://$(whoami)@$(netstat -rn | grep "^0.0.0.0 " | cut -d " " -f10):5432/$PROJECT_NAME?sslmode=disable go run main.go
-```
