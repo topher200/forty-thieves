@@ -8,12 +8,12 @@
     ```
     cd $GOPATH/src/github.com/topher200/forty-thieves
     go get github.com/rnubel/pgmgr
-    pgmgr db create
+    make create-db
     ```
 
 4. Run the PostgreSQL migration.
     ```
-    pgmgr db migrate
+    make migrate-db
     ```
 
 5. Run the server
