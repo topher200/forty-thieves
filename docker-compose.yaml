@@ -6,14 +6,5 @@ volumes:
 services:
     web:
         build: .
-        depends_on:
-            - db
         ports:
             - "8888:8888"
-
-    db:
-        image: postgres:9.6
-        volumes:
-            - postgres:/var/lib/postgresql/data
-        ports:
-            - "5432:5432"
