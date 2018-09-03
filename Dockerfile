@@ -7,7 +7,7 @@ ENV USER root
 ENV HTTP_ADDR :8888
 ENV HTTP_DRAIN_INTERVAL 1s
 ENV COOKIE_SECRET ittwiP92o0oi6P4i
-ENV DSN postgres://postgres@db:5432/forty-thieves?sslmode=disable
+ENV DSN postgres://postgres@host.docker.internal:5432/forty_thieves?sslmode=disable
 
 ADD . /go/src/github.com/topher200/forty-thieves
 WORKDIR /go/src/github.com/topher200/forty-thieves/webcmd
