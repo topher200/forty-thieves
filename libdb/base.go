@@ -50,7 +50,7 @@ func newDbForTest(t *testing.T) *sqlx.DB {
 			pgsslmode = "disable"
 		}
 
-		pgdsn = fmt.Sprintf("postgres://%v@%v:%v/forty-thieves-test?sslmode=%v", pguser, pghost, pgport, pgsslmode)
+		pgdsn = fmt.Sprintf("postgres://%v@%v:%v/forty_thieves_test?sslmode=%v", pguser, pghost, pgport, pgsslmode)
 	}
 
 	db, err := sqlx.Connect("postgres", pgdsn)

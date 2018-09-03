@@ -1,1 +1,1 @@
-{ "url": "postgres://topher@localhost:5432/forty-thieves-test?sslmode=disable", "migration-folder": "migrations", "dump-file": "migrations/dump.sql", "seed-tables": [] }
+{ "url": "postgres://topher@localhost:5432/forty_thieves_test?sslmode=disable", "migration-folder": "migrations", "dump-file": "migrations/dump.sql", "seed-tables": [] }
