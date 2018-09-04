@@ -112,7 +112,7 @@ func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) e
 	rowsAffected, err := insertResult.RowsAffected()
 	if err != nil || rowsAffected != 1 {
 		return errors.New(
-			fmt.Sprintf("expected to change 1 row, changed %d", insertResult.RowsAffected))
+			fmt.Sprintf("expected to change 1 row, changed %d", rowsAffected))
 	}
 
 	logrus.Infof("Saved new gamestate (id %v) to db", gameState.GameStateID)
@@ -131,7 +131,7 @@ func (db *GameStateDB) DeleteGameState(
 	rowsAffected, err := res.RowsAffected()
 	if err != nil || rowsAffected != 1 {
 		return errors.New(
-			fmt.Sprintf("expected to change 1 row, changed %d", res.RowsAffected))
+			fmt.Sprintf("expected to change 1 row, changed %d", rowsAffected))
 	}
 	return nil
 }

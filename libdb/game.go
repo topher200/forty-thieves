@@ -57,7 +57,7 @@ func (db *GameDB) CreateNewGame(tx *sqlx.Tx, userRow UserRow) (*libgame.Game, er
 	rowsAffected, err := insertResult.RowsAffected()
 	if err != nil || rowsAffected != 1 {
 		return nil, errors.New(
-			fmt.Sprintf("expected to change 1 row, changed %d", insertResult.RowsAffected))
+			fmt.Sprintf("expected to change 1 row, changed %d", rowsAffected))
 	}
 
 	id, err := insertResult.LastInsertId()
@@ -78,7 +78,7 @@ func (db *GameDB) DeleteGame(tx *sqlx.Tx, game libgame.Game) error {
 	rowsAffected, err := res.RowsAffected()
 	if err != nil || rowsAffected != 1 {
 		return errors.New(
-			fmt.Sprintf("expected to change 1 row, changed %d", res.RowsAffected))
+			fmt.Sprintf("expected to change 1 row, changed %d", rowsAffected))
 	}
 	return nil
 }
