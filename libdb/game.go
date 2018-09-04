@@ -14,8 +14,7 @@ type GameDB struct {
 }
 
 type GameRow struct {
-	ID     int64 `db:"id"`
-	UserID int64 `db:"user_id"`
+	ID int64 `db:"id"`
 }
 
 func NewGameDB(db *sqlx.DB) *GameDB {
@@ -27,14 +26,14 @@ func NewGameDB(db *sqlx.DB) *GameDB {
 	return gs
 }
 
-// GetLatestGame gets the most recent game (by id) for the given user
+// GetLatestGame gets the most recent game (by id)
 //
-// Returns error if there are no games for the given user
-func (db *GameDB) GetLatestGame(userRow UserRow) (*libgame.Game, error) {
+// Returns error if there are no games
+func (db *GameDB) GetLatestGame() (*libgame.Game, error) {
 	var gameRow GameRow
 	query := fmt.Sprintf(
-		"SELECT * FROM %s WHERE user_id=$1 ORDER BY id DESC LIMIT 1", db.table)
-	err := db.db.Get(&gameRow, query, userRow.ID)
+		"SELECT * FROM %s ORDER BY id DESC LIMIT 1", db.table)
+	err := db.db.Get(&gameRow, query)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
 	}
@@ -45,9 +44,8 @@ func (db *GameDB) GetLatestGame(userRow UserRow) (*libgame.Game, error) {
 }
 
 // CreateNewGame creates a new game, saves it to the database, and returns it
-func (db *GameDB) CreateNewGame(tx *sqlx.Tx, userRow UserRow) (*libgame.Game, error) {
+func (db *GameDB) CreateNewGame(tx *sqlx.Tx) (*libgame.Game, error) {
 	dataMap := make(map[string]interface{})
-	dataMap["user_id"] = userRow.ID
 	insertResult, err := db.InsertIntoTable(tx, dataMap)
 	if err != nil {
 		logrus.Warning("error saving game: ", err)

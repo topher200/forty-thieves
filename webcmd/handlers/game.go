@@ -3,7 +3,6 @@ package handlers
 // handleStateRequest returns a json string of the current game state.
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,23 +13,19 @@ import (
 	"github.com/jmoiron/sqlx"
 	uuid "github.com/satori/go.uuid"
 	"github.com/topher200/deck"
+	"github.com/topher200/forty-thieves/libdb"
 	"github.com/topher200/forty-thieves/libgame"
 	"github.com/topher200/forty-thieves/libhttp"
 	"github.com/topher200/forty-thieves/libsolver"
-	"github.com/topher200/forty-thieves/libdb"
 )
 
-// Returns the DB paramaters required to be able to get/save GameStates for this user.
+// Returns the DB paramaters required to be able to get/save GameStates
 func databaseParams(
-	w http.ResponseWriter, r *http.Request) (*libdb.GameDB, *libdb.GameStateDB, *libdb.UserRow, error) {
+	w http.ResponseWriter, r *http.Request) (*libdb.GameDB, *libdb.GameStateDB, error) {
 	db := r.Context().Value("db").(*sqlx.DB)
 	gameDB := libdb.NewGameDB(db)
 	gameStateDB := libdb.NewGameStateDB(db)
-	currentUserRow, exists := getCurrentUser(w, r)
-	if !exists {
-		return nil, nil, nil, errors.New("User not found")
-	}
-	return gameDB, gameStateDB, currentUserRow, nil
+	return gameDB, gameStateDB, nil
 }
 
 // parseGameStateIdFromQuery gets the game state id from the URL
@@ -67,7 +62,7 @@ func parseGameStateFromQuery(w http.ResponseWriter, r *http.Request) (*libgame.G
 	}
 
 	// get the referenced game state
-	_, gameStateDB, _, err := databaseParams(w, r)
+	_, gameStateDB, err := databaseParams(w, r)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +91,7 @@ func replyWithGameState(w http.ResponseWriter, r *http.Request, gameState libgam
 	}
 
 	// get children
-	_, gameStateDB, _, err := databaseParams(w, r)
+	_, gameStateDB, err := databaseParams(w, r)
 	childGameStates, err := gameStateDB.GetChildGameStates(gameState)
 	if err != nil {
 		libhttp.HandleServerError(w, err)
@@ -135,18 +130,15 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gameDB, gameStateDB, currentUserRow, err := databaseParams(w, r)
+	gameDB, gameStateDB, err := databaseParams(w, r)
 	if err != nil {
 		libhttp.HandleServerError(w, err)
 		return
 	}
 	// If the game state id for the request is empty, send the latest game
-	// state for that user. Otherwise, send the one requested
+	// state. Otherwise, send the one requested
 	var gameState *libgame.GameState
 	if gameStateID != uuid.Nil {
-		// NOTE: if the user provides a game state id, we currently
-		// don't do any checking against the user id to make sure they
-		// match
 		logrus.Infof("getting gamestate for gamestate id %v", gameStateID)
 		gameState, err = gameStateDB.GetGameStateById(gameStateID)
 		if err != nil {
@@ -158,7 +150,7 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 	} else {
 		logrus.Infof("no game state provided - finding latest game")
 		// request is empty, find the latest
-		game, err := gameDB.GetLatestGame(*currentUserRow)
+		game, err := gameDB.GetLatestGame()
 		if err != nil {
 			libhttp.HandleClientError(w, fmt.Errorf("No game found: %v", err), http.StatusBadRequest)
 			return
@@ -178,7 +170,7 @@ func HandleStateRequest(w http.ResponseWriter, r *http.Request) {
 // Sends a json response with the new state using the /state route.
 func saveGameStateAndRespond(
 	w http.ResponseWriter, r *http.Request, gameState libgame.GameState) {
-	_, gameStateDB, _, err := databaseParams(w, r)
+	_, gameStateDB, err := databaseParams(w, r)
 	if err != nil {
 		libhttp.HandleServerError(w, fmt.Errorf("Error getting database params: %v.", err))
 		return
@@ -195,12 +187,12 @@ func saveGameStateAndRespond(
 //
 // We respond just like a /state request
 func HandleNewGameRequest(w http.ResponseWriter, r *http.Request) {
-	gameDB, _, currentUserRow, err := databaseParams(w, r)
+	gameDB, _, err := databaseParams(w, r)
 	if err != nil {
 		libhttp.HandleServerError(w, fmt.Errorf("Error getting database params: %v.", err))
 		return
 	}
-	game, err := gameDB.CreateNewGame(nil, *currentUserRow)
+	game, err := gameDB.CreateNewGame(nil)
 	if err != nil {
 		libhttp.HandleServerError(w, fmt.Errorf("Error creating new game: %v.", err))
 		return

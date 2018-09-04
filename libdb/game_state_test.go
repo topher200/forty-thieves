@@ -12,10 +12,7 @@ func newGameStateDBForTest(t *testing.T) *GameStateDB {
 }
 
 func setupNewGameForTest(t *testing.T, gameDB GameDB) *libgame.Game {
-	u := NewUserDBForTest(t)
-	userRow := u.signupNewUserRowForTest(t)
-
-	game, err := gameDB.CreateNewGame(nil, *userRow)
+	game, err := gameDB.CreateNewGame(nil)
 	assert.Nil(t, err)
 	return game
 }
