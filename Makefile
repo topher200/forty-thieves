@@ -15,15 +15,16 @@ create-db:
 migrate-db:
 	pgmgr db migrate
 
-.PHONY: test
-test:
-	./test.sh
-
 .PHONY: recreate-test-db
 recreate-test-db:
 	pgmgr --config-file .pgmgr.test.json db drop
 	pgmgr --config-file .pgmgr.test.json db create
 	pgmgr --config-file .pgmgr.test.json db migrate
 
-.PHONY: test-with-fresh-database
-test-with-fresh-database: | recreate-test-db test
+.PHONY: test
+test: | recreate-test-db run-tests
+
+# helper func
+.PHONY: run-tests
+run-tests:
+	./test.sh
