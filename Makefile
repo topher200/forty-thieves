@@ -1,6 +1,11 @@
-.PHONY: run
-run:
+.PHONY: run-webcmd
+run-webcmd:
 	cd webcmd && go run main.go
+
+.PHONY: run-solvercmd
+run-solvercmd:
+	cd solvercmd && go install
+	solvercmd
 
 .PHONY: create-db
 create-db:
