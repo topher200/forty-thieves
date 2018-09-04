@@ -1,6 +1,6 @@
 #!/bin/bash
 
-go test $(go list ./... | grep -v vendor) "$@"
+GOCACHE=off go test $(go list ./... | grep -v vendor) "$@"
 
 retval=$?
 if [ $retval != 0 ]; then
