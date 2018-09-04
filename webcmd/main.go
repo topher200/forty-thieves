@@ -28,7 +28,12 @@ func NewApplication(testing bool) (*Application, error) {
 		return nil, err
 	}
 
-	dbname := "forty_thieves"
+	var dbname string
+	if testing {
+		dbname = "forty_thieves_test"
+	} else {
+		dbname = "forty_thieves"
+	}
 	dsn := libenv.EnvWithDefault(
 		"DSN", fmt.Sprintf("postgres://%v@localhost:5432/%s?sslmode=disable", u, dbname))
 
