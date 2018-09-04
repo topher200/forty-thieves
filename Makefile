@@ -17,7 +17,7 @@ migrate-db:
 
 .PHONY: recreate-test-db
 recreate-test-db:
-	pgmgr --config-file .pgmgr.test.json db drop
+	pgmgr --config-file .pgmgr.test.json db drop | true
 	pgmgr --config-file .pgmgr.test.json db create
 	pgmgr --config-file .pgmgr.test.json db migrate
 
