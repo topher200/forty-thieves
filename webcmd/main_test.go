@@ -32,17 +32,14 @@ type MainTestSuite struct {
 //  - gets a json /state message
 //
 // TODO: We do this in one function (as opposed to separate Test* functions)
-// since some deprecated tests required a certain state of the (now deleted)
-// user cookie. Split this up.
+// since some tests require setup (like a game to be created).
 func (testSuite *MainTestSuite) TestUserStory() {
 	testSuite.makeGetRequest("/")
 	gameStateID := testSuite.newgamePost()
 	testSuite.stateGet(gameStateID)
 	testSuite.flipStockPost(gameStateID)
 	testSuite.stateGet(gameStateID)
-
-	// TODO(topher): test move post by checking that we don't get a 5xx error
-	// testSuite.movePost()
+	testSuite.movePost(gameStateID)
 }
 
 // checkResponse asserts that we didn't err and that our response looks good
@@ -102,7 +99,14 @@ func (testSuite *MainTestSuite) movePost(gameStateID uuid.UUID) {
 	resp, err := testSuite.client.PostForm(
 		addGameStateIdToURL(testSuite.server.URL+"/move", gameStateID), form)
 	defer resp.Body.Close()
-	checkResponse(testSuite.T(), resp, err)
+
+	// we're not guaranteed to have a move available. we just check that
+	// either the request completed or that we threw a validation error
+	if resp.StatusCode == 200 {
+		checkResponse(testSuite.T(), resp, err)
+	} else {
+		assert.Equal(testSuite.T(), 400, resp.StatusCode)
+	}
 }
 
 func (testSuite *MainTestSuite) stateGet(gameStateID uuid.UUID) {
