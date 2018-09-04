@@ -22,7 +22,7 @@ func TestNumPiles(t *testing.T) {
 
 func TestGetPossibleMovesReturnsAMove(t *testing.T) {
 	state := createTestingGameState()
-	moves := getPossibleMoves(&state)
+	moves := GetPossibleMoves(&state)
 	assert.NotEmpty(t, moves)
 }
 

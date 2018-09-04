@@ -24,7 +24,7 @@ func allPiles() []pile {
 	return piles
 }
 
-func getPossibleMoves(state *libgame.GameState) []libgame.MoveRequest {
+func GetPossibleMoves(state *libgame.GameState) []libgame.MoveRequest {
 	possibleMoves := make([]libgame.MoveRequest, 0)
 	piles := allPiles()
 	for i, _ := range piles {
@@ -44,7 +44,7 @@ func getPossibleMoves(state *libgame.GameState) []libgame.MoveRequest {
 }
 
 func FoundationAvailableCard(state *libgame.GameState) error {
-	for _, move := range getPossibleMoves(state) {
+	for _, move := range GetPossibleMoves(state) {
 		if move.FromPile != "foundation" && move.ToPile == "foundation" {
 			return state.MoveCard(move)
 		}
