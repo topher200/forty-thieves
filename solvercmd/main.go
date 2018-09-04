@@ -4,6 +4,7 @@ import (
 	"container/heap"
 	"fmt"
 
+	"github.com/jinzhu/copier"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/topher200/forty-thieves/libdb"
@@ -35,25 +36,36 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("Error creating new game: %v.", err))
 	}
-	libgame.DealNewGame(*game)
+	firstGameState := libgame.DealNewGame(*game)
+	err = gameStateDB.SaveGameState(nil, firstGameState)
+	if err != nil {
+		panic(fmt.Errorf("Error saving new game's first gamestate: %v.", err))
+	}
 
 	pq := make(PriorityQueue, 1)
-	pq[0], err = gameStateDB.GetFirstGameState(*game)
-	if err != nil {
-		panic(fmt.Errorf("Error getting new game gamestate: %v.", err))
-	}
+	pq[0] = &firstGameState
 
 	for i := 0; i < 100; i++ {
 		// get a move state that is interesting
-		gameState := heap.Pop(&pq)
+		gameState := heap.Pop(&pq).(*libgame.GameState)
 
 		// determine the next states for that state. add them to the priority queue
-		for _, move := range libsolver.GetPossibleMoves(*gameState) {
-			heap.Push(&pq, move)
+		for i, move := range libsolver.GetPossibleMoves(gameState) {
+			fmt.Println(i, gameState, move)
+			var gameStateCopy libgame.GameState
+			err = copier.Copy(gameStateCopy, gameState)
+			if err != nil {
+				panic(fmt.Errorf("Error making copy: %v.", err))
+			}
+			err = gameStateCopy.MoveCard(move)
+			if err != nil {
+				panic(fmt.Errorf("Error making move: %v.", err))
+			}
+			heap.Push(&pq, gameStateCopy)
 		}
 
 		// save this game state to database
-		err = gameStateDB.SaveGameState(nil, gameState)
+		err = gameStateDB.SaveGameState(nil, *gameState)
 		if err != nil {
 			panic(fmt.Errorf("Error saving game state to db: %v.", err))
 		}
