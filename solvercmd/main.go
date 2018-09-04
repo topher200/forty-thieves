@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/heap"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -8,6 +9,7 @@ import (
 	"github.com/topher200/forty-thieves/libdb"
 	"github.com/topher200/forty-thieves/libenv"
 	"github.com/topher200/forty-thieves/libgame"
+	"github.com/topher200/forty-thieves/libsolver"
 )
 
 func ConnectToDatabase() (db *sqlx.DB, err error) {
@@ -42,8 +44,18 @@ func main() {
 	}
 
 	for i := 0; i < 100; i++ {
-		//   request a move state that is interesting
-		//   determine the next state for that game
-		//   save to database
+		// get a move state that is interesting
+		gameState := heap.Pop(&pq)
+
+		// determine the next states for that state. add them to the priority queue
+		for _, move := range libsolver.GetPossibleMoves(*gameState) {
+			heap.Push(&pq, move)
+		}
+
+		// save this game state to database
+		err = gameStateDB.SaveGameState(nil, gameState)
+		if err != nil {
+			panic(fmt.Errorf("Error saving game state to db: %v.", err))
+		}
 	}
 }
