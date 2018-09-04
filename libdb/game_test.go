@@ -12,22 +12,18 @@ func newGameDBForTest(t *testing.T) *GameDB {
 }
 
 func CreateNewGameForTest(t *testing.T) *libgame.Game {
-	u := NewUserDBForTest(t)
-	userRow := u.signupNewUserRowForTest(t)
 	gameDB := newGameDBForTest(t)
 
-	game, err := gameDB.CreateNewGame(nil, *userRow)
+	game, err := gameDB.CreateNewGame(nil)
 	assert.Nil(t, err)
 	return game
 }
 
 func TestGetEmptyGame(t *testing.T) {
-	u := NewUserDBForTest(t)
-	userRow := u.signupNewUserRowForTest(t)
 	gameDB := newGameDBForTest(t)
 
 	// We should err, since we haven't set a game yet
-	_, err := gameDB.GetLatestGame(*userRow)
+	_, err := gameDB.GetLatestGame()
 	assert.NotNil(t, err)
 }
 
@@ -43,15 +39,13 @@ func TestCreateAndDeleteNewGame(t *testing.T) {
 
 func TestGetNewlyCreatedGame(t *testing.T) {
 	// Create a new game
-	u := NewUserDBForTest(t)
-	userRow := u.signupNewUserRowForTest(t)
 	gameDB := newGameDBForTest(t)
-	originalGame, err := gameDB.CreateNewGame(nil, *userRow)
+	originalGame, err := gameDB.CreateNewGame(nil)
 	defer gameDB.DeleteGame(nil, *originalGame)
 	assert.Nil(t, err)
 
 	// Now retrieve the game and compare
-	retrievedGame, err := gameDB.GetLatestGame(*userRow)
+	retrievedGame, err := gameDB.GetLatestGame()
 	assert.Nil(t, err)
 	assert.Equal(t, *originalGame, *retrievedGame)
 }

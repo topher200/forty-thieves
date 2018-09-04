@@ -12,7 +12,13 @@ migrate-db:
 
 .PHONY: test
 test:
+	./test.sh
+
+.PHONY: recreate-test-db
+recreate-test-db:
 	pgmgr --config-file .pgmgr.test.json db drop
 	pgmgr --config-file .pgmgr.test.json db create
 	pgmgr --config-file .pgmgr.test.json db migrate
-	./test.sh
+
+.PHONY: test-with-fresh-database
+test-with-fresh-database: | recreate-test-db test

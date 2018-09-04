@@ -119,11 +119,20 @@ func (b *Base) InsertIntoTable(tx *sqlx.Tx, data map[string]interface{}) (sql.Re
 		loopCounter++
 	}
 
-	query := fmt.Sprintf(
-		"INSERT INTO %v (%v) VALUES (%v)",
-		b.table,
-		strings.Join(keys, ","),
-		strings.Join(dollarMarks, ","))
+	var query string
+	if loopCounter > 1 {
+		query = fmt.Sprintf(
+			"INSERT INTO %v (%v) VALUES (%v)",
+			b.table,
+			strings.Join(keys, ","),
+			strings.Join(dollarMarks, ","))
+	} else {
+		// we're inserting a row with no data
+		query = fmt.Sprintf(
+			"INSERT INTO %v VALUES (default)",
+			b.table,
+		)
+	}
 
 	result := &InsertResult{}
 	result.rowsAffected = 1

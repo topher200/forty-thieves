@@ -16,12 +16,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/topher200/forty-thieves/libdb"
-)
-
-const (
-	testUserEmail    = "fake@asdf.com"
-	testUserPassword = "Password1"
 )
 
 type MainTestSuite struct {
@@ -31,36 +25,21 @@ type MainTestSuite struct {
 }
 
 // TestUserStory simulates a user performing the following actions:
-//  - gets the root page before logging in
-//  - gets the signup page
-//  - posts to the signup page
-//  - gets the logout page
-//  - gets the login page
-//  - posts to the login page
+//  - gets the root page
 //  - posts to create a new game
 //  - gets a json /state message
 //  - posts to flip the stock
 //  - gets a json /state message
 //
-// We do this in one function (as opposed to separate Test* functions) since
-// each of the tests requires a certain state of the user cookie (user
-// exists/doesn't exist, user logged in/out).
+// TODO: We do this in one function (as opposed to separate Test* functions)
+// since some tests require setup (like a game to be created).
 func (testSuite *MainTestSuite) TestUserStory() {
 	testSuite.makeGetRequest("/")
-	testSuite.makeGetRequest("/signup")
-	testSuite.signupPost()
-	testSuite.makeGetRequest("/")
-	testSuite.makeGetRequest("/logout")
-	testSuite.makeGetRequest("/login")
-	testSuite.loginPost()
-
 	gameStateID := testSuite.newgamePost()
 	testSuite.stateGet(gameStateID)
 	testSuite.flipStockPost(gameStateID)
 	testSuite.stateGet(gameStateID)
-
-	// TODO(topher): test move post by checking that we don't get a 5xx error
-	// testSuite.movePost()
+	testSuite.movePost(gameStateID)
 }
 
 // checkResponse asserts that we didn't err and that our response looks good
@@ -79,30 +58,7 @@ func (testSuite *MainTestSuite) makeGetRequest(route string) []byte {
 	return body
 }
 
-// signupPost assumes you're signed out and that the user doesn't exist
-func (testSuite *MainTestSuite) signupPost() {
-	form := url.Values{
-		"Email":         {testUserEmail},
-		"Password":      {testUserPassword},
-		"PasswordAgain": {testUserPassword},
-	}
-	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/signup", form)
-	defer resp.Body.Close()
-	checkResponse(testSuite.T(), resp, err)
-}
-
-// loginPost assumes you're currently signed out and the user exists
-func (testSuite *MainTestSuite) loginPost() {
-	form := url.Values{
-		"Email":    {testUserEmail},
-		"Password": {testUserPassword},
-	}
-	resp, err := testSuite.client.PostForm(testSuite.server.URL+"/login", form)
-	defer resp.Body.Close()
-	checkResponse(testSuite.T(), resp, err)
-}
-
-// newgamePost assumes that you're signed in
+// newgamePost confirms that creating a new game works successfully
 func (testSuite *MainTestSuite) newgamePost() uuid.UUID {
 	resp, err := testSuite.client.Post(testSuite.server.URL+"/newgame", "text/json", nil)
 	defer resp.Body.Close()
@@ -118,11 +74,12 @@ func (testSuite *MainTestSuite) newgamePost() uuid.UUID {
 	return response.GameStateID
 }
 
+// addGameStateIdToURL is a helper function for structuring our request URLs
 func addGameStateIdToURL(url string, gameStateID uuid.UUID) string {
 	return fmt.Sprintf("%s?gameStateID=%s", url, gameStateID.String())
 }
 
-// flipStockPost assumes that you're signed in
+// flipStockPost tests that we can flip the stock card
 func (testSuite *MainTestSuite) flipStockPost(gameStateID uuid.UUID) {
 	resp, err := testSuite.client.Post(
 		addGameStateIdToURL(testSuite.server.URL+"/flipstock", gameStateID),
@@ -131,7 +88,7 @@ func (testSuite *MainTestSuite) flipStockPost(gameStateID uuid.UUID) {
 	checkResponse(testSuite.T(), resp, err)
 }
 
-// movePost assumes that you're signed in
+// movePost tests that we can move a card from one pile to another
 func (testSuite *MainTestSuite) movePost(gameStateID uuid.UUID) {
 	form := url.Values{
 		"FromPile":  {"tableau"},
@@ -142,10 +99,16 @@ func (testSuite *MainTestSuite) movePost(gameStateID uuid.UUID) {
 	resp, err := testSuite.client.PostForm(
 		addGameStateIdToURL(testSuite.server.URL+"/move", gameStateID), form)
 	defer resp.Body.Close()
-	checkResponse(testSuite.T(), resp, err)
+
+	// we're not guaranteed to have a move available. we just check that
+	// either the request completed or that we threw a validation error
+	if resp.StatusCode == 200 {
+		checkResponse(testSuite.T(), resp, err)
+	} else {
+		assert.Equal(testSuite.T(), 400, resp.StatusCode)
+	}
 }
 
-// stateGet assumes you're already signed in
 func (testSuite *MainTestSuite) stateGet(gameStateID uuid.UUID) {
 	bodyText := string(testSuite.makeGetRequest(
 		addGameStateIdToURL("/state", gameStateID)))
@@ -176,17 +139,8 @@ func (testSuite *MainTestSuite) SetupSuite() {
 	testSuite.client = &http.Client{Jar: jar}
 }
 
-func deleteTestUser(t *testing.T) {
-	userDB := libdb.NewUserDBForTest(t)
-	userRow, err := userDB.GetByEmail(nil, testUserEmail)
-	assert.Nil(t, err)
-	_, err = userDB.DeleteById(nil, userRow.ID)
-	assert.Nil(t, err)
-}
-
 func (testSuite *MainTestSuite) TearDownSuite() {
 	testSuite.server.Close()
-	deleteTestUser(testSuite.T())
 }
 
 func TestMainSuite(t *testing.T) {

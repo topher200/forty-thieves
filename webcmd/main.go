@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/gob"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,17 +12,12 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/topher200/forty-thieves/libdb"
 	"github.com/topher200/forty-thieves/libenv"
 	"github.com/topher200/forty-thieves/libunix"
 	"github.com/topher200/forty-thieves/webcmd/handlers"
 	"github.com/topher200/forty-thieves/webcmd/middlewares"
 	"github.com/tylerb/graceful"
 )
-
-func init() {
-	gob.Register(&libdb.UserRow{})
-}
 
 // NewApplication is the constructor for Application struct.
 //
@@ -72,25 +66,10 @@ func (app *Application) middlewareStruct(logWriter io.Writer) (*interpose.Middle
 }
 
 func (app *Application) mux() *gorilla_mux.Router {
-	MustLogin := middlewares.MustLogin
-
 	router := gorilla_mux.NewRouter()
 	router.KeepContext = true
 
-	router.Handle("/", MustLogin(http.HandlerFunc(handlers.GetHome))).Methods("GET").Name("/")
-
-	router.HandleFunc("/signup", handlers.GetSignup).Methods("GET").Name("/signup.Get")
-	router.HandleFunc("/signup", handlers.PostSignup).Methods("POST").Name("/signup.Post")
-	router.HandleFunc("/login", handlers.GetLogin).Methods("GET").Name("/login.Get")
-	router.HandleFunc("/login", handlers.PostLogin).Methods("POST").Name("/login.Post")
-	router.HandleFunc("/logout", handlers.GetLogout).Methods("GET").Name("/logout.Get")
-
-	router.Handle(
-		"/users/{id:[0-9]+}",
-		MustLogin(http.HandlerFunc(handlers.PostPutDeleteUsersID))).
-		Methods("POST", "PUT", "DELETE").
-		Name("/users/{id}")
-
+	router.HandleFunc("/", handlers.GetHome).Methods("GET").Name("/")
 	router.HandleFunc("/state", handlers.HandleStateRequest)
 	router.HandleFunc("/newgame", handlers.HandleNewGameRequest)
 	router.HandleFunc("/move", handlers.HandleMoveRequest)
