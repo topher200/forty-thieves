@@ -1,6 +1,8 @@
 package libgame
 
 import (
+	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -186,4 +188,35 @@ func TestIsMoveLegal(t *testing.T) {
 			deck.Card{Face: deck.JACK, Suit: deck.CLUB},
 			deck.Card{Face: deck.TEN, Suit: deck.CLUB}}}),
 		"moving heart on top of clubs in tableau is illegal")
+}
+
+func TestCopyGameState(t *testing.T) {
+	game := Game{0}
+	origState := DealNewGame(game)
+	newGameState := origState.Copy()
+	// assert.True(t, reflect.DeepEqual(origState, newGameState),
+	// 	fmt.Sprintf("Should be equal:\n%v\n%v", origState, newGameState))
+
+	assert.True(t, cmp(origState.GameID, newGameState.GameID),
+		fmt.Sprintf("GameID Should be equal:\n%v\n%v", origState.GameID, newGameState.GameID))
+	assert.True(t, cmp(origState.GameStateID, newGameState.GameStateID),
+		fmt.Sprintf("GameStateID Should be equal:\n%v\n%v", origState.GameStateID, newGameState.GameStateID))
+	assert.True(t, cmp(origState.PreviousGameState, newGameState.PreviousGameState),
+		fmt.Sprintf("PreviousGameState Should be equal:\n%v\n%v", origState.PreviousGameState, newGameState.PreviousGameState))
+	assert.True(t, cmp(origState.MoveNum, newGameState.MoveNum),
+		fmt.Sprintf("MoveNum Should be equal:\n%v\n%v", origState.MoveNum, newGameState.MoveNum))
+	assert.True(t, cmp(origState.Stock, newGameState.Stock),
+		fmt.Sprintf("Stock Should be equal:\n%v\n%v", origState.Stock, newGameState.Stock))
+	assert.Equal(t, origState.Foundations, newGameState.Foundations)
+	assert.True(t, cmp(origState.Foundations, newGameState.Foundations),
+		fmt.Sprintf("Foundations Should be equal:\n%v\n%v", origState.Foundations, newGameState.Foundations))
+	assert.True(t, cmp(origState.Tableaus, newGameState.Tableaus),
+		fmt.Sprintf("Tableaus Should be equal:\n%v\n%v", origState.Tableaus, newGameState.Tableaus))
+	assert.True(t, cmp(origState.Waste, newGameState.Waste),
+		fmt.Sprintf("Waste Should be equal:\n%v\n%v", origState.Waste, newGameState.Waste))
+	assert.True(t, cmp(origState.Score, newGameState.Score),
+		fmt.Sprintf("Score Should be equal:\n%v\n%v", origState.Score, newGameState.Score))
+
+	newGameState.FlipStock()
+	assert.False(t, reflect.DeepEqual(origState, newGameState))
 }

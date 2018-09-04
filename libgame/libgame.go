@@ -25,6 +25,41 @@ type GameState struct {
 	Score             int // Must be updated after any modifications to the Decks above
 }
 
+func (state GameState) String() string {
+	str := fmt.Sprintf("GameID: %v. GameStateID: %v. PreviousGameState: %v. MoveNum: %v. Score: %v.\n",
+		state.GameID, state.GameStateID, state.PreviousGameState, state.MoveNum, state.Score)
+	str += fmt.Sprintf("Stock: %v\n", state.Stock)
+	str += "Foundations\n"
+	for _, foundation := range state.Foundations {
+		str += fmt.Sprintf(" :%v\n", foundation)
+	}
+	str += "Tableaus\n"
+	for _, tableau := range state.Tableaus {
+		str += fmt.Sprintf(" :%v\n", tableau)
+	}
+	str += fmt.Sprintf("Waste: %v", state.Waste)
+	return str
+}
+
+func (state GameState) Copy() (newState GameState) {
+	newState.GameID = state.GameID
+	newState.GameStateID = state.GameStateID
+	newState.PreviousGameState = state.PreviousGameState
+	newState.MoveNum = state.MoveNum
+	newState.Stock = state.Stock.Copy()
+	newState.Foundations = make([]deck.Deck, len(state.Foundations))
+	for i := range state.Foundations {
+		newState.Foundations[i] = state.Foundations[i].Copy()
+	}
+	newState.Tableaus = make([]deck.Deck, len(state.Tableaus))
+	for i := range state.Tableaus {
+		newState.Tableaus[i] = state.Tableaus[i].Copy()
+	}
+	newState.Waste = state.Waste.Copy()
+	newState.Score = state.Score
+	return
+}
+
 const (
 	NumFoundations             = 8
 	NumTableaus                = 10
@@ -220,20 +255,6 @@ func DealNewGame(game Game) (state GameState) {
 	// not calling moveCreatesNewGameState because we are a new state
 	state.updateScore()
 	return
-}
-
-func (state GameState) String() string {
-	str := fmt.Sprintf("Stock: %v\n", state.Stock)
-	str += "Foundations\n"
-	for _, foundation := range state.Foundations {
-		str += fmt.Sprintf(" :%v\n", foundation)
-	}
-	str += "Tableaus\n"
-	for _, tableau := range state.Tableaus {
-		str += fmt.Sprintf(" :%v\n", tableau)
-	}
-	str += fmt.Sprintf("Waste: %v\n", state.Waste)
-	return str
 }
 
 // a GameState's Score is the number of cards not in foundations.
