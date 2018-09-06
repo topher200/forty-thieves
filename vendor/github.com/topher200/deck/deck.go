@@ -15,6 +15,14 @@ func (d Deck) String() string {
 	return str
 }
 
+func (d Deck) Copy() Deck {
+	newDeck := NewEmptyDeck()
+	for _, card := range d.Cards {
+		newDeck.Cards = append(newDeck.Cards, card)
+	}
+	return newDeck
+}
+
 // NewDeck creates and returns a new deck with the bool parameter to either shuffle (true) or non shuffle (false)
 func NewDeck(shuffled bool) Deck {
 	deck := NewSpecificDeck(shuffled, FACES, SUITS)

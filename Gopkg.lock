@@ -120,11 +120,12 @@
   revision = "4c047cfcd6b0b738f8e35f19d8ca7be77b614958"
 
 [[projects]]
-  digest = "1:5ec8050cb73f6e3eabc4af17c0a2a6abd01a849d121be26a44e95d38ae1d9bfb"
+  branch = "master"
+  digest = "1:ba22465bcece798b64868830d0c884817a74cec487214fee4b5b9ad0e8b04c65"
   name = "github.com/topher200/deck"
   packages = ["."]
   pruneopts = "UT"
-  revision = "f675ba362569906640f0ce3caca8eb80a3866dcd"
+  revision = "1800ed4ab601209f0a0928598c3543675b6bc781"
 
 [[projects]]
   digest = "1:d344fd70adb4ee08a49b90c0e4b8668b117ada2af31548cc664a139143be9d28"
