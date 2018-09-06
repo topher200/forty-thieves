@@ -24,6 +24,19 @@
   revision = "50c09d12f8624ab10532f931cb630d0bf5f7c2c7"
 
 [[projects]]
+  digest = "1:2e3c336fc7fde5c984d2841455a658a6d626450b1754a854b3b32e7a8f49a07a"
+  name = "github.com/google/go-cmp"
+  packages = [
+    "cmp",
+    "cmp/internal/diff",
+    "cmp/internal/function",
+    "cmp/internal/value",
+  ]
+  pruneopts = "UT"
+  revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
+  version = "v0.2.0"
+
+[[projects]]
   digest = "1:e76c0a53389bf29d116440dc97c44fa59796dda4a79aeca1eb8113150dd1db50"
   name = "github.com/gorilla/context"
   packages = ["."]
@@ -155,6 +168,7 @@
   input-imports = [
     "github.com/Sirupsen/logrus",
     "github.com/carbocation/interpose",
+    "github.com/google/go-cmp/cmp",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/gorilla/schema",
