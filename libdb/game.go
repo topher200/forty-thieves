@@ -59,7 +59,9 @@ func (db *GameDB) CreateNewGame(tx *sqlx.Tx) (*libgame.Game, error) {
 	}
 
 	id, err := insertResult.LastInsertId()
-	logrus.Infof("Saved new game (id %d) to db", id)
+	logrus.WithFields(logrus.Fields{
+		"id": id,
+	}).Info("saved new game to db")
 	var game libgame.Game
 	game.ID = id
 	return &game, nil

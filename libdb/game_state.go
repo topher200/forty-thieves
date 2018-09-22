@@ -106,7 +106,10 @@ func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) e
 	dataMap["score"] = dataStruct.Score
 	insertResult, err := db.InsertIntoTable(tx, dataMap)
 	if err != nil {
-		logrus.Warning("error saving game state:", err)
+		logrus.WithFields(logrus.Fields{
+			"gamesState": gameState,
+			"err":        err,
+		}).Warning("error saving game state")
 		return err
 	}
 	rowsAffected, err := insertResult.RowsAffected()
@@ -115,7 +118,9 @@ func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) e
 			fmt.Sprintf("expected to change 1 row, changed %d", rowsAffected))
 	}
 
-	logrus.Infof("Saved new gamestate (id %v) to db", gameState.GameStateID)
+	logrus.WithFields(logrus.Fields{
+		"id": gameState.GameStateID,
+	}).Info("saved new gamestate to db")
 	return nil
 }
 
