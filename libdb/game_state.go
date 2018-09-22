@@ -22,6 +22,7 @@ type GameStateRow struct {
 	GameID            int64         `db:"game_id"`
 	MoveNum           int64         `db:"move_num"`
 	Score             int           `db:"score"`
+	Status            string        `db:"status"`
 	BinarizedState    []byte        `db:"binarized_state"`
 }
 
