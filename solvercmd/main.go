@@ -52,9 +52,6 @@ func main() {
 		for _, move := range libsolver.GetPossibleMoves(gameState) {
 			// create a copy of our current game state
 			gameStateCopy := gameState.Copy()
-			if err != nil {
-				panic(fmt.Errorf("Error making copy: %v.", err))
-			}
 
 			// take the available move
 			err = gameStateCopy.MoveCard(move)
@@ -71,5 +68,18 @@ func main() {
 			// push the new game state onto the heap to be processed
 			heap.Push(&pq, &gameStateCopy)
 		}
+
+		// lastly, flip the stock and give it the same treatment
+		gameStateCopy := gameState.Copy()
+		err = gameStateCopy.FlipStock()
+		if err != nil {
+			// can't flip an empty stock
+			continue
+		}
+		err = gameStateDB.SaveGameState(nil, gameStateCopy)
+		if err != nil {
+			panic(fmt.Errorf("Error saving game state to db: %v.", err))
+		}
+		heap.Push(&pq, &gameStateCopy)
 	}
 }
