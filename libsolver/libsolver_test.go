@@ -26,6 +26,14 @@ func TestGetPossibleMovesReturnsAMove(t *testing.T) {
 	assert.NotEmpty(t, moves)
 }
 
+func TestGetPossibleMovesDoesNotReturnAnyMovesStartingWithTableau(t *testing.T) {
+	state := createTestingGameState()
+	moves := GetPossibleMoves(&state)
+	for _, move := range moves {
+		assert.NotEqual(t, move.FromPile, "tableau")
+	}
+}
+
 func TestFoundationACard(t *testing.T) {
 	state := createTestingGameState()
 	assert.Nil(t, FoundationAvailableCard(&state))
