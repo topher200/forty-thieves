@@ -19,14 +19,6 @@ func CreateNewGameForTest(t *testing.T) *libgame.Game {
 	return game
 }
 
-func TestGetEmptyGame(t *testing.T) {
-	gameDB := newGameDBForTest(t)
-
-	// We should err, since we haven't set a game yet
-	_, err := gameDB.GetLatestGame()
-	assert.NotNil(t, err)
-}
-
 func TestCreateAndDeleteNewGame(t *testing.T) {
 	// Create a new game
 	game := CreateNewGameForTest(t)
