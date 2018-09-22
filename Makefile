@@ -1,9 +1,9 @@
 .PHONY: run-webcmd
-run-webcmd:
+run-webcmd: install-dependencies
 	cd webcmd && go run main.go
 
 .PHONY: run-solvercmd
-run-solvercmd:
+run-solvercmd: install-dependencies
 	cd solvercmd && go install
 	solvercmd
 
@@ -24,7 +24,11 @@ recreate-test-db:
 .PHONY: test
 test: | recreate-test-db run-tests
 
-# helper func
+.PHONY: install-dependencies
+install-dependencies:
+	dep ensure
+
+# helper func, you should call 'test' instead
 .PHONY: run-tests
-run-tests:
+run-tests: install-dependencies
 	./test.sh
