@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
@@ -39,29 +40,30 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 //
 // Returns error if there are no game states for the given game
 func (db *GameStateDB) GetGameStateById(gameStateID uuid.UUID) (*libgame.GameState, error) {
-	var gameStateRow GameStateRow
 	query := fmt.Sprintf("SELECT * FROM %s WHERE game_state_id=$1 LIMIT 1", db.table)
-	err := db.db.Get(&gameStateRow, query, gameStateID)
+	gameState, err := db.getSingleGameState(query, gameStateID.String())
 	if err != nil {
-		return nil, fmt.Errorf("Error on query: %v", err)
+		return nil, fmt.Errorf("Error getting gamestate by id: %v", err)
 	}
-	var gameState libgame.GameState
-	decoder := gob.NewDecoder(bytes.NewBuffer(gameStateRow.BinarizedState))
-	err = decoder.Decode(&gameState)
-	if err != nil {
-		return nil, fmt.Errorf("Error decoding: %v", err)
-	}
-	return &gameState, nil
+	return gameState, nil
 }
 
 // GetFirstGameState returns the first gamestate for the given game
 //
 // Returns error if there are no game states for the given game
 func (db *GameStateDB) GetFirstGameState(game libgame.Game) (*libgame.GameState, error) {
-	var gameStateRow GameStateRow
 	query := fmt.Sprintf(
 		"SELECT * FROM %s WHERE game_id=$1 and move_num=0 LIMIT 1", db.table)
-	err := db.db.Get(&gameStateRow, query, game.ID)
+	gameState, err := db.getSingleGameState(query, strconv.FormatInt(game.ID, 10))
+	if err != nil {
+		return nil, fmt.Errorf("Error getting first gamestate: %v", err)
+	}
+	return gameState, nil
+}
+
+func (db *GameStateDB) getSingleGameState(query string, arg string) (*libgame.GameState, error) {
+	var gameStateRow GameStateRow
+	err := db.db.Get(&gameStateRow, query, arg)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
 	}
