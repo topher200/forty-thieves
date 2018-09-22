@@ -97,14 +97,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5c3444689562053b027ef3b96372e306adbe0d7d109b6cdd48d01eb80f8bab14"
-  name = "github.com/jinzhu/copier"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "7e38e58719c33e0d44d585c4ab477a30f8cb82dd"
-
-[[projects]]
-  branch = "master"
   digest = "1:7654989089e5bd5b6734ec3be8b695e87d3f1f8d95620b343fd7d3995a5b60d7"
   name = "github.com/jmoiron/sqlx"
   packages = [
@@ -208,7 +200,6 @@
     "github.com/gorilla/mux",
     "github.com/gorilla/schema",
     "github.com/gorilla/sessions",
-    "github.com/jinzhu/copier",
     "github.com/jmoiron/sqlx",
     "github.com/lib/pq",
     "github.com/satori/go.uuid",
