@@ -63,7 +63,7 @@ func main() {
 			}
 
 			// save the new game state to database
-			err = gameStateDB.SaveGameState(nil, *gameState)
+			err = gameStateDB.SaveGameState(nil, gameStateCopy)
 			if err != nil {
 				panic(fmt.Errorf("Error saving game state to db: %v.", err))
 			}
