@@ -44,7 +44,7 @@ func main() {
 	pq := make(PriorityQueue, 1)
 	pq[0] = &firstGameState
 
-	for i := 0; i < 1; i++ {
+	for pq.Len() > 0 {
 		// get the next game state that is interesting
 		gameState := heap.Pop(&pq).(*libgame.GameState)
 
