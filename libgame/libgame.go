@@ -83,10 +83,10 @@ func (state *GameState) popFromStock() (deck.Card, error) {
 type PileLocation string
 
 const (
-	stock      PileLocation = "stock"
-	foundation              = "foundation"
-	tableau                 = "tableau"
-	waste                   = "waste"
+	STOCK      PileLocation = "stock"
+	FOUNDATION              = "foundation"
+	TABLEAU                 = "tableau"
+	WASTE                   = "waste"
 )
 
 // IsMoveRequestLegal requests legality of a MoveRequest for a given GameState.
@@ -107,12 +107,12 @@ func isMoveLegal(
 	toPile PileLocation, toDeck *deck.Deck) error {
 
 	// Is the origin location illegal?
-	if fromPile == stock {
+	if fromPile == STOCK {
 		return fmt.Errorf("Illegal move - origin '%s' illegal", fromPile)
 	}
 
 	// Is the destination location illegal?
-	if toPile == stock || toPile == waste {
+	if toPile == STOCK || toPile == WASTE {
 		return fmt.Errorf("Illegal move - destination '%s' illegal", toPile)
 	}
 
@@ -125,7 +125,7 @@ func isMoveLegal(
 	// Are our destination empty?
 	if len(toDeck.Cards) <= 0 {
 		// Empty foundations can only take aces
-		if toPile == foundation && cardBeingMoved.Face != deck.ACE {
+		if toPile == FOUNDATION && cardBeingMoved.Face != deck.ACE {
 			return fmt.Errorf(
 				"Illegal move - moving to empty foundation requires ACE, not '%s'",
 				cardBeingMoved)
@@ -138,7 +138,7 @@ func isMoveLegal(
 				cardBeingMoved, destinationCard)
 		}
 		switch toPile {
-		case tableau:
+		case TABLEAU:
 			decrementedDestination, err := deck.Decrement(destinationCard.Face)
 			if err != nil {
 				return err
@@ -147,7 +147,7 @@ func isMoveLegal(
 				return fmt.Errorf("Illegal move - tableau cards must decrease (%s on %s)",
 					cardBeingMoved, destinationCard)
 			}
-		case foundation:
+		case FOUNDATION:
 			incrementedDestination, err := deck.Increment(destinationCard.Face)
 			if err != nil {
 				return err
@@ -175,13 +175,13 @@ func (state *GameState) parseDecksFromMoveRequest(
 	parseFunc := func(pileLocation PileLocation, index int) (*deck.Deck, error) {
 		var d *deck.Deck
 		switch pileLocation {
-		case "tableau":
+		case TABLEAU:
 			d = &state.Tableaus[index]
-		case "foundation":
+		case FOUNDATION:
 			d = &state.Foundations[index]
-		case "stock":
+		case STOCK:
 			d = &state.Stock
-		case "waste":
+		case WASTE:
 			d = &state.Waste
 		default:
 			return nil, fmt.Errorf("unknown pile name '%s'", pileLocation)

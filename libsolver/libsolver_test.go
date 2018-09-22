@@ -30,7 +30,7 @@ func TestGetPossibleMovesDoesNotReturnAnyMovesStartingWithTableau(t *testing.T) 
 	state := createTestingGameState()
 	moves := GetPossibleMoves(&state)
 	for _, move := range moves {
-		assert.NotEqual(t, move.FromPile, "tableau")
+		assert.NotEqual(t, move.FromPile, libgame.TABLEAU)
 	}
 }
 

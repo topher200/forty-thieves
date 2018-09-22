@@ -16,6 +16,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"github.com/topher200/forty-thieves/libgame"
 )
 
 type MainTestSuite struct {
@@ -91,9 +92,9 @@ func (testSuite *MainTestSuite) flipStockPost(gameStateID uuid.UUID) {
 // movePost tests that we can move a card from one pile to another
 func (testSuite *MainTestSuite) movePost(gameStateID uuid.UUID) {
 	form := url.Values{
-		"FromPile":  {"tableau"},
+		"FromPile":  {libgame.TABLEAU},
 		"FromIndex": {"0"},
-		"ToPile":    {"tableau"},
+		"ToPile":    {libgame.TABLEAU},
 		"ToIndex":   {"1"},
 	}
 	resp, err := testSuite.client.PostForm(
