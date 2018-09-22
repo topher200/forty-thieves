@@ -4,7 +4,6 @@ import (
 	"container/heap"
 	"fmt"
 
-	"github.com/jinzhu/copier"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/topher200/forty-thieves/libdb"
@@ -51,8 +50,7 @@ func main() {
 
 		// determine the next states after ours. add them to the priority queue
 		for i, move := range libsolver.GetPossibleMoves(gameState) {
-			var gameStateCopy libgame.GameState
-			err = copier.Copy(&gameStateCopy, &gameState)
+			gameStateCopy := gameState.Copy()
 			fmt.Println(i, move)
 			if err != nil {
 				panic(fmt.Errorf("Error making copy: %v.", err))
