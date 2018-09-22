@@ -49,24 +49,27 @@ func main() {
 		gameState := heap.Pop(&pq).(*libgame.GameState)
 
 		// determine the next states after ours. add them to the priority queue
-		for i, move := range libsolver.GetPossibleMoves(gameState) {
+		for _, move := range libsolver.GetPossibleMoves(gameState) {
+			// create a copy of our current game state
 			gameStateCopy := gameState.Copy()
-			fmt.Println(i, move)
 			if err != nil {
 				panic(fmt.Errorf("Error making copy: %v.", err))
 			}
+
+			// take the available move
 			err = gameStateCopy.MoveCard(move)
-			fmt.Println(gameState)
 			if err != nil {
 				panic(fmt.Errorf("Error making move: %v.", err))
 			}
-			heap.Push(&pq, &gameStateCopy)
-		}
 
-		// save the current game state to database
-		err = gameStateDB.SaveGameState(nil, *gameState)
-		if err != nil {
-			panic(fmt.Errorf("Error saving game state to db: %v.", err))
+			// save the new game state to database
+			err = gameStateDB.SaveGameState(nil, *gameState)
+			if err != nil {
+				panic(fmt.Errorf("Error saving game state to db: %v.", err))
+			}
+
+			// push the new game state onto the heap to be processed
+			heap.Push(&pq, &gameStateCopy)
 		}
 	}
 }

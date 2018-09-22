@@ -161,6 +161,7 @@ func isMoveLegal(
 	return nil
 }
 
+// MoveRequest is a request describing which pile to take a card from and which pile to put it on
 type MoveRequest struct {
 	FromPile  PileLocation
 	FromIndex int
@@ -168,6 +169,7 @@ type MoveRequest struct {
 	ToIndex   int
 }
 
+// parseDecksFromMoveRequest takes a MoveRequest and returns the decks involved in the request
 func (state *GameState) parseDecksFromMoveRequest(
 	move MoveRequest) (*deck.Deck, *deck.Deck, error) {
 	parseFunc := func(pileLocation PileLocation, index int) (*deck.Deck, error) {
@@ -197,6 +199,7 @@ func (state *GameState) parseDecksFromMoveRequest(
 	return from, to, nil
 }
 
+// MoveCard takes a MoveRequest and performs the move. Updates the game state (including score)
 func (state *GameState) MoveCard(move MoveRequest) error {
 	err := state.IsMoveRequestLegal(move)
 	if err != nil {
@@ -214,6 +217,9 @@ func (state *GameState) MoveCard(move MoveRequest) error {
 	return nil
 }
 
+// FlipStock moves a card from the stock to the waste. Updates the game state (including score).
+//
+// Throws an error if the stock is empty
 func (state *GameState) FlipStock() error {
 	card, err := state.popFromStock()
 	if err != nil {
