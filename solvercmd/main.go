@@ -77,7 +77,7 @@ func main() {
 		if err == nil {
 			err = gameStateDB.SaveGameState(nil, gameStateCopy)
 			if err != nil {
-				panic(fmt.Errorf("Error saving flipped game state to db: %v.", err))
+				checkGameStateSaveError(err)
 			}
 		} else {
 			// can't flip an empty stock, nothing to do
@@ -101,7 +101,7 @@ func main() {
 			// save the new game state to database
 			err = gameStateDB.SaveGameState(nil, gameStateCopy)
 			if err != nil {
-				panic(fmt.Errorf("Error saving game state to db: %v.", err))
+				checkGameStateSaveError(err)
 			}
 		}
 
@@ -120,6 +120,12 @@ func shouldSkipMove(move libgame.MoveRequest) bool {
 	}
 
 	return false // this move is fine
+}
+
+func checkGameStateSaveError(err error) {
+	if err.Error() != "duplicate game state error" {
+		panic(err)
+	}
 }
 
 func timeTrack(start time.Time, name string) {

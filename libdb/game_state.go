@@ -8,6 +8,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
 	types "github.com/jmoiron/sqlx/types"
+	"github.com/lib/pq"
 	uuid "github.com/satori/go.uuid"
 	"github.com/topher200/forty-thieves/libgame"
 )
@@ -118,6 +119,14 @@ func (db *GameStateDB) GetChildGameStates(gameState libgame.GameState) ([]uuid.U
 	return childIds, nil
 }
 
+type DuplicateGameStateError struct {
+	err error
+}
+
+func (d DuplicateGameStateError) Error() string {
+	return "duplicate game state error"
+}
+
 // SaveGameState saves the given gamestate to the db given the game and the gamestate
 func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) error {
 	gameStateRow, err := MarshalGameState(gameState)
@@ -131,11 +140,27 @@ func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) e
 	dataMap["decks"] = gameStateRow.DecksJSON
 	insertResult, err := db.InsertIntoTable(tx, dataMap)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"gamesState": gameState,
-			"err":        err,
-		}).Warning("error saving game state")
-		return err
+		if pqErr, ok := err.(*pq.Error); ok {
+			if pqErr.Code == "23505" {
+				// don't fail if it's a duplicate key error
+				return DuplicateGameStateError{err}
+			} else {
+				logrus.WithFields(logrus.Fields{
+					"gamesState": gameState,
+					"err":        pqErr,
+					"errorCode":  pqErr.Code,
+					"dataMap":    dataMap,
+				}).Warning("error saving game state")
+				return pqErr
+			}
+		} else {
+			logrus.WithFields(logrus.Fields{
+				"gamesState": gameState,
+				"err":        err,
+				"dataMap":    dataMap,
+			}).Error("unable to parse pq error during save")
+			return err
+		}
 	}
 	rowsAffected, err := insertResult.RowsAffected()
 	if err != nil || rowsAffected != 1 {
