@@ -25,6 +25,24 @@ type GameState struct {
 	Score             int // Must be updated after any modifications to the Decks above
 }
 
+// MoveRequest is a request describing which pile to take a card from and which pile to put it on
+type MoveRequest struct {
+	FromPile  PileLocation
+	FromIndex int
+	ToPile    PileLocation
+	ToIndex   int
+}
+
+// Pile locations
+type PileLocation string
+
+const (
+	STOCK      PileLocation = "stock"
+	FOUNDATION              = "foundation"
+	TABLEAU                 = "tableau"
+	WASTE                   = "waste"
+)
+
 func (state GameState) String() string {
 	str := fmt.Sprintf("GameID: %v. GameStateID: %v. PreviousGameState: %v. MoveNum: %v. Score: %v.\n",
 		state.GameID, state.GameStateID, state.PreviousGameState, state.MoveNum, state.Score)
@@ -78,16 +96,6 @@ func (state *GameState) popFromStock() (deck.Card, error) {
 	state.Stock.Cards = state.Stock.Cards[1:]
 	return card, nil
 }
-
-// Pile locations
-type PileLocation string
-
-const (
-	STOCK      PileLocation = "stock"
-	FOUNDATION              = "foundation"
-	TABLEAU                 = "tableau"
-	WASTE                   = "waste"
-)
 
 // IsMoveRequestLegal requests legality of a MoveRequest for a given GameState.
 //
@@ -159,14 +167,6 @@ func isMoveLegal(
 		}
 	}
 	return nil
-}
-
-// MoveRequest is a request describing which pile to take a card from and which pile to put it on
-type MoveRequest struct {
-	FromPile  PileLocation
-	FromIndex int
-	ToPile    PileLocation
-	ToIndex   int
 }
 
 // parseDecksFromMoveRequest takes a MoveRequest and returns the decks involved in the request
