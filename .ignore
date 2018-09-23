@@ -4,3 +4,4 @@ Godeps/*
 *.min.js*
 *.a
 vendor/*
+data/*
