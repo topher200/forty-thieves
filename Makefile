@@ -7,6 +7,11 @@ run-solvercmd: install-dependencies
 	cd solvercmd && go install
 	solvercmd
 
+.PHONY: run-solvercmd-new-game
+run-solvercmd-new-game: install-dependencies
+	cd solvercmd && go install
+	solvercmd -new-game
+
 .PHONY: create-db
 create-db:
 	pgmgr db create
