@@ -41,6 +41,11 @@ func init() {
 // main process to kick off workers and solve game states
 func main() {
 	defer timeTrack(time.Now(), "total time")
+
+	// host prometheus metrics
+	http.Handle("/metrics", promhttp.Handler())
+	go http.ListenAndServe(*addr, nil)
+
 	// connect to database
 	db, err := connectToDatabase()
 	if err != nil {
@@ -50,6 +55,7 @@ func main() {
 	gameStateDB := libdb.NewGameStateDB(db)
 	game := getOrCreateGame(gameDB, gameStateDB)
 
+	// fire off workers
 	shutdownNow := make(chan bool, 5)
 	done := make(chan bool, 3)
 	numWorkers := runtime.NumCPU()
@@ -137,6 +143,7 @@ func doWorkerLoop(workerId int, game libgame.Game, shutdownNow <-chan bool, done
 			if err != nil {
 				panic(fmt.Errorf("Error saving game state back to db: %v.", err))
 			}
+			processedRequestCounter.Inc()
 		}
 	}
 }
