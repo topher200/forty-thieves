@@ -55,4 +55,11 @@ func TestShouldSkipMoveDoSkipBadMoves(t *testing.T) {
 			libgame.FOUNDATION,
 			0,
 		}))
+	assert.True(t, shouldSkipMove(
+		libgame.MoveRequest{
+			libgame.FOUNDATION,
+			0,
+			libgame.TABLEAU,
+			0,
+		}))
 }
