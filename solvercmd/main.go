@@ -113,9 +113,19 @@ func main() {
 	}
 }
 
+// shouldSkipMove determines whether or not we should skip a move due to business logic
+//
+// This function culls away moves that are likely to result in "shifting" of
+// cards but not really going anywhere.
 func shouldSkipMove(move libgame.MoveRequest) bool {
 	if move.FromPile == libgame.FOUNDATION && move.ToPile == libgame.FOUNDATION {
 		// don't keep just shifting around foundations
+		return true
+	}
+
+	if move.FromPile == libgame.FOUNDATION {
+		// for now, let's not let _any_ cards come down from
+		// foundations. this may be changed in the future
 		return true
 	}
 
