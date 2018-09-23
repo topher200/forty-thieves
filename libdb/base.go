@@ -143,6 +143,12 @@ func (b *Base) InsertIntoTable(tx *sqlx.Tx, data map[string]interface{}) (sql.Re
 		var lastInsertId int64
 		err = tx.QueryRow(query, values...).Scan(&lastInsertId)
 		if err != nil {
+			if wrapInSingleTransaction == true {
+				rollbackErr := tx.Rollback()
+				if rollbackErr != nil {
+					return nil, rollbackErr
+				}
+			}
 			return nil, err
 		}
 
@@ -150,6 +156,12 @@ func (b *Base) InsertIntoTable(tx *sqlx.Tx, data map[string]interface{}) (sql.Re
 	} else {
 		_, err := tx.Exec(query, values...)
 		if err != nil {
+			if wrapInSingleTransaction == true {
+				rollbackErr := tx.Rollback()
+				if rollbackErr != nil {
+					return nil, rollbackErr
+				}
+			}
 			return nil, err
 		}
 	}
