@@ -61,6 +61,36 @@ func (db *GameStateDB) GetFirstGameState(game libgame.Game) (*libgame.GameState,
 	return gameState, nil
 }
 
+// GetNextToAnalyze returns the highest priority GameState to analyze.
+//
+// Returns the unprocessed GameState from the given game with the lowest score
+// (primary sort) and the fewest number of moves (secondary sort).
+func (db *GameStateDB) GetNextToAnalyze(game libgame.Game) (*libgame.GameState, error) {
+	query := fmt.Sprintf(`
+	    UPDATE game_state SET status='CLAIMED'
+	    WHERE game_state_id = (
+		SELECT game_state_id FROM game_state
+		WHERE game_id=$1 AND status='UNPROCESSED'
+		ORDER BY score ASC, move_num ASC
+		LIMIT 1
+		FOR UPDATE SKIP LOCKED
+	    )
+	    RETURNING *
+	`)
+	var gameStateRow GameStateRow
+	err := db.db.Get(&gameStateRow, query, game.ID)
+	if err != nil {
+		return nil, fmt.Errorf("Error on query: %v", err)
+	}
+	var gameState libgame.GameState
+	decoder := gob.NewDecoder(bytes.NewBuffer(gameStateRow.BinarizedState))
+	err = decoder.Decode(&gameState)
+	if err != nil {
+		return nil, fmt.Errorf("Error decoding: %v", err)
+	}
+	return &gameState, nil
+}
+
 // getSingleGameState is a helper function for getting and parsing a game state
 //
 // Implementation note: there's no reason why this function can't take more than

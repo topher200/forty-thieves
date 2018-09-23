@@ -1,7 +1,6 @@
 package main
 
 import (
-	"container/heap"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -41,14 +40,31 @@ func main() {
 		panic(fmt.Errorf("Error saving new game's first gamestate: %v.", err))
 	}
 
-	pq := make(PriorityQueue, 1)
-	pq[0] = &firstGameState
+	for true {
+		// get the next game state to analyze
+		gameState, err := gameStateDB.GetNextToAnalyze(*game)
+		if err != nil {
+			panic(fmt.Errorf("Error getting next game state to analyze: %v.", err))
+		}
 
-	for pq.Len() > 0 {
-		// get the next game state that is interesting
-		gameState := heap.Pop(&pq).(*libgame.GameState)
+		// if the best game state is solved, we're done!
+		if gameState.Score == 0 {
+			break
+		}
 
-		// determine the next states after ours. add them to the priority queue
+		// flip the stock and save that new state to the database
+		gameStateCopy := gameState.Copy()
+		err = gameStateCopy.FlipStock()
+		if err == nil {
+			err = gameStateDB.SaveGameState(nil, gameStateCopy)
+			if err != nil {
+				panic(fmt.Errorf("Error saving flipped game state to db: %v.", err))
+			}
+		} else {
+			// can't flip an empty stock, nothing to do
+		}
+
+		// for each possible state we can move to, add them to the database
 		for _, move := range libsolver.GetPossibleMoves(gameState) {
 			// create a copy of our current game state
 			gameStateCopy := gameState.Copy()
@@ -64,22 +80,6 @@ func main() {
 			if err != nil {
 				panic(fmt.Errorf("Error saving game state to db: %v.", err))
 			}
-
-			// push the new game state onto the heap to be processed
-			heap.Push(&pq, &gameStateCopy)
 		}
-
-		// lastly, flip the stock and give it the same treatment
-		gameStateCopy := gameState.Copy()
-		err = gameStateCopy.FlipStock()
-		if err != nil {
-			// can't flip an empty stock
-			continue
-		}
-		err = gameStateDB.SaveGameState(nil, gameStateCopy)
-		if err != nil {
-			panic(fmt.Errorf("Error saving game state to db: %v.", err))
-		}
-		heap.Push(&pq, &gameStateCopy)
 	}
 }
