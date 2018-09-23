@@ -85,6 +85,10 @@ func main() {
 
 		// for each possible state we can move to, add them to the database
 		for _, move := range libsolver.GetPossibleMoves(gameState) {
+			if shouldSkipMove(move) {
+				continue
+			}
+
 			// create a copy of our current game state
 			gameStateCopy := gameState.Copy()
 
@@ -107,6 +111,15 @@ func main() {
 			panic(fmt.Errorf("Error saving game state back to db: %v.", err))
 		}
 	}
+}
+
+func shouldSkipMove(move libgame.MoveRequest) bool {
+	if move.FromPile == libgame.FOUNDATION && move.ToPile == libgame.FOUNDATION {
+		// don't keep just shifting around foundations
+		return true
+	}
+
+	return false // this move is fine
 }
 
 func timeTrack(start time.Time, name string) {
