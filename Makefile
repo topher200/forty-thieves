@@ -7,6 +7,10 @@ run-solvercmd: install-dependencies
 	cd solvercmd && go install
 	solvercmd
 
+.PHONY: run-prometheus
+run-prometheus:
+	prometheus --config.file=prometheus/prometheus.yml
+
 .PHONY: run-solvercmd-new-game
 run-solvercmd-new-game: install-dependencies
 	cd solvercmd && go install
