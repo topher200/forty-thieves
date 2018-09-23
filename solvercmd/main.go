@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -24,6 +26,7 @@ func ConnectToDatabase() (db *sqlx.DB, err error) {
 }
 
 func main() {
+	defer timeTrack(time.Now(), "total time")
 	// connect to database
 	db, err := ConnectToDatabase()
 	gameDB := libdb.NewGameDB(db)
@@ -40,6 +43,7 @@ func main() {
 		panic(fmt.Errorf("Error saving new game's first gamestate: %v.", err))
 	}
 
+	defer timeTrack(time.Now(), "processing loop")
 	for true {
 		// get the next game state to analyze
 		gameState, err := gameStateDB.GetNextToAnalyze(*game)
@@ -88,4 +92,9 @@ func main() {
 			panic(fmt.Errorf("Error saving game state back to db: %v.", err))
 		}
 	}
+}
+
+func timeTrack(start time.Time, name string) {
+	elapsed := time.Since(start)
+	log.Printf("%s took %s", name, elapsed)
 }
