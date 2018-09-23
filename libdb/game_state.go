@@ -120,13 +120,15 @@ func (db *GameStateDB) GetChildGameStates(gameState libgame.GameState) ([]uuid.U
 
 // SaveGameState saves the given gamestate to the db given the game and the gamestate
 func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) error {
+	gameStateRow, err := MarshalGameState(gameState)
+
 	dataMap := make(map[string]interface{})
-	dataMap["game_id"] = dataStruct.GameID
-	dataMap["game_state_id"] = dataStruct.GameStateID
-	dataMap["previous_game_state"] = dataStruct.PreviousGameState
-	dataMap["move_num"] = dataStruct.MoveNum
-	dataMap["score"] = dataStruct.Score
-	dataMap["decks"] = dataStruct.DecksJSON
+	dataMap["game_id"] = gameStateRow.GameID
+	dataMap["game_state_id"] = gameStateRow.GameStateID
+	dataMap["previous_game_state"] = gameStateRow.PreviousGameState
+	dataMap["move_num"] = gameStateRow.MoveNum
+	dataMap["score"] = gameStateRow.Score
+	dataMap["decks"] = gameStateRow.DecksJSON
 	insertResult, err := db.InsertIntoTable(tx, dataMap)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{

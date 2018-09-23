@@ -17,15 +17,17 @@ type decksJSONStruct struct {
 }
 
 // UnmarshalGameState unmarshalls a GameStateRow into a GameState.
-func UnmarshalGameState(gameStateRow GameStateRow) (gameState *libgame.GameState, err error) {
+func UnmarshalGameState(gameStateRow GameStateRow) (*libgame.GameState, error) {
+	var gameState libgame.GameState
 	gameState.GameID = gameStateRow.GameID
 	gameState.GameStateID = gameStateRow.GameStateID
 	gameState.PreviousGameState = gameStateRow.PreviousGameState
 	gameState.MoveNum = gameStateRow.MoveNum
+	gameState.Score = gameStateRow.Score
 
 	// unmarshal json
 	var deckData decksJSONStruct
-	err = gameStateRow.DecksJSON.Unmarshal(deckData)
+	err := gameStateRow.DecksJSON.Unmarshal(&deckData)
 	if err != nil {
 		return nil, fmt.Errorf("Error unmarshalling gameStateRow: %v", err)
 	}
@@ -34,10 +36,10 @@ func UnmarshalGameState(gameStateRow GameStateRow) (gameState *libgame.GameState
 	gameState.Tableaus = deckData.Tableaus
 	gameState.Waste = deckData.Waste
 
-	return gameState, nil
+	return &gameState, nil
 }
 
-func MarshalGameState(gameState libgame.GameState) (gameStateRow *GameStateRow, err error) {
+func MarshalGameState(gameState libgame.GameState) (*GameStateRow, error) {
 	// convert decks to JSON
 	decksJSON := decksJSONStruct{
 		gameState.Stock,
@@ -54,15 +56,13 @@ func MarshalGameState(gameState libgame.GameState) (gameStateRow *GameStateRow, 
 		return nil, err
 	}
 
-	panic(decksJSON)
+	var gameStateRow GameStateRow
+	gameStateRow.GameID = gameState.GameID
+	gameStateRow.GameStateID = gameState.GameStateID
+	gameStateRow.MoveNum = gameState.MoveNum
+	gameStateRow.PreviousGameState = gameState.PreviousGameState
+	gameStateRow.Score = gameState.Score
+	gameStateRow.DecksJSON = decksJSONSerialized
 
-	dataStruct := GameStateRow{}
-	dataStruct.GameID = gameState.GameID
-	dataStruct.GameStateID = gameState.GameStateID
-	dataStruct.MoveNum = gameState.MoveNum
-	dataStruct.PreviousGameState = gameState.PreviousGameState
-	dataStruct.Score = gameState.Score
-	dataStruct.DecksJSON = decksJSONSerialized
-
-	return gameStateRow, nil
+	return &gameStateRow, nil
 }
