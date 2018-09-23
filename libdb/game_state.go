@@ -9,6 +9,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
+	types "github.com/jmoiron/sqlx/types"
 	uuid "github.com/satori/go.uuid"
 	"github.com/topher200/forty-thieves/libgame"
 )
@@ -18,13 +19,13 @@ type GameStateDB struct {
 }
 
 type GameStateRow struct {
-	GameStateID       uuid.UUID     `db:"game_state_id"`
-	PreviousGameState uuid.NullUUID `db:"previous_game_state"`
-	GameID            int64         `db:"game_id"`
-	MoveNum           int64         `db:"move_num"`
-	Score             int           `db:"score"`
-	Status            string        `db:"status"`
-	BinarizedState    []byte        `db:"binarized_state"`
+	GameStateID       uuid.UUID      `db:"game_state_id"`
+	PreviousGameState uuid.NullUUID  `db:"previous_game_state"`
+	GameID            int64          `db:"game_id"`
+	MoveNum           int64          `db:"move_num"`
+	Score             int            `db:"score"`
+	Status            string         `db:"status"`
+	DecksJSON         types.JSONText `db:"decks"`
 }
 
 func NewGameStateDB(db *sqlx.DB) *GameStateDB {
