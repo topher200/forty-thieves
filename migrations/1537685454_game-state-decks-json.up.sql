@@ -1,3 +1,3 @@
-ALTER TABLE game_state ALTER COLUMN binarized_state DROP NOT NULL;
 TRUNCATE TABLE game CASCADE;
+ALTER TABLE game_state DROP COLUMN binarized_state;
 ALTER TABLE game_state ADD COLUMN decks JSONB NOT NULL;
