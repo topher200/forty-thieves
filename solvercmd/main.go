@@ -4,16 +4,39 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"runtime"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/topher200/forty-thieves/libdb"
 	"github.com/topher200/forty-thieves/libenv"
 	"github.com/topher200/forty-thieves/libgame"
 	"github.com/topher200/forty-thieves/libsolver"
 )
+
+var (
+	addr       = flag.String("prometheus-listen-address", ":9999", "The address to listen on for HTTP requests.")
+	newGamePtr = flag.Bool(
+		"new-game",
+		false,
+		"start a new game for analyzing. if false (default), uses latest game instead")
+)
+
+var (
+	processedRequestCounter = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "processed_requests_total",
+			Help: "Total number of requests processed",
+		})
+)
+
+func init() {
+	prometheus.MustRegister(processedRequestCounter)
+}
 
 // main process to kick off workers and solve game states
 func main() {
@@ -139,10 +162,6 @@ func shouldSkipMove(move libgame.MoveRequest) bool {
 
 // getOrCreateGame is a helper function for getting/creating a game to process, based on user input
 func getOrCreateGame(gameDB *libdb.GameDB, gameStateDB *libdb.GameStateDB) *libgame.Game {
-	newGamePtr := flag.Bool(
-		"new-game",
-		false,
-		"start a new game for analyzing. if false (default), uses latest game instead")
 	flag.Parse()
 	var game *libgame.Game
 	var err error
