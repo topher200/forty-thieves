@@ -65,28 +65,31 @@ func (db *GameStateDB) GetFirstGameState(game libgame.Game) (*libgame.GameState,
 //
 // Returns the unprocessed GameState from the given game with the lowest score
 // (primary sort) and the fewest number of moves (secondary sort).
-func (db *GameStateDB) GetNextToAnalyze(game libgame.Game) (*libgame.GameState, error) {
+func (db *GameStateDB) GetNextToAnalyze(game libgame.Game) ([]*libgame.GameState, error) {
 	query := fmt.Sprintf(`
 	    UPDATE game_state SET status='CLAIMED'
-	    WHERE game_state_id = (
+	    WHERE game_state_id IN (
 		SELECT game_state_id FROM game_state
 		WHERE game_id=$1 AND status='UNPROCESSED'
 		ORDER BY score ASC, move_num ASC
-		LIMIT 1
+		LIMIT 100
 		FOR UPDATE SKIP LOCKED
 	    )
 	    RETURNING *
 	`)
-	var gameStateRow GameStateRow
-	err := db.db.Get(&gameStateRow, query, game.ID)
+	var gameStateRows []GameStateRow
+	err := db.db.Select(&gameStateRows, query, game.ID)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
 	}
-	gameState, err := UnmarshalGameState(gameStateRow)
-	if err != nil {
-		return nil, fmt.Errorf("Error unmarshalling gameState: %v", err)
+	gameStates := make([]*libgame.GameState, len(gameStateRows))
+	for i := range gameStateRows {
+		gameStates[i], err = UnmarshalGameState(gameStateRows[i])
+		if err != nil {
+			return nil, fmt.Errorf("Error unmarshalling gameState: %v", err)
+		}
 	}
-	return gameState, nil
+	return gameStates, nil
 }
 
 // getSingleGameState is a helper function for getting and parsing a game state

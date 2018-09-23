@@ -30,7 +30,7 @@ var (
 	labels = []string{
 		"version",
 	}
-	appVersion             = "v1"
+	appVersion             = "v2_pool_processing"
 	processedStatesCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "forty_thieves_processed_states_total",
@@ -104,58 +104,60 @@ func doWorkerLoop(workerId int, game libgame.Game, shutdownNow <-chan bool, done
 			return
 		default:
 			// get the next game state to analyze
-			gameState, err := gameStateDB.GetNextToAnalyze(game)
+			gameStates, err := gameStateDB.GetNextToAnalyze(game)
 			if err != nil {
 				panic(fmt.Errorf("Error getting next game state to analyze: %v.", err))
 			}
 
-			// if the best game state is solved, we're done!
-			if gameState.Score == 0 {
-				break
-			}
-
-			// flip the stock and save that new state to the database
-			gameStateCopy := gameState.Copy()
-			err = gameStateCopy.FlipStock()
-			if err == nil {
-				err = gameStateDB.SaveGameState(nil, gameStateCopy)
-				if err != nil {
-					checkGameStateSaveError(err)
-				}
-			} else {
-				// can't flip an empty stock, nothing to do
-			}
-
-			// for each possible state we can move to, add them to the database
-			for _, move := range libsolver.GetPossibleMoves(gameState) {
-				if shouldSkipMove(move) {
-					continue
+			for _, gameState := range gameStates {
+				// if the best game state is solved, we're done!
+				if gameState.Score == 0 {
+					break
 				}
 
-				// create a copy of our current game state
+				// flip the stock and save that new state to the database
 				gameStateCopy := gameState.Copy()
-
-				// take the available move
-				err = gameStateCopy.MoveCard(move)
-				if err != nil {
-					panic(fmt.Errorf("Error making move: %v.", err))
-				}
-
-				// save the new game state to database
-				err = gameStateDB.SaveGameState(nil, gameStateCopy)
+				err = gameStateCopy.FlipStock()
 				if err == nil {
-					newSavedStatesCounter.WithLabelValues(appVersion).Inc()
+					err = gameStateDB.SaveGameState(nil, gameStateCopy)
+					if err != nil {
+						checkGameStateSaveError(err)
+					}
 				} else {
-					checkGameStateSaveError(err)
+					// can't flip an empty stock, nothing to do
 				}
-			}
 
-			// mark this game state as 'PROCESSED'
-			err = gameStateDB.MarkAsProcessed(nil, *gameState)
-			if err != nil {
-				panic(fmt.Errorf("Error saving game state back to db: %v.", err))
+				// for each possible state we can move to, add them to the database
+				for _, move := range libsolver.GetPossibleMoves(gameState) {
+					if shouldSkipMove(move) {
+						continue
+					}
+
+					// create a copy of our current game state
+					gameStateCopy := gameState.Copy()
+
+					// take the available move
+					err = gameStateCopy.MoveCard(move)
+					if err != nil {
+						panic(fmt.Errorf("Error making move: %v.", err))
+					}
+
+					// save the new game state to database
+					err = gameStateDB.SaveGameState(nil, gameStateCopy)
+					if err == nil {
+						newSavedStatesCounter.WithLabelValues(appVersion).Inc()
+					} else {
+						checkGameStateSaveError(err)
+					}
+				}
+
+				// mark this game state as 'PROCESSED'
+				err = gameStateDB.MarkAsProcessed(nil, *gameState)
+				if err != nil {
+					panic(fmt.Errorf("Error saving game state back to db: %v.", err))
+				}
+				processedStatesCounter.WithLabelValues(appVersion).Inc()
 			}
-			processedStatesCounter.WithLabelValues(appVersion).Inc()
 		}
 	}
 }
