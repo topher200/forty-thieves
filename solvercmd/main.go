@@ -1,9 +1,11 @@
 package main
 
 import (
+	"expvar"
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"runtime"
 	"time"
 
@@ -13,6 +15,7 @@ import (
 	"github.com/topher200/forty-thieves/libenv"
 	"github.com/topher200/forty-thieves/libgame"
 	"github.com/topher200/forty-thieves/libsolver"
+	"github.com/zserge/metric"
 )
 
 // main process to kick off workers and solve game states
@@ -26,6 +29,17 @@ func main() {
 	gameDB := libdb.NewGameDB(db)
 	gameStateDB := libdb.NewGameStateDB(db)
 	game := getOrCreateGame(gameDB, gameStateDB)
+
+	// Register HTTP handler to visualize metrics
+	expvar.Publish("processedRequestCounter", metric.NewCounter(
+		"1s1s",
+		"10s10s",
+		"1m1m",
+		"5m5m",
+		"15m30s",
+	))
+	http.Handle("/debug/metrics", metric.Handler(metric.Exposed))
+	go http.ListenAndServe(":9999", nil)
 
 	shutdownNow := make(chan bool, 5)
 	done := make(chan bool, 3)
@@ -47,7 +61,11 @@ func main() {
 //
 // Runs until a message is seen on the 'shutdownNow' channel. Shuts itself down
 // and puts a message on the 'done' channel.
-func doWorkerLoop(workerId int, game libgame.Game, shutdownNow <-chan bool, done chan<- bool) {
+func doWorkerLoop(
+	workerId int,
+	game libgame.Game,
+	shutdownNow <-chan bool,
+	done chan<- bool) {
 	fmt.Printf("starting worker %d\n", workerId)
 
 	// connect to database
@@ -114,6 +132,7 @@ func doWorkerLoop(workerId int, game libgame.Game, shutdownNow <-chan bool, done
 			if err != nil {
 				panic(fmt.Errorf("Error saving game state back to db: %v.", err))
 			}
+			expvar.Get("processedRequestCounter").(metric.Metric).Add(1)
 		}
 	}
 }

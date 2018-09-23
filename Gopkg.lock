@@ -172,6 +172,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:ed07fa7e9b28674cd8af4dbe08002b941ed290a4c460ce38f5eaeca4690e9df1"
+  name = "github.com/zserge/metric"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "97e3019af51acba148e6234f10c443d7d3521069"
+
+[[projects]]
+  branch = "master"
   digest = "1:3f3a05ae0b95893d90b9b3b5afdb79a9b3d96e4e36e099d841ae602e4aca0da8"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
@@ -210,6 +218,7 @@
     "github.com/topher200/baseutil",
     "github.com/topher200/deck",
     "github.com/tylerb/graceful",
+    "github.com/zserge/metric",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
