@@ -1,8 +1,7 @@
 package libdb
 
 import (
-	"bytes"
-	"encoding/gob"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -83,13 +82,11 @@ func (db *GameStateDB) GetNextToAnalyze(game libgame.Game) (*libgame.GameState, 
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
 	}
-	var gameState libgame.GameState
-	decoder := gob.NewDecoder(bytes.NewBuffer(gameStateRow.BinarizedState))
-	err = decoder.Decode(&gameState)
+	gameState, err := UnmarshalGameState(gameStateRow)
 	if err != nil {
-		return nil, fmt.Errorf("Error decoding: %v", err)
+		return nil, fmt.Errorf("Error unmarshalling gameState: %v", err)
 	}
-	return &gameState, nil
+	return gameState, nil
 }
 
 // getSingleGameState is a helper function for getting and parsing a game state
@@ -103,13 +100,11 @@ func (db *GameStateDB) getSingleGameState(query string, arg string) (*libgame.Ga
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
 	}
-	var gameState libgame.GameState
-	decoder := gob.NewDecoder(bytes.NewBuffer(gameStateRow.BinarizedState))
-	err = decoder.Decode(&gameState)
+	gameState, err := UnmarshalGameState(gameStateRow)
 	if err != nil {
-		return nil, fmt.Errorf("Error decoding: %v", err)
+		return nil, fmt.Errorf("Error unmarshalling gameState: %v", err)
 	}
-	return &gameState, nil
+	return gameState, nil
 }
 
 // GetChildGameStates queries for the UUIDs of all the game states that are children of the given one
@@ -126,24 +121,37 @@ func (db *GameStateDB) GetChildGameStates(gameState libgame.GameState) ([]uuid.U
 
 // SaveGameState saves the given gamestate to the db given the game and the gamestate
 func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) error {
-	var binarizedState bytes.Buffer
-	encoder := gob.NewEncoder(&binarizedState)
-	encoder.Encode(gameState)
+	// convert decks to JSON
+	decksJSON := decksJSONStruct{
+		gameState.Stock,
+		gameState.Foundations,
+		gameState.Tableaus,
+		gameState.Waste,
+	}
+	decksJSONSerialized, err := json.Marshal(&decksJSON)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"gamesState": gameState,
+			"err":        err,
+		}).Error("error JSON-ing deck")
+		return err
+	}
+
 	dataStruct := GameStateRow{}
 	dataStruct.GameID = gameState.GameID
-	dataStruct.BinarizedState = binarizedState.Bytes()
 	dataStruct.GameStateID = gameState.GameStateID
 	dataStruct.MoveNum = gameState.MoveNum
 	dataStruct.PreviousGameState = gameState.PreviousGameState
 	dataStruct.Score = gameState.Score
+	dataStruct.DecksJSON = decksJSONSerialized
 
 	dataMap := make(map[string]interface{})
 	dataMap["game_id"] = dataStruct.GameID
-	dataMap["binarized_state"] = dataStruct.BinarizedState
 	dataMap["game_state_id"] = dataStruct.GameStateID
 	dataMap["previous_game_state"] = dataStruct.PreviousGameState
 	dataMap["move_num"] = dataStruct.MoveNum
 	dataMap["score"] = dataStruct.Score
+	dataMap["decks"] = dataStruct.DecksJSON
 	insertResult, err := db.InsertIntoTable(tx, dataMap)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
