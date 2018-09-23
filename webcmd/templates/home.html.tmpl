@@ -68,24 +68,9 @@
       </span>
     </div>
   </div>
-</div>
 
-<div class="col-md-3">
-  <a data-bind="text: parentGameStateId, attr: {href: '/?gameStateID=' + parentGameStateId()}, click: goToParentState"></a>
-  <ul data-bind="foreach: childGameStateIds">
-    <li>
-      <a data-bind="text: $data, attr: {href: '/?gameStateID=' + $data}, click: $parent.goToState"></a>
-    </li>
-  </ul>
-  <!-- <button data-bind="click: foundationCardPost">Foundation Card</button> -->
-</div>
-
-<!-- pagebreak between top and bottom -->
-<div class="clearfix" />
-
-<div class="col-md-9">
   <!-- tableaus -->
-  <div id="container" float:left>
+  <div id="container" float:left class="row clearfix">
     <div data-bind="foreach: tableaus">
       <div class="col-md-1 pile"
            ondrop="cardDrop(event)"
@@ -110,5 +95,21 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="col-md-3">
+  <a data-bind="text: parentGameStateId, attr: {href: '/?gameStateID=' + parentGameStateId()}, click: goToParentState"></a>
+  <ul data-bind="foreach: childGameStateIds">
+    <li>
+      <a data-bind="text: $data, attr: {href: '/?gameStateID=' + $data}, click: $parent.goToState"></a>
+    </li>
+  </ul>
+  <!-- <button data-bind="click: foundationCardPost">Foundation Card</button> -->
+</div>
+
+<!-- pagebreak between top and bottom -->
+<div class="clearfix" />
+
+<div class="col-md-9">
 </div>
 {{end}}
