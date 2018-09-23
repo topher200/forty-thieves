@@ -31,4 +31,4 @@ install-dependencies:
 # helper func, you should call 'test' instead
 .PHONY: run-tests
 run-tests: install-dependencies
-	./test.sh
+	time ./test.sh
