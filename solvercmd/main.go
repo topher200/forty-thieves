@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"runtime"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -30,6 +31,9 @@ func main() {
 	defer timeTrack(time.Now(), "total time")
 	// connect to database
 	db, err := ConnectToDatabase()
+	if err != nil {
+		panic(fmt.Errorf("Failed to connect to database: %v.", err))
+	}
 	gameDB := libdb.NewGameDB(db)
 	gameStateDB := libdb.NewGameStateDB(db)
 
@@ -58,57 +62,89 @@ func main() {
 		}
 	}
 
-	defer timeTrack(time.Now(), "processing loop")
-	for true {
-		// get the next game state to analyze
-		gameState, err := gameStateDB.GetNextToAnalyze(*game)
-		if err != nil {
-			panic(fmt.Errorf("Error getting next game state to analyze: %v.", err))
-		}
+	shutdownNow := make(chan bool, 5)
+	done := make(chan bool, 3)
+	numWorkers := runtime.NumCPU()
+	for workerId := 0; workerId < numWorkers; workerId++ {
+		go doWorkerLoop(workerId, *game, shutdownNow, done)
+	}
+	fmt.Println("Press <enter> to exit")
+	fmt.Scanln()
+	fmt.Println("sending shutdown signal")
+	close(shutdownNow)
+	for workerId := 0; workerId < numWorkers; workerId++ {
+		<-done
+	}
+	fmt.Println("all workers are shut down")
+}
 
-		// if the best game state is solved, we're done!
-		if gameState.Score == 0 {
-			break
-		}
+func doWorkerLoop(workerId int, game libgame.Game, shutdownNow <-chan bool, done chan<- bool) {
+	fmt.Printf("starting worker %d\n", workerId)
 
-		// flip the stock and save that new state to the database
-		gameStateCopy := gameState.Copy()
-		err = gameStateCopy.FlipStock()
-		if err == nil {
-			err = gameStateDB.SaveGameState(nil, gameStateCopy)
+	// connect to database
+	db, err := ConnectToDatabase()
+	if err != nil {
+		panic(fmt.Errorf("Failed to connect to database: %v.", err))
+	}
+	gameStateDB := libdb.NewGameStateDB(db)
+
+	for {
+		select {
+		case _ = <-shutdownNow:
+			fmt.Printf("shutting down worker %d\n", workerId)
+			done <- true
+			return
+		default:
+			// get the next game state to analyze
+			gameState, err := gameStateDB.GetNextToAnalyze(game)
 			if err != nil {
-				checkGameStateSaveError(err)
-			}
-		} else {
-			// can't flip an empty stock, nothing to do
-		}
-
-		// for each possible state we can move to, add them to the database
-		for _, move := range libsolver.GetPossibleMoves(gameState) {
-			if shouldSkipMove(move) {
-				continue
+				panic(fmt.Errorf("Error getting next game state to analyze: %v.", err))
 			}
 
-			// create a copy of our current game state
+			// if the best game state is solved, we're done!
+			if gameState.Score == 0 {
+				break
+			}
+
+			// flip the stock and save that new state to the database
 			gameStateCopy := gameState.Copy()
-
-			// take the available move
-			err = gameStateCopy.MoveCard(move)
-			if err != nil {
-				panic(fmt.Errorf("Error making move: %v.", err))
+			err = gameStateCopy.FlipStock()
+			if err == nil {
+				err = gameStateDB.SaveGameState(nil, gameStateCopy)
+				if err != nil {
+					checkGameStateSaveError(err)
+				}
+			} else {
+				// can't flip an empty stock, nothing to do
 			}
 
-			// save the new game state to database
-			err = gameStateDB.SaveGameState(nil, gameStateCopy)
-			if err != nil {
-				checkGameStateSaveError(err)
-			}
-		}
+			// for each possible state we can move to, add them to the database
+			for _, move := range libsolver.GetPossibleMoves(gameState) {
+				if shouldSkipMove(move) {
+					continue
+				}
 
-		// mark this game state as 'PROCESSED'
-		err = gameStateDB.MarkAsProcessed(nil, *gameState)
-		if err != nil {
-			panic(fmt.Errorf("Error saving game state back to db: %v.", err))
+				// create a copy of our current game state
+				gameStateCopy := gameState.Copy()
+
+				// take the available move
+				err = gameStateCopy.MoveCard(move)
+				if err != nil {
+					panic(fmt.Errorf("Error making move: %v.", err))
+				}
+
+				// save the new game state to database
+				err = gameStateDB.SaveGameState(nil, gameStateCopy)
+				if err != nil {
+					checkGameStateSaveError(err)
+				}
+			}
+
+			// mark this game state as 'PROCESSED'
+			err = gameStateDB.MarkAsProcessed(nil, *gameState)
+			if err != nil {
+				panic(fmt.Errorf("Error saving game state back to db: %v.", err))
+			}
 		}
 	}
 }
