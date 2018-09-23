@@ -27,6 +27,7 @@ func ConnectToDatabase() (db *sqlx.DB, err error) {
 	return db, err
 }
 
+// main process to kick off workers and solve game states
 func main() {
 	defer timeTrack(time.Now(), "total time")
 	// connect to database
@@ -54,6 +55,10 @@ func main() {
 	fmt.Println("all workers are shut down")
 }
 
+// doWorkerLoop is a helper func to pull a gameState off the queue and process it
+//
+// Runs until a message is seen on the 'shutdownNow' channel. Shuts itself down
+// and puts a message on the 'done' channel.
 func doWorkerLoop(workerId int, game libgame.Game, shutdownNow <-chan bool, done chan<- bool) {
 	fmt.Printf("starting worker %d\n", workerId)
 
@@ -144,6 +149,7 @@ func shouldSkipMove(move libgame.MoveRequest) bool {
 	return false // this move is fine
 }
 
+// getOrCreateGame is a helper function for getting/creating a game to process, based on user input
 func getOrCreateGame(gameDB *libdb.GameDB, gameStateDB *libdb.GameStateDB) *libgame.Game {
 	newGamePtr := flag.Bool(
 		"new-game",
@@ -173,12 +179,14 @@ func getOrCreateGame(gameDB *libdb.GameDB, gameStateDB *libdb.GameStateDB) *libg
 	return game
 }
 
+// checkGameStateSaveError checks to the see if the given error is a dupe game. doesn't fail if it is
 func checkGameStateSaveError(err error) {
 	if err.Error() != "duplicate game state error" {
 		panic(err)
 	}
 }
 
+// timeTrack is a helper function to let us know how long something took
 func timeTrack(start time.Time, name string) {
 	elapsed := time.Since(start)
 	log.Printf("%s took %s", name, elapsed)
