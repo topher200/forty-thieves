@@ -81,5 +81,11 @@ func main() {
 				panic(fmt.Errorf("Error saving game state to db: %v.", err))
 			}
 		}
+
+		// mark this game state as 'PROCESSED'
+		err = gameStateDB.MarkAsProcessed(nil, *gameState)
+		if err != nil {
+			panic(fmt.Errorf("Error saving game state back to db: %v.", err))
+		}
 	}
 }

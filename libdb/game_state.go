@@ -163,6 +163,22 @@ func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) e
 	return nil
 }
 
+func (db *GameStateDB) MarkAsProcessed(tx *sqlx.Tx, gameState libgame.GameState) error {
+	res, err := db.db.Exec(
+		"UPDATE game_state SET status='PROCESSED' WHERE game_state_id=$1",
+		gameState.GameStateID)
+	if err != nil {
+		logrus.Warning("Error updating game state: ", err)
+		return err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil || rowsAffected != 1 {
+		return errors.New(
+			fmt.Sprintf("expected to change 1 row, changed %d", rowsAffected))
+	}
+	return nil
+}
+
 // DeleteGameState deletes the given gamestate
 func (db *GameStateDB) DeleteGameState(
 	tx *sqlx.Tx, gameState libgame.GameState) error {
