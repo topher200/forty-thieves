@@ -15,23 +15,11 @@ import (
 	"github.com/topher200/forty-thieves/libsolver"
 )
 
-func ConnectToDatabase() (db *sqlx.DB, err error) {
-	dbname := "forty_thieves"
-	dsn := libenv.EnvWithDefault(
-		"DSN", fmt.Sprintf("postgres://postgres@localhost:5432/%s?sslmode=disable", dbname))
-
-	db, err = sqlx.Connect("postgres", dsn)
-	if err != nil {
-		return nil, err
-	}
-	return db, err
-}
-
 // main process to kick off workers and solve game states
 func main() {
 	defer timeTrack(time.Now(), "total time")
 	// connect to database
-	db, err := ConnectToDatabase()
+	db, err := connectToDatabase()
 	if err != nil {
 		panic(fmt.Errorf("Failed to connect to database: %v.", err))
 	}
@@ -63,7 +51,7 @@ func doWorkerLoop(workerId int, game libgame.Game, shutdownNow <-chan bool, done
 	fmt.Printf("starting worker %d\n", workerId)
 
 	// connect to database
-	db, err := ConnectToDatabase()
+	db, err := connectToDatabase()
 	if err != nil {
 		panic(fmt.Errorf("Failed to connect to database: %v.", err))
 	}
@@ -177,6 +165,19 @@ func getOrCreateGame(gameDB *libdb.GameDB, gameStateDB *libdb.GameStateDB) *libg
 		}
 	}
 	return game
+}
+
+// connectToDatabase is a helper function to connect to our postgres db
+func connectToDatabase() (db *sqlx.DB, err error) {
+	dbname := "forty_thieves"
+	dsn := libenv.EnvWithDefault(
+		"DSN", fmt.Sprintf("postgres://postgres@localhost:5432/%s?sslmode=disable", dbname))
+
+	db, err = sqlx.Connect("postgres", dsn)
+	if err != nil {
+		return nil, err
+	}
+	return db, err
 }
 
 // checkGameStateSaveError checks to the see if the given error is a dupe game. doesn't fail if it is
