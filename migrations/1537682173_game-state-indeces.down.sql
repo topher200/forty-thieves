@@ -1,0 +1,3 @@
+DROP INDEX game_state_game_id_binarized_state_idx;
+DROP INDEX game_state_game_id_status_idx;
+
