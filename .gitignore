@@ -3,6 +3,7 @@ forty-thieves
 *.debug
 gin-bin
 webcmd/webcmd
+vendor/
 
 .DS_Store
 

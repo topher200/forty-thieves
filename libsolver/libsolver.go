@@ -14,17 +14,17 @@ type pile struct {
 func allPiles() []pile {
 	piles := make([]pile, 0)
 	for i := 0; i < libgame.NumTableaus; i++ {
-		piles = append(piles, pile{"tableau", i})
+		piles = append(piles, pile{libgame.TABLEAU, i})
 	}
-	piles = append(piles, pile{"waste", 0})
-	piles = append(piles, pile{"stock", 0})
+	piles = append(piles, pile{libgame.WASTE, 0})
+	piles = append(piles, pile{libgame.STOCK, 0})
 	for i := 0; i < libgame.NumFoundations; i++ {
-		piles = append(piles, pile{"foundation", i})
+		piles = append(piles, pile{libgame.FOUNDATION, i})
 	}
 	return piles
 }
 
-func getPossibleMoves(state *libgame.GameState) []libgame.MoveRequest {
+func GetPossibleMoves(state *libgame.GameState) []libgame.MoveRequest {
 	possibleMoves := make([]libgame.MoveRequest, 0)
 	piles := allPiles()
 	for i, _ := range piles {
@@ -44,8 +44,8 @@ func getPossibleMoves(state *libgame.GameState) []libgame.MoveRequest {
 }
 
 func FoundationAvailableCard(state *libgame.GameState) error {
-	for _, move := range getPossibleMoves(state) {
-		if move.FromPile != "foundation" && move.ToPile == "foundation" {
+	for _, move := range GetPossibleMoves(state) {
+		if move.FromPile != libgame.FOUNDATION && move.ToPile == libgame.FOUNDATION {
 			return state.MoveCard(move)
 		}
 	}

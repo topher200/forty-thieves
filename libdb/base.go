@@ -99,11 +99,11 @@ func (b *Base) InsertIntoTable(tx *sqlx.Tx, data map[string]interface{}) (sql.Re
 	}
 
 	tx, wrapInSingleTransaction, err := b.newTransactionIfNeeded(tx)
-	if tx == nil {
-		return nil, errors.New("Transaction struct must not be empty.")
-	}
 	if err != nil {
 		return nil, err
+	}
+	if tx == nil {
+		return nil, errors.New("Transaction struct must not be empty.")
 	}
 
 	keys := make([]string, 0)
@@ -143,6 +143,12 @@ func (b *Base) InsertIntoTable(tx *sqlx.Tx, data map[string]interface{}) (sql.Re
 		var lastInsertId int64
 		err = tx.QueryRow(query, values...).Scan(&lastInsertId)
 		if err != nil {
+			if wrapInSingleTransaction == true {
+				rollbackErr := tx.Rollback()
+				if rollbackErr != nil {
+					return nil, rollbackErr
+				}
+			}
 			return nil, err
 		}
 
@@ -150,12 +156,21 @@ func (b *Base) InsertIntoTable(tx *sqlx.Tx, data map[string]interface{}) (sql.Re
 	} else {
 		_, err := tx.Exec(query, values...)
 		if err != nil {
+			if wrapInSingleTransaction == true {
+				rollbackErr := tx.Rollback()
+				if rollbackErr != nil {
+					return nil, rollbackErr
+				}
+			}
 			return nil, err
 		}
 	}
 
 	if wrapInSingleTransaction == true {
 		err = tx.Commit()
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return result, err
@@ -169,11 +184,11 @@ func (b *Base) UpdateFromTable(tx *sqlx.Tx, data map[string]interface{}, where s
 	}
 
 	tx, wrapInSingleTransaction, err := b.newTransactionIfNeeded(tx)
-	if tx == nil {
-		return nil, errors.New("Transaction struct must not be empty.")
-	}
 	if err != nil {
 		return nil, err
+	}
+	if tx == nil {
+		return nil, errors.New("Transaction struct must not be empty.")
 	}
 
 	keysWithDollarMarks := make([]string, 0)
@@ -195,13 +210,15 @@ func (b *Base) UpdateFromTable(tx *sqlx.Tx, data map[string]interface{}, where s
 		where)
 
 	result, err = tx.Exec(query, values...)
-
 	if err != nil {
 		return nil, err
 	}
 
 	if wrapInSingleTransaction == true {
 		err = tx.Commit()
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return result, err
@@ -215,11 +232,11 @@ func (b *Base) UpdateById(tx *sqlx.Tx, data map[string]interface{}, id int64) (s
 	}
 
 	tx, wrapInSingleTransaction, err := b.newTransactionIfNeeded(tx)
-	if tx == nil {
-		return nil, errors.New("Transaction struct must not be empty.")
-	}
 	if err != nil {
 		return nil, err
+	}
+	if tx == nil {
+		return nil, errors.New("Transaction struct must not be empty.")
 	}
 
 	keysWithDollarMarks := make([]string, 0)
@@ -244,13 +261,15 @@ func (b *Base) UpdateById(tx *sqlx.Tx, data map[string]interface{}, id int64) (s
 		loopCounter)
 
 	result, err = tx.Exec(query, values...)
-
 	if err != nil {
 		return nil, err
 	}
 
 	if wrapInSingleTransaction == true {
 		err = tx.Commit()
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return result, err
@@ -264,11 +283,11 @@ func (b *Base) UpdateByKeyValueString(tx *sqlx.Tx, data map[string]interface{}, 
 	}
 
 	tx, wrapInSingleTransaction, err := b.newTransactionIfNeeded(tx)
-	if tx == nil {
-		return nil, errors.New("Transaction struct must not be empty.")
-	}
 	if err != nil {
 		return nil, err
+	}
+	if tx == nil {
+		return nil, errors.New("Transaction struct must not be empty.")
 	}
 
 	keysWithDollarMarks := make([]string, 0)
@@ -294,13 +313,15 @@ func (b *Base) UpdateByKeyValueString(tx *sqlx.Tx, data map[string]interface{}, 
 		loopCounter)
 
 	result, err = tx.Exec(query, values...)
-
 	if err != nil {
 		return nil, err
 	}
 
 	if wrapInSingleTransaction == true {
 		err = tx.Commit()
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return result, err
@@ -314,11 +335,11 @@ func (b *Base) DeleteFromTable(tx *sqlx.Tx, where string) (sql.Result, error) {
 	}
 
 	tx, wrapInSingleTransaction, err := b.newTransactionIfNeeded(tx)
-	if tx == nil {
-		return nil, errors.New("Transaction struct must not be empty.")
-	}
 	if err != nil {
 		return nil, err
+	}
+	if tx == nil {
+		return nil, errors.New("Transaction struct must not be empty.")
 	}
 
 	query := fmt.Sprintf("DELETE FROM %v", b.table)
@@ -328,11 +349,13 @@ func (b *Base) DeleteFromTable(tx *sqlx.Tx, where string) (sql.Result, error) {
 	}
 
 	result, err = tx.Exec(query)
+	if err != nil {
+		return nil, err
+	}
 
 	if wrapInSingleTransaction == true {
 		err = tx.Commit()
 	}
-
 	if err != nil {
 		return nil, err
 	}
@@ -348,21 +371,23 @@ func (b *Base) DeleteById(tx *sqlx.Tx, id int64) (sql.Result, error) {
 	}
 
 	tx, wrapInSingleTransaction, err := b.newTransactionIfNeeded(tx)
-	if tx == nil {
-		return nil, errors.New("Transaction struct must not be empty.")
-	}
 	if err != nil {
 		return nil, err
+	}
+	if tx == nil {
+		return nil, errors.New("Transaction struct must not be empty.")
 	}
 
 	query := fmt.Sprintf("DELETE FROM %v WHERE id=$1", b.table)
 
 	result, err = tx.Exec(query, id)
+	if err != nil {
+		return nil, err
+	}
 
 	if wrapInSingleTransaction == true {
 		err = tx.Commit()
 	}
-
 	if err != nil {
 		return nil, err
 	}

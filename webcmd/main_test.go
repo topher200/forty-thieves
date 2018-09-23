@@ -16,6 +16,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"github.com/topher200/forty-thieves/libgame"
 )
 
 type MainTestSuite struct {
@@ -61,6 +62,7 @@ func (testSuite *MainTestSuite) makeGetRequest(route string) []byte {
 // newgamePost confirms that creating a new game works successfully
 func (testSuite *MainTestSuite) newgamePost() uuid.UUID {
 	resp, err := testSuite.client.Post(testSuite.server.URL+"/newgame", "text/json", nil)
+	_ = err // silence warning about using defer before checking err
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 
@@ -84,6 +86,7 @@ func (testSuite *MainTestSuite) flipStockPost(gameStateID uuid.UUID) {
 	resp, err := testSuite.client.Post(
 		addGameStateIdToURL(testSuite.server.URL+"/flipstock", gameStateID),
 		"text/json", nil)
+	_ = err // silence warning about using defer before checking err
 	defer resp.Body.Close()
 	checkResponse(testSuite.T(), resp, err)
 }
@@ -91,13 +94,14 @@ func (testSuite *MainTestSuite) flipStockPost(gameStateID uuid.UUID) {
 // movePost tests that we can move a card from one pile to another
 func (testSuite *MainTestSuite) movePost(gameStateID uuid.UUID) {
 	form := url.Values{
-		"FromPile":  {"tableau"},
+		"FromPile":  {libgame.TABLEAU},
 		"FromIndex": {"0"},
-		"ToPile":    {"tableau"},
+		"ToPile":    {libgame.TABLEAU},
 		"ToIndex":   {"1"},
 	}
 	resp, err := testSuite.client.PostForm(
 		addGameStateIdToURL(testSuite.server.URL+"/move", gameStateID), form)
+	_ = err // silence warning about using defer before checking err
 	defer resp.Body.Close()
 
 	// we're not guaranteed to have a move available. we just check that

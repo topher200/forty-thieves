@@ -25,6 +25,59 @@ type GameState struct {
 	Score             int // Must be updated after any modifications to the Decks above
 }
 
+// MoveRequest is a request describing which pile to take a card from and which pile to put it on
+type MoveRequest struct {
+	FromPile  PileLocation
+	FromIndex int
+	ToPile    PileLocation
+	ToIndex   int
+}
+
+// Pile locations
+type PileLocation string
+
+const (
+	STOCK      PileLocation = "stock"
+	FOUNDATION              = "foundation"
+	TABLEAU                 = "tableau"
+	WASTE                   = "waste"
+)
+
+func (state GameState) String() string {
+	str := fmt.Sprintf("GameID: %v. GameStateID: %v. PreviousGameState: %v. MoveNum: %v. Score: %v.\n",
+		state.GameID, state.GameStateID, state.PreviousGameState, state.MoveNum, state.Score)
+	str += fmt.Sprintf("Stock: %v\n", state.Stock)
+	str += "Foundations\n"
+	for _, foundation := range state.Foundations {
+		str += fmt.Sprintf(" :%v\n", foundation)
+	}
+	str += "Tableaus\n"
+	for _, tableau := range state.Tableaus {
+		str += fmt.Sprintf(" :%v\n", tableau)
+	}
+	str += fmt.Sprintf("Waste: %v", state.Waste)
+	return str
+}
+
+func (state GameState) Copy() (newState GameState) {
+	newState.GameID = state.GameID
+	newState.GameStateID = state.GameStateID
+	newState.PreviousGameState = state.PreviousGameState
+	newState.MoveNum = state.MoveNum
+	newState.Stock = state.Stock.Copy()
+	newState.Foundations = make([]deck.Deck, len(state.Foundations))
+	for i := range state.Foundations {
+		newState.Foundations[i] = state.Foundations[i].Copy()
+	}
+	newState.Tableaus = make([]deck.Deck, len(state.Tableaus))
+	for i := range state.Tableaus {
+		newState.Tableaus[i] = state.Tableaus[i].Copy()
+	}
+	newState.Waste = state.Waste.Copy()
+	newState.Score = state.Score
+	return
+}
+
 const (
 	NumFoundations             = 8
 	NumTableaus                = 10
@@ -44,16 +97,6 @@ func (state *GameState) popFromStock() (deck.Card, error) {
 	return card, nil
 }
 
-// Pile locations
-type PileLocation string
-
-const (
-	stock      PileLocation = "stock"
-	foundation              = "foundation"
-	tableau                 = "tableau"
-	waste                   = "waste"
-)
-
 // IsMoveRequestLegal requests legality of a MoveRequest for a given GameState.
 //
 // Returns an error (with explanation) if move shouldn't be done
@@ -72,12 +115,12 @@ func isMoveLegal(
 	toPile PileLocation, toDeck *deck.Deck) error {
 
 	// Is the origin location illegal?
-	if fromPile == stock {
+	if fromPile == STOCK {
 		return fmt.Errorf("Illegal move - origin '%s' illegal", fromPile)
 	}
 
 	// Is the destination location illegal?
-	if toPile == stock || toPile == waste {
+	if toPile == STOCK || toPile == WASTE {
 		return fmt.Errorf("Illegal move - destination '%s' illegal", toPile)
 	}
 
@@ -90,7 +133,7 @@ func isMoveLegal(
 	// Are our destination empty?
 	if len(toDeck.Cards) <= 0 {
 		// Empty foundations can only take aces
-		if toPile == foundation && cardBeingMoved.Face != deck.ACE {
+		if toPile == FOUNDATION && cardBeingMoved.Face != deck.ACE {
 			return fmt.Errorf(
 				"Illegal move - moving to empty foundation requires ACE, not '%s'",
 				cardBeingMoved)
@@ -103,7 +146,7 @@ func isMoveLegal(
 				cardBeingMoved, destinationCard)
 		}
 		switch toPile {
-		case tableau:
+		case TABLEAU:
 			decrementedDestination, err := deck.Decrement(destinationCard.Face)
 			if err != nil {
 				return err
@@ -112,7 +155,7 @@ func isMoveLegal(
 				return fmt.Errorf("Illegal move - tableau cards must decrease (%s on %s)",
 					cardBeingMoved, destinationCard)
 			}
-		case foundation:
+		case FOUNDATION:
 			incrementedDestination, err := deck.Increment(destinationCard.Face)
 			if err != nil {
 				return err
@@ -126,25 +169,19 @@ func isMoveLegal(
 	return nil
 }
 
-type MoveRequest struct {
-	FromPile  PileLocation
-	FromIndex int
-	ToPile    PileLocation
-	ToIndex   int
-}
-
+// parseDecksFromMoveRequest takes a MoveRequest and returns the decks involved in the request
 func (state *GameState) parseDecksFromMoveRequest(
 	move MoveRequest) (*deck.Deck, *deck.Deck, error) {
 	parseFunc := func(pileLocation PileLocation, index int) (*deck.Deck, error) {
 		var d *deck.Deck
 		switch pileLocation {
-		case "tableau":
+		case TABLEAU:
 			d = &state.Tableaus[index]
-		case "foundation":
+		case FOUNDATION:
 			d = &state.Foundations[index]
-		case "stock":
+		case STOCK:
 			d = &state.Stock
-		case "waste":
+		case WASTE:
 			d = &state.Waste
 		default:
 			return nil, fmt.Errorf("unknown pile name '%s'", pileLocation)
@@ -162,6 +199,7 @@ func (state *GameState) parseDecksFromMoveRequest(
 	return from, to, nil
 }
 
+// MoveCard takes a MoveRequest and performs the move. Updates the game state (including score)
 func (state *GameState) MoveCard(move MoveRequest) error {
 	err := state.IsMoveRequestLegal(move)
 	if err != nil {
@@ -179,6 +217,9 @@ func (state *GameState) MoveCard(move MoveRequest) error {
 	return nil
 }
 
+// FlipStock moves a card from the stock to the waste. Updates the game state (including score).
+//
+// Throws an error if the stock is empty
 func (state *GameState) FlipStock() error {
 	card, err := state.popFromStock()
 	if err != nil {
@@ -220,20 +261,6 @@ func DealNewGame(game Game) (state GameState) {
 	// not calling moveCreatesNewGameState because we are a new state
 	state.updateScore()
 	return
-}
-
-func (state GameState) String() string {
-	str := fmt.Sprintf("Stock: %v\n", state.Stock)
-	str += "Foundations\n"
-	for _, foundation := range state.Foundations {
-		str += fmt.Sprintf(" :%v\n", foundation)
-	}
-	str += "Tableaus\n"
-	for _, tableau := range state.Tableaus {
-		str += fmt.Sprintf(" :%v\n", tableau)
-	}
-	str += fmt.Sprintf("Waste: %v\n", state.Waste)
-	return str
 }
 
 // a GameState's Score is the number of cards not in foundations.

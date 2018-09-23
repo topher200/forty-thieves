@@ -1,13 +1,14 @@
 package libdb
 
 import (
-	"bytes"
-	"encoding/gob"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
+	types "github.com/jmoiron/sqlx/types"
+	"github.com/lib/pq"
 	uuid "github.com/satori/go.uuid"
 	"github.com/topher200/forty-thieves/libgame"
 )
@@ -17,12 +18,13 @@ type GameStateDB struct {
 }
 
 type GameStateRow struct {
-	GameStateID       uuid.UUID     `db:"game_state_id"`
-	PreviousGameState uuid.NullUUID `db:"previous_game_state"`
-	GameID            int64         `db:"game_id"`
-	MoveNum           int64         `db:"move_num"`
-	Score             int           `db:"score"`
-	BinarizedState    []byte        `db:"binarized_state"`
+	GameStateID       uuid.UUID      `db:"game_state_id"`
+	PreviousGameState uuid.NullUUID  `db:"previous_game_state"`
+	GameID            int64          `db:"game_id"`
+	MoveNum           int64          `db:"move_num"`
+	Score             int            `db:"score"`
+	Status            string         `db:"status"`
+	DecksJSON         types.JSONText `db:"decks"`
 }
 
 func NewGameStateDB(db *sqlx.DB) *GameStateDB {
@@ -38,41 +40,77 @@ func NewGameStateDB(db *sqlx.DB) *GameStateDB {
 //
 // Returns error if there are no game states for the given game
 func (db *GameStateDB) GetGameStateById(gameStateID uuid.UUID) (*libgame.GameState, error) {
-	var gameStateRow GameStateRow
 	query := fmt.Sprintf("SELECT * FROM %s WHERE game_state_id=$1 LIMIT 1", db.table)
-	err := db.db.Get(&gameStateRow, query, gameStateID)
+	gameState, err := db.getSingleGameState(query, gameStateID.String())
 	if err != nil {
-		return nil, fmt.Errorf("Error on query: %v", err)
+		return nil, fmt.Errorf("Error getting gamestate by id: %v", err)
 	}
-	var gameState libgame.GameState
-	decoder := gob.NewDecoder(bytes.NewBuffer(gameStateRow.BinarizedState))
-	err = decoder.Decode(&gameState)
-	if err != nil {
-		return nil, fmt.Errorf("Error decoding: %v", err)
-	}
-	return &gameState, nil
+	return gameState, nil
 }
 
 // GetFirstGameState returns the first gamestate for the given game
 //
 // Returns error if there are no game states for the given game
 func (db *GameStateDB) GetFirstGameState(game libgame.Game) (*libgame.GameState, error) {
-	var gameStateRow GameStateRow
 	query := fmt.Sprintf(
 		"SELECT * FROM %s WHERE game_id=$1 and move_num=0 LIMIT 1", db.table)
-	err := db.db.Get(&gameStateRow, query, game.ID)
+	gameState, err := db.getSingleGameState(query, strconv.FormatInt(game.ID, 10))
+	if err != nil {
+		return nil, fmt.Errorf("Error getting first gamestate: %v", err)
+	}
+	return gameState, nil
+}
+
+// GetNextToAnalyze returns the highest priority GameState to analyze.
+//
+// Returns the unprocessed GameState from the given game with the lowest score
+// (primary sort) and the fewest number of moves (secondary sort).
+func (db *GameStateDB) GetNextToAnalyze(game libgame.Game) ([]*libgame.GameState, error) {
+	query := fmt.Sprintf(`
+	    UPDATE game_state SET status='CLAIMED'
+	    WHERE game_state_id IN (
+		SELECT game_state_id FROM game_state
+		WHERE game_id=$1 AND status='UNPROCESSED'
+		ORDER BY score ASC, move_num ASC
+		LIMIT 100
+		FOR UPDATE SKIP LOCKED
+	    )
+	    RETURNING *
+	`)
+	var gameStateRows []GameStateRow
+	err := db.db.Select(&gameStateRows, query, game.ID)
 	if err != nil {
 		return nil, fmt.Errorf("Error on query: %v", err)
 	}
-	var gameState libgame.GameState
-	decoder := gob.NewDecoder(bytes.NewBuffer(gameStateRow.BinarizedState))
-	err = decoder.Decode(&gameState)
-	if err != nil {
-		return nil, fmt.Errorf("Error decoding: %v", err)
+	gameStates := make([]*libgame.GameState, len(gameStateRows))
+	for i := range gameStateRows {
+		gameStates[i], err = UnmarshalGameState(gameStateRows[i])
+		if err != nil {
+			return nil, fmt.Errorf("Error unmarshalling gameState: %v", err)
+		}
 	}
-	return &gameState, nil
+	return gameStates, nil
 }
 
+// getSingleGameState is a helper function for getting and parsing a game state
+//
+// Implementation note: there's no reason why this function can't take more than
+// one query argument. I just implemented the first rev taking a single one for
+// convenience.
+func (db *GameStateDB) getSingleGameState(query string, arg string) (*libgame.GameState, error) {
+	var gameStateRow GameStateRow
+	err := db.db.Get(&gameStateRow, query, arg)
+	if err != nil {
+		return nil, fmt.Errorf("Error on query: %v", err)
+	}
+	gameState, err := UnmarshalGameState(gameStateRow)
+	if err != nil {
+		return nil, fmt.Errorf("Error unmarshalling gameState: %v", err)
+	}
+	return gameState, nil
+}
+
+// GetChildGameStates queries for the UUIDs of all the game states that are children of the given one
 func (db *GameStateDB) GetChildGameStates(gameState libgame.GameState) ([]uuid.UUID, error) {
 	query := fmt.Sprintf("SELECT game_state_id FROM %s WHERE game_id=$1 and previous_game_state=$2", db.table)
 	var childIds []uuid.UUID
@@ -84,30 +122,48 @@ func (db *GameStateDB) GetChildGameStates(gameState libgame.GameState) ([]uuid.U
 	return childIds, nil
 }
 
+type DuplicateGameStateError struct {
+	err error
+}
+
+func (d DuplicateGameStateError) Error() string {
+	return "duplicate game state error"
+}
+
 // SaveGameState saves the given gamestate to the db given the game and the gamestate
 func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) error {
-	var binarizedState bytes.Buffer
-	encoder := gob.NewEncoder(&binarizedState)
-	encoder.Encode(gameState)
-	dataStruct := GameStateRow{}
-	dataStruct.GameID = gameState.GameID
-	dataStruct.BinarizedState = binarizedState.Bytes()
-	dataStruct.GameStateID = gameState.GameStateID
-	dataStruct.MoveNum = gameState.MoveNum
-	dataStruct.PreviousGameState = gameState.PreviousGameState
-	dataStruct.Score = gameState.Score
+	gameStateRow, err := MarshalGameState(gameState)
 
 	dataMap := make(map[string]interface{})
-	dataMap["game_id"] = dataStruct.GameID
-	dataMap["binarized_state"] = dataStruct.BinarizedState
-	dataMap["game_state_id"] = dataStruct.GameStateID
-	dataMap["previous_game_state"] = dataStruct.PreviousGameState
-	dataMap["move_num"] = dataStruct.MoveNum
-	dataMap["score"] = dataStruct.Score
+	dataMap["game_id"] = gameStateRow.GameID
+	dataMap["game_state_id"] = gameStateRow.GameStateID
+	dataMap["previous_game_state"] = gameStateRow.PreviousGameState
+	dataMap["move_num"] = gameStateRow.MoveNum
+	dataMap["score"] = gameStateRow.Score
+	dataMap["decks"] = gameStateRow.DecksJSON
 	insertResult, err := db.InsertIntoTable(tx, dataMap)
 	if err != nil {
-		logrus.Warning("error saving game state:", err)
-		return err
+		if pqErr, ok := err.(*pq.Error); ok {
+			if pqErr.Code == "23505" {
+				// don't fail if it's a duplicate key error
+				return DuplicateGameStateError{err}
+			} else {
+				logrus.WithFields(logrus.Fields{
+					"gamesState": gameState,
+					"err":        pqErr,
+					"errorCode":  pqErr.Code,
+					"dataMap":    dataMap,
+				}).Warning("error saving game state")
+				return pqErr
+			}
+		} else {
+			logrus.WithFields(logrus.Fields{
+				"gamesState": gameState,
+				"err":        err,
+				"dataMap":    dataMap,
+			}).Error("unable to parse pq error during save")
+			return err
+		}
 	}
 	rowsAffected, err := insertResult.RowsAffected()
 	if err != nil || rowsAffected != 1 {
@@ -115,7 +171,25 @@ func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) e
 			fmt.Sprintf("expected to change 1 row, changed %d", rowsAffected))
 	}
 
-	logrus.Infof("Saved new gamestate (id %v) to db", gameState.GameStateID)
+	logrus.WithFields(logrus.Fields{
+		"id": gameState.GameStateID,
+	}).Info("saved new gamestate to db")
+	return nil
+}
+
+func (db *GameStateDB) MarkAsProcessed(tx *sqlx.Tx, gameState libgame.GameState) error {
+	res, err := db.db.Exec(
+		"UPDATE game_state SET status='PROCESSED' WHERE game_state_id=$1",
+		gameState.GameStateID)
+	if err != nil {
+		logrus.Warning("Error updating game state: ", err)
+		return err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil || rowsAffected != 1 {
+		return errors.New(
+			fmt.Sprintf("expected to change 1 row, changed %d", rowsAffected))
+	}
 	return nil
 }
 
