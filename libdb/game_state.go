@@ -61,6 +61,11 @@ func (db *GameStateDB) GetFirstGameState(game libgame.Game) (*libgame.GameState,
 	return gameState, nil
 }
 
+// getSingleGameState is a helper function for getting and parsing a game state
+//
+// Implementation note: there's no reason why this function can't take more than
+// one query argument. I just implemented the first rev taking a single one for
+// convenience.
 func (db *GameStateDB) getSingleGameState(query string, arg string) (*libgame.GameState, error) {
 	var gameStateRow GameStateRow
 	err := db.db.Get(&gameStateRow, query, arg)
@@ -76,6 +81,7 @@ func (db *GameStateDB) getSingleGameState(query string, arg string) (*libgame.Ga
 	return &gameState, nil
 }
 
+// GetChildGameStates queries for the UUIDs of all the game states that are children of the given one
 func (db *GameStateDB) GetChildGameStates(gameState libgame.GameState) ([]uuid.UUID, error) {
 	query := fmt.Sprintf("SELECT game_state_id FROM %s WHERE game_id=$1 and previous_game_state=$2", db.table)
 	var childIds []uuid.UUID
