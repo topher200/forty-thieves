@@ -27,15 +27,25 @@ var (
 )
 
 var (
-	processedRequestCounter = prometheus.NewCounter(
+	labels = []string{
+		"version",
+	}
+	appVersion             = "v1"
+	processedStatesCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "processed_requests_total",
-			Help: "Total number of requests processed",
-		})
+			Name: "forty_thieves_processed_states_total",
+			Help: "Total number of states processed",
+		}, labels)
+	newSavedStatesCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "forty_thieves_new_saved_states_total",
+			Help: "Total number of new saved states",
+		}, labels)
 )
 
 func init() {
-	prometheus.MustRegister(processedRequestCounter)
+	prometheus.MustRegister(processedStatesCounter)
+	prometheus.MustRegister(newSavedStatesCounter)
 }
 
 // main process to kick off workers and solve game states
@@ -133,7 +143,9 @@ func doWorkerLoop(workerId int, game libgame.Game, shutdownNow <-chan bool, done
 
 				// save the new game state to database
 				err = gameStateDB.SaveGameState(nil, gameStateCopy)
-				if err != nil {
+				if err == nil {
+					newSavedStatesCounter.WithLabelValues(appVersion).Inc()
+				} else {
 					checkGameStateSaveError(err)
 				}
 			}
@@ -143,7 +155,7 @@ func doWorkerLoop(workerId int, game libgame.Game, shutdownNow <-chan bool, done
 			if err != nil {
 				panic(fmt.Errorf("Error saving game state back to db: %v.", err))
 			}
-			processedRequestCounter.Inc()
+			processedStatesCounter.WithLabelValues(appVersion).Inc()
 		}
 	}
 }
