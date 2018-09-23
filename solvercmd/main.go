@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"time"
@@ -32,15 +33,29 @@ func main() {
 	gameDB := libdb.NewGameDB(db)
 	gameStateDB := libdb.NewGameStateDB(db)
 
-	// create a game
-	game, err := gameDB.CreateNewGame(nil)
-	if err != nil {
-		panic(fmt.Errorf("Error creating new game: %v.", err))
-	}
-	firstGameState := libgame.DealNewGame(*game)
-	err = gameStateDB.SaveGameState(nil, firstGameState)
-	if err != nil {
-		panic(fmt.Errorf("Error saving new game's first gamestate: %v.", err))
+	newGamePtr := flag.Bool(
+		"new-game",
+		false,
+		"start a new game for analyzing. if false (default), uses latest game instead")
+	flag.Parse()
+	var game *libgame.Game
+	if *newGamePtr {
+		// create a game
+		game, err = gameDB.CreateNewGame(nil)
+		if err != nil {
+			panic(fmt.Errorf("Error creating new game: %v.", err))
+		}
+		firstGameState := libgame.DealNewGame(*game)
+		err = gameStateDB.SaveGameState(nil, firstGameState)
+		if err != nil {
+			panic(fmt.Errorf("Error saving new game's first gamestate: %v.", err))
+		}
+	} else {
+		// use existing game
+		game, err = gameDB.GetLatestGame()
+		if err != nil {
+			panic(fmt.Errorf("Error getting game: %v.", err))
+		}
 	}
 
 	defer timeTrack(time.Now(), "processing loop")
