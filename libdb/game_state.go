@@ -1,7 +1,6 @@
 package libdb
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -121,30 +120,6 @@ func (db *GameStateDB) GetChildGameStates(gameState libgame.GameState) ([]uuid.U
 
 // SaveGameState saves the given gamestate to the db given the game and the gamestate
 func (db *GameStateDB) SaveGameState(tx *sqlx.Tx, gameState libgame.GameState) error {
-	// convert decks to JSON
-	decksJSON := decksJSONStruct{
-		gameState.Stock,
-		gameState.Foundations,
-		gameState.Tableaus,
-		gameState.Waste,
-	}
-	decksJSONSerialized, err := json.Marshal(&decksJSON)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"gamesState": gameState,
-			"err":        err,
-		}).Error("error JSON-ing deck")
-		return err
-	}
-
-	dataStruct := GameStateRow{}
-	dataStruct.GameID = gameState.GameID
-	dataStruct.GameStateID = gameState.GameStateID
-	dataStruct.MoveNum = gameState.MoveNum
-	dataStruct.PreviousGameState = gameState.PreviousGameState
-	dataStruct.Score = gameState.Score
-	dataStruct.DecksJSON = decksJSONSerialized
-
 	dataMap := make(map[string]interface{})
 	dataMap["game_id"] = dataStruct.GameID
 	dataMap["game_state_id"] = dataStruct.GameStateID

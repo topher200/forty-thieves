@@ -1,8 +1,10 @@
 package libdb
 
 import (
+	"encoding/json"
 	"fmt"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/topher200/deck"
 	"github.com/topher200/forty-thieves/libgame"
 )
@@ -33,4 +35,34 @@ func UnmarshalGameState(gameStateRow GameStateRow) (gameState *libgame.GameState
 	gameState.Waste = deckData.Waste
 
 	return gameState, nil
+}
+
+func MarshalGameState(gameState libgame.GameState) (gameStateRow *GameStateRow, err error) {
+	// convert decks to JSON
+	decksJSON := decksJSONStruct{
+		gameState.Stock,
+		gameState.Foundations,
+		gameState.Tableaus,
+		gameState.Waste,
+	}
+	decksJSONSerialized, err := json.Marshal(&decksJSON)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"gamesState": gameState,
+			"err":        err,
+		}).Error("error JSON-ing deck")
+		return nil, err
+	}
+
+	panic(decksJSON)
+
+	dataStruct := GameStateRow{}
+	dataStruct.GameID = gameState.GameID
+	dataStruct.GameStateID = gameState.GameStateID
+	dataStruct.MoveNum = gameState.MoveNum
+	dataStruct.PreviousGameState = gameState.PreviousGameState
+	dataStruct.Score = gameState.Score
+	dataStruct.DecksJSON = decksJSONSerialized
+
+	return gameStateRow, nil
 }
