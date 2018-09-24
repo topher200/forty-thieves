@@ -71,7 +71,7 @@ func (db *GameStateDB) GetNextToAnalyze(game libgame.Game) ([]*libgame.GameState
 	    WHERE game_state_id IN (
 		SELECT game_state_id FROM game_state TABLESAMPLE SYSTEM(.01)
 		WHERE game_id=$1 AND status='UNPROCESSED'
-		ORDER BY move_num ASC, score ASC
+		ORDER BY score ASC, move_num ASC
 		LIMIT 100
 		FOR UPDATE SKIP LOCKED
 	    )
