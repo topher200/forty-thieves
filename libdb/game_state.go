@@ -69,7 +69,7 @@ func (db *GameStateDB) GetNextToAnalyze(game libgame.Game) ([]*libgame.GameState
 	query := fmt.Sprintf(`
 	    UPDATE game_state SET status='CLAIMED'
 	    WHERE game_state_id IN (
-		SELECT game_state_id FROM game_state
+		SELECT game_state_id FROM game_state TABLESAMPLE SYSTEM(.01)
 		WHERE game_id=$1 AND status='UNPROCESSED'
 		ORDER BY score ASC, move_num ASC
 		LIMIT 100

@@ -30,7 +30,7 @@ var (
 	labels = []string{
 		"version",
 	}
-	appVersion             = "v2_pool_processing"
+	appVersion             = "v5_table_sample"
 	processedStatesCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "forty_thieves_processed_states_total",
