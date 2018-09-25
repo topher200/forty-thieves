@@ -30,7 +30,7 @@ var (
 	labels = []string{
 		"version",
 	}
-	appVersion             = "v5_table_sample"
+	appVersion             = "v6_no_postgres_locks"
 	processedStatesCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "forty_thieves_processed_states_total",

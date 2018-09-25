@@ -73,7 +73,6 @@ func (db *GameStateDB) GetNextToAnalyze(game libgame.Game) ([]*libgame.GameState
 		WHERE game_id=$1 AND status='UNPROCESSED'
 		ORDER BY score ASC, move_num ASC
 		LIMIT 100
-		FOR UPDATE SKIP LOCKED
 	    )
 	    RETURNING *
 	`)
